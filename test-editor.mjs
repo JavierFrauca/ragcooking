@@ -22,7 +22,9 @@ globalThis.location = { search: '' };
 globalThis.localStorage = { _d: {}, getItem(k) { return this._d[k] ?? null; }, setItem(k, v) { this._d[k] = v; }, removeItem(k) { delete this._d[k]; } };
 globalThis.prompt = () => null;
 globalThis.URL = URL;
-globalThis.Blob = class {};
+globalThis.URL.createObjectURL = () => 'blob:x';
+globalThis.URL.revokeObjectURL = () => {};
+globalThis.Blob = class { constructor(parts) { this.size = (parts && parts[0] && parts[0].length) || 0; globalThis.__ultimoZip = parts && parts[0]; } };
 const listeners = {};
 document.addEventListener = (ev, fn) => { (listeners[ev] ||= []).push(fn); };
 
@@ -52,6 +54,31 @@ check($('#selector-fases').innerHTML.includes('Chunking'), 'selector de fases re
 await Promise.all((listeners['click'] || []).map((f) => f({ target: { closest: (sel) => (sel === '#btn-exportar' ? { dataset: {} } : null), classList: { contains: () => false }, id: 'btn-exportar' } })));
 const modalExport = (porId['#modal-fondo'] || {}).innerHTML || '';
 check(modalExport.includes('ragcooking.architecture') && modalExport.includes('version'), 'export JSON v2 con esquema y versión');
+
+// el coder: botones de lenguaje con cobertura y generación sin excepción
+check(modalExport.includes('data-code-lang') && modalExport.includes('Python'), 'el diálogo de exportar ofrece generar código (Python)');
+await Promise.all((listeners['click'] || []).map((f) => f({
+  target: { closest: (sel) => (sel === '[data-code-lang]' ? { dataset: { codeLang: 'py' } } : null), classList: { contains: () => false } },
+})));
+check(true, 'generar y descargar el ZIP python no lanza excepciones');
+
+// validación real del ZIP python: estructura legible por zipfile
+try {
+  const fs = await import('node:fs');
+  fs.writeFileSync('/tmp/ragcook-py.zip', Buffer.from(globalThis.__ultimoZip || new Uint8Array()));
+  const { execSync } = await import('node:child_process');
+  const lista = execSync('python -m zipfile -l /tmp/ragcook-py.zip').toString();
+  check(/pipeline\.py/.test(lista) && /requirements\.txt/.test(lista) && /README\.md/.test(lista), 'ZIP python válido y con pipeline.py + requirements + README');
+  // dotnet vía ragkit: Program.cs con la API real
+  await Promise.all((listeners['click'] || []).map((f) => f({
+    target: { closest: (sel) => (sel === '[data-code-lang]' ? { dataset: { codeLang: 'dotnet' } } : null), classList: { contains: () => false } },
+  })));
+  fs.writeFileSync('/tmp/ragcook-net.zip', Buffer.from(globalThis.__ultimoZip || new Uint8Array()));
+  const listaNet = execSync('python -m zipfile -l /tmp/ragcook-net.zip').toString();
+  check(/Program\.cs/.test(listaNet) && /RagkitStarter\.csproj/.test(listaNet), 'ZIP .NET válido con Program.cs + csproj de ragkit');
+} catch (e) {
+  check(false, 'ZIP python válido (' + e.message.split('\n')[0] + ')');
+}
 
 // flujo framework-first: Nueva → cocinar con LlamaIndex
 globalThis.confirm = () => true;

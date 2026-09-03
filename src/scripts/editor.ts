@@ -12,6 +12,7 @@ import {
   faseById, piezaById, grupoById, estacionById, NIVEL_LABEL, NIVEL_CLS, colorDeGrupo,
 } from '../data/catalogo';
 import { TEMPLATES } from '../data/templates';
+import { lenguajesDisponibles, generarCodigo, crearZip, nombreZip } from './codegen';
 import type { Pieza, Grupo, Fase, Bloque, Receta } from './tipos';
 
 /* ---------- runtime mínimo (iconos, toast, tooltip diccionario) ---------- */
@@ -510,6 +511,7 @@ document.addEventListener('click', (e) => {
   if (c('#btn-exportar')) return abrirExport();
   if (c('#btn-importar')) return abrirImport();
   if (c('#btn-descargar-json')) return descargarJSON();
+  if (el = c('[data-code-lang]')) return descargarCodigo(el.dataset.codeLang!);
   if (c('#btn-copiar-json')) return copiarJSON();
   if (c('#btn-cargar-json')) return cargarJSON();
   if (el = c('[data-template]')) { const id = el.dataset.template!; cerrarModales(); return cargarTemplate(id); }
@@ -794,7 +796,21 @@ function abrirExport() {
     <div class="fila-botones">
       <button class="btn primario" id="btn-copiar-json">${icono('copy')} Copiar</button>
       <button class="btn" id="btn-descargar-json">${icono('download')} Descargar .json</button>
+    </div>
+    <h3 style="margin-top:18px">Código (esqueleto del proyecto)</h3>
+    <p class="tagline">Tu receta convertida en proyecto inicial. Python para el camino libre; C# · .NET vía ragkit. Las piezas sin ficha generan secciones TODO honestas.</p>
+    <div class="fila-botones">
+      ${lenguajesDisponibles(receta).map((l) => `<button class="btn" data-code-lang="${l.lang}" title="${l.nota}">${l.icono} ${l.label} · ${l.pct}% cubierto</button>`).join('') || '<span class="tagline">Añade piezas a la receta para generar código.</span>'}
     </div>`);
+}
+function descargarCodigo(lang: string) {
+  const files = generarCodigo(receta, lang);
+  const blob = crearZip(files);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombreZip(receta, lang);
+  a.click(); URL.revokeObjectURL(a.href);
+  toast(`Esqueleto ${lang === 'py' ? 'Python' : 'C# · .NET'} descargado (${files.length} ficheros)`);
 }
 function descargarJSON() {
   const blob = new Blob([JSONactual()], { type: 'application/json' });
