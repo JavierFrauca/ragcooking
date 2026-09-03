@@ -636,7 +636,9 @@ document.addEventListener('drop', (e) => {
 });
 
 /* ---------- cocinador IA: proxy llave en mano (la clave vive en el worker, invisible al usuario) ---------- */
-const IA_ENDPOINT = '/api/cook';  // en dev: proxy del worker; en prod: mismo dominio vía Cloudflare Pages
+// En producción: llamada directa al worker de Cloudflare (CORS configurado)
+// En desarrollo: Vite proxy de /api/cook al worker (astro.config.mjs)
+const IA_ENDPOINT = import.meta.env.DEV ? '/api/cook' : 'https://ragcooking-proxy.tu-subdominio.workers.dev/v1/chat/completions';
 async function cocinarTODOs() {
   const faltan = piezasSinFicha(receta);
   if (!faltan.length) return toast('No hay TODO que cocinar: todas las piezas tienen ficha 🎉');
