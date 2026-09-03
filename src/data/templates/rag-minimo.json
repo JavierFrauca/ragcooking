@@ -1,0 +1,38 @@
+{
+  "id": "rag-minimo",
+  "nombre": "RAG mínimo (one-shot)",
+  "arranque": true,
+  "desc": "La receta de inicio: solo fases obligatorias, pocas piezas. Ideal para una primera prueba.",
+  "fasesActivas": [
+    "corpus",
+    "ingesta",
+    "chunking",
+    "embedding",
+    "almacenamiento",
+    "recuperacion",
+    "generacion"
+  ],
+  "bloques": [
+    {
+      "pieza": "corpus.carpeta-pdf"
+    },
+    {
+      "pieza": "ingesta.lectores-pdf"
+    },
+    {
+      "pieza": "chunking.fijo"
+    },
+    {
+      "pieza": "embedding.bge-m3"
+    },
+    {
+      "pieza": "almacenamiento.chroma"
+    },
+    {
+      "pieza": "recuperacion.densa"
+    },
+    {
+      "pieza": "generacion.plantilla-citas"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "empresarial-segura",
+  "nombre": "Empresarial con seguridad",
+  "desc": "Con modelo de conocimiento, prefiltro determinista, RBAC, medición de ruido y evaluación.",
+  "fasesActivas": [
+    "modelo",
+    "corpus",
+    "ingesta",
+    "formato",
+    "limpieza",
+    "chunking",
+    "metaetiquetado",
+    "sintesis",
+    "embedding",
+    "almacenamiento",
+    "ruido",
+    "recuperacion",
+    "reranking",
+    "generacion",
+    "evaluacion"
+  ],
+  "bloques": [
+    {
+      "pieza": "modelo.dominios"
+    },
+    {
+      "pieza": "modelo.etiquetas"
+    },
+    {
+      "pieza": "corpus.wiki"
+    },
+    {
+      "pieza": "ingesta.conectores"
+    },
+    {
+      "pieza": "formato.a-markdown"
+    },
+    {
+      "pieza": "limpieza.deduplicacion"
+    },
+    {
+      "pieza": "chunking.semantico"
+    },
+    {
+      "pieza": "metaetiquetado.por-carpetas"
+    },
+    {
+      "pieza": "metaetiquetado.seguridad"
+    },
+    {
+      "pieza": "metaetiquetado.vigencia"
+    },
+    {
+      "pieza": "sintesis.resumen-llm"
+    },
+    {
+      "pieza": "embedding.openai-3-small"
+    },
+    {
+      "pieza": "almacenamiento.pgvector"
+    },
+    {
+      "pieza": "ruido.colisiones"
+    },
+    {
+      "pieza": "recuperacion.prefiltro-metadata"
+    },
+    {
+      "pieza": "recuperacion.rbac-abac"
+    },
+    {
+      "pieza": "reranking.cross-encoder"
+    },
+    {
+      "pieza": "generacion.plantilla-citas"
+    },
+    {
+      "pieza": "evaluacion.dataset-aureo"
+    }
+  ]
+}

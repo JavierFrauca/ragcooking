@@ -1,0 +1,38 @@
+{
+  "id": "conjunto-nucleus",
+  "nombre": "Conjunto: nucleus ★ (servicio)",
+  "desc": "Un solo tenant, servicio completo: nucleus trocea, embebe, guarda, filtra y reordera.",
+  "fasesActivas": [
+    "corpus",
+    "ingesta",
+    "chunking",
+    "embedding",
+    "almacenamiento",
+    "ruido",
+    "recuperacion",
+    "reranking",
+    "generacion",
+    "evaluacion"
+  ],
+  "bloques": [
+    {
+      "pieza": "corpus.carpeta-pdf"
+    },
+    {
+      "pieza": "ingesta.lectores-pdf"
+    },
+    {
+      "grupo": "grupo.nucleus",
+      "variante": "servicio-completo"
+    },
+    {
+      "pieza": "ruido.colisiones"
+    },
+    {
+      "pieza": "generacion.plantilla-citas"
+    },
+    {
+      "pieza": "evaluacion.metricas"
+    }
+  ]
+}

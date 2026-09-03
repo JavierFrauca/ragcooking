@@ -2,7 +2,7 @@
   "schema": "ragcooking.catalogo",
   "version": 2,
   "actualizado": "2026-09-03",
-  "descripcion": "Fuente única de verdad de ragcooking.info: estaciones, fases, piezas atómicas, grupos (frameworks/conjuntos de bloques) con variantes y átomos de fase, modelos de embedding con sus propiedades, asistente de modelo de datos para almacenes, plantillas y diccionario. Actualizando este fichero se actualiza todo el sitio.",
+  "descripcion": "Fuente única de verdad de ragcooking.info: estaciones, fases, piezas atómicas, grupos (frameworks/conjuntos de bloques) con variantes y átomos de fase, modelos de embedding con sus propiedades y modelos de datos por defecto de cada almacén. Las recetas base (templates) viven en src/data/templates/. Actualizando estos ficheros se actualiza todo el sitio.",
   "estaciones": [
     {
       "id": "aprovisionamiento",
@@ -888,7 +888,11 @@
       ],
       "cons": [
         "Escala limitada"
-      ]
+      ],
+      "modeloDefecto": {
+        "dominio": true,
+        "etiquetas": true
+      }
     },
     {
       "id": "almacenamiento.pgvector",
@@ -905,7 +909,16 @@
       ],
       "cons": [
         "No es BD vectorial nativa"
-      ]
+      ],
+      "modeloDefecto": {
+        "resumen": true,
+        "dominio": true,
+        "etiquetas": true,
+        "vigencia": true,
+        "nivelAcceso": "interno",
+        "tenant": true,
+        "linaje": true
+      }
     },
     {
       "id": "almacenamiento.qdrant",
@@ -921,7 +934,13 @@
       ],
       "cons": [
         "Ecosistema menor"
-      ]
+      ],
+      "modeloDefecto": {
+        "dominio": true,
+        "etiquetas": true,
+        "tenant": true,
+        "vigencia": true
+      }
     },
     {
       "id": "almacenamiento.weaviate",
@@ -940,7 +959,13 @@
       ],
       "cons": [
         "Operación propia"
-      ]
+      ],
+      "modeloDefecto": {
+        "dominio": true,
+        "etiquetas": true,
+        "vigencia": true,
+        "nivelAcceso": "interno"
+      }
     },
     {
       "id": "almacenamiento.pinecone",
@@ -959,7 +984,12 @@
       ],
       "cons": [
         "Coste, lock-in"
-      ]
+      ],
+      "modeloDefecto": {
+        "dominio": true,
+        "etiquetas": true,
+        "vigencia": true
+      }
     },
     {
       "id": "almacenamiento.milvus",
@@ -975,7 +1005,12 @@
       ],
       "cons": [
         "Operación compleja"
-      ]
+      ],
+      "modeloDefecto": {
+        "dominio": true,
+        "etiquetas": true,
+        "tenant": true
+      }
     },
     {
       "id": "almacenamiento.mongodb-atlas",
@@ -991,7 +1026,13 @@
       ],
       "cons": [
         "Atado a Atlas"
-      ]
+      ],
+      "modeloDefecto": {
+        "dominio": true,
+        "etiquetas": true,
+        "vigencia": true,
+        "tenant": true
+      }
     },
     {
       "id": "almacenamiento.faiss",
@@ -1007,7 +1048,8 @@
       ],
       "cons": [
         "No es una BD: sin metadatos ni persistencia de serie"
-      ]
+      ],
+      "modeloDefecto": {}
     },
     {
       "id": "almacenamiento.nucleus-rack",
@@ -1025,7 +1067,16 @@
       ],
       "cons": [
         "Cuña propia 😄"
-      ]
+      ],
+      "modeloDefecto": {
+        "resumen": true,
+        "dominio": true,
+        "etiquetas": true,
+        "vigencia": true,
+        "nivelAcceso": "confidencial",
+        "tenant": true,
+        "linaje": true
+      }
     },
     {
       "id": "ruido.colisiones",
@@ -1313,6 +1364,103 @@
       "cons": [
         "Coste y revisión"
       ]
+    },
+    {
+      "id": "metaetiquetado.por-carpetas",
+      "fase": "metaetiquetado",
+      "nombre": "Asignación por carpetas",
+      "icon": "folder-tree",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Primer nivel del árbol = dominio, niveles siguientes = etiquetas: la estructura del corpus ES el criterio",
+      "pros": [
+        "Determinista y auditable",
+        "Cero coste, cero IA"
+      ],
+      "cons": [
+        "Exige disciplina de carpetas",
+        "Renombrar una carpeta reasigna sus documentos"
+      ]
+    },
+    {
+      "id": "metaetiquetado.por-frontmatter",
+      "fase": "metaetiquetado",
+      "nombre": "Frontmatter YAML",
+      "icon": "braces",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Cada documento llega con dominio y etiquetas en su cabecera YAML: el corpus se describe a sí mismo",
+      "pros": [
+        "Autónomo y versionable con el doc"
+      ],
+      "cons": [
+        "Hay que escribirlo o generarlo bien"
+      ]
+    },
+    {
+      "id": "metaetiquetado.por-sidecar",
+      "fase": "metaetiquetado",
+      "nombre": "Sidecar JSON",
+      "icon": "file-json",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Un JSON con el mismo nombre del fichero (doc.pdf → doc.json) lleva sus metadatos: contenido y descripción separados",
+      "pros": [
+        "No tocas el original",
+        "Editable en batch"
+      ],
+      "cons": [
+        "Las parejas pueden desincronizarse"
+      ]
+    },
+    {
+      "id": "metaetiquetado.por-embeddings",
+      "fase": "metaetiquetado",
+      "nombre": "Clasificación semántica",
+      "icon": "scan-search",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Se embebe el documento y se compara con la lista ACOTADA de dominios y etiquetas del modelo (coseno); asigna solo por encima del umbral",
+      "pros": [
+        "Escala a miles de documentos",
+        "Multilingüe"
+      ],
+      "cons": [
+        "Exige dominios bien definidos y acotados",
+        "Calibrar el umbral"
+      ]
+    },
+    {
+      "id": "metaetiquetado.por-llm",
+      "fase": "metaetiquetado",
+      "nombre": "Clasificador LLM (tier-2)",
+      "icon": "bot",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Un LLM barato lee el documento y asigna dominio + etiquetas con confianza; rechaza por debajo del umbral (estilo ragkit ≥ 0,8)",
+      "pros": [
+        "Entiende matices",
+        "Sugiere etiquetas nuevas"
+      ],
+      "cons": [
+        "Coste por documento",
+        "Revisar los rechazados"
+      ]
+    },
+    {
+      "id": "metaetiquetado.manual",
+      "fase": "metaetiquetado",
+      "nombre": "Curación manual",
+      "icon": "user-check",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Un experto asigna dominio y etiquetas documento a documento: el Gold de la asignación",
+      "pros": [
+        "Máxima calidad"
+      ],
+      "cons": [
+        "No escala"
+      ]
     }
   ],
   "grupos": [
@@ -1403,7 +1551,9 @@
       ],
       "langs": [
         "py"
-      ]
+      ],
+      "historia": "Promovido por LlamaIndex (empresa homónima fundada por Jerry Liu en 2022; nació como GPT Index). Fue EL framework de datos de la primera ola LLM; desde 2024 pivota hacia agentes y workflows (LlamaDeploy) mientras LangChain copa el hype agéntico. Estado: estable y muy respetado en su nicho — la cresta la tuvo en 2023, pero sigue siendo la referencia del lado datos del RAG.",
+      "capacidades": "Más de cien lectores de fuentes y formatos; múltiples tipos de índice (vectorial, árbol, grafo, resumen); node parsers de todo tipo; query engines con citas; retrievers componibles (densa, sparse, auto-merging); routers y agentes; workflows con eventos; observabilidad integrada."
     },
     {
       "id": "grupo.langchain",
@@ -1486,7 +1636,9 @@
       ],
       "langs": [
         "py"
-      ]
+      ],
+      "historia": "LangChain Inc. (Harrison Chase, 2022) — el framework más adoptado del ecosistema y también el más criticado por sus abstracciones cambiantes. En 2024 la casa reordenó la apuesta: LangGraph (grafos con estado para agentes) se convirtió en el estándar de facto del mundo agéntico, LangSmith en la observabilidad de referencia. Estado: sí en la cresta de la ola — LangGraph es EL nombre en agentes 2025-2026.",
+      "capacidades": "Miles de integraciones; chains y prompts componibles; LangGraph: grafos con ciclos, memoria, human-in-the-loop y despliegue (LangGraph Platform); recuperación con fuse y filtros; tool calling; LangSmith para trazas y evaluación; LangServe para servir cadenas."
     },
     {
       "id": "grupo.haystack",
@@ -1555,7 +1707,9 @@
       ],
       "langs": [
         "py"
-      ]
+      ],
+      "historia": "deepset (Berlín), pionero del RAG empresarial antes de que se llamara RAG. Haystack 2.x fue una reescritura completa hacia pipelines declarativos. Estado: sus días de mayor hype pasaron (el foco se fue a LangChain/LlamaIndex), pero es un veterano maduro, estable y muy apreciado en producción europea — mejores días en ruido, plena vigencia en solidez.",
+      "capacidades": "Pipelines declarativos componibles por YAML o código; componentes de conversión, splitting, recuperación híbrida y generación; conectores comunes; evaluación integrada de pipelines; buen soporte para RAG empresarial con control fino de cada paso."
     },
     {
       "id": "grupo.azure-ai-search",
@@ -1629,7 +1783,15 @@
       "langs": [
         "py",
         "dotnet"
-      ]
+      ],
+      "modeloDefecto": {
+        "dominio": true,
+        "etiquetas": true,
+        "vigencia": true,
+        "nivelAcceso": "interno"
+      },
+      "historia": "Microsoft — evolución del clásico Azure Cognitive Search (una década de servicio) hacia AI Search con vectorial e integrated vectorization. Caballo de batalla de la búsqueda empresarial en Azure y base de muchos copilotos corporativos. Estado: siempre vigente en su trono cloud; no vive de olas sino de facturas enterprise.",
+      "capacidades": "Índice híbrido BM25 + vectorial con RRF; skillsets que trocean y embeben durante la indexación; semantic ranker; filtros y seguridad integrada con el directorio (RBAC); escala y SLA de PaaS; integración natural con el ecosistema Azure y Copilot."
     },
     {
       "id": "grupo.elasticsearch",
@@ -1693,7 +1855,9 @@
       ],
       "langs": [
         "py"
-      ]
+      ],
+      "historia": "Elastic NV — creado por Shay Banon (2010), el rey histórico de la búsqueda con BM25 durante una década. Desde 8.x sumó kNN vectorial y busca reinventarse en la era RAG frente a las vectoriales nativas. Estado: maduro con renovación — tuvo mejores días de hype indiscutible, sigue siendo infraestructura masiva en producción.",
+      "capacidades": "BM25 y kNN vectorial en el mismo índice (híbrido nativo); agregaciones y filtrado riquísimos; ingestión con pipelines; escalado a terabytes con shards y réplicas; ecosistema enorme (Kibana, Logstash) y SQL/API REST."
     },
     {
       "id": "grupo.ragkit",
@@ -1823,7 +1987,9 @@
       ],
       "langs": [
         "dotnet"
-      ]
+      ],
+      "historia": "Promovido por Javier Frauca — open source (MIT) nacido del método del libro «El origen del conocimiento» y de un RAG real en producción en un despacho laboral. Estado: recién nacido con ambición — cresta de la ola por delante, no detrás. ★",
+      "capacidades": "Ingesta idempotente por hash con extractores PDF/DOCX y carpetas recursivas; clasificación por dominios con LLM tier-2 y umbral de confianza; chunking por frontera con navegación posicional; embedders ONNX locales u OpenAI-compatible; stores InMemory/Qdrant/pgvector/SQL Server; recuperación híbrida BM25+densa con RRF acotada por dominio y etiquetas; rerank (cross-encoder o LLM); guardarails de entrada/salida; modo agéntico con 13 herramientas, MCP y streaming; dashboard de administración."
     },
     {
       "id": "grupo.nucleus",
@@ -1914,7 +2080,9 @@
       ],
       "conflicts": [
         "grupo.ragkit"
-      ]
+      ],
+      "historia": "Núcleo de servicio del ecosistema de Javier Frauca — el hermano servidor de ragkit: donde uno cocina el corpus, el otro lo sirve con seguridad. Estado: en desarrollo activo, creciendo junto a ragkit. ★",
+      "capacidades": "Rack validado con metadatos de dominio, seguridad, vigencia y linaje; búsqueda determinista con prefiltro identidad → reglas → filtro antes de la semántica; chunking y embedding propios orientados al rack; rerank con boost de transversales; pensado para servir en entornos exigentes."
     }
   ],
   "modeloDatos": {
@@ -1977,204 +2145,6 @@
       }
     ]
   },
-  "plantillas": [
-    {
-      "id": "rag-minimo",
-      "nombre": "RAG mínimo (one-shot)",
-      "arranque": true,
-      "desc": "La receta de inicio: solo fases obligatorias, pocas piezas. Ideal para una primera prueba.",
-      "fasesActivas": [
-        "corpus",
-        "ingesta",
-        "chunking",
-        "embedding",
-        "almacenamiento",
-        "recuperacion",
-        "generacion"
-      ],
-      "bloques": [
-        {
-          "pieza": "corpus.carpeta-pdf"
-        },
-        {
-          "pieza": "ingesta.lectores-pdf"
-        },
-        {
-          "pieza": "chunking.fijo"
-        },
-        {
-          "pieza": "embedding.bge-m3"
-        },
-        {
-          "pieza": "almacenamiento.chroma"
-        },
-        {
-          "pieza": "recuperacion.densa"
-        },
-        {
-          "pieza": "generacion.plantilla-citas"
-        }
-      ]
-    },
-    {
-      "id": "empresarial-segura",
-      "nombre": "Empresarial con seguridad",
-      "desc": "Con modelo de conocimiento, prefiltro determinista, RBAC, medición de ruido y evaluación.",
-      "fasesActivas": [
-        "modelo",
-        "corpus",
-        "ingesta",
-        "formato",
-        "limpieza",
-        "chunking",
-        "metaetiquetado",
-        "sintesis",
-        "embedding",
-        "almacenamiento",
-        "ruido",
-        "recuperacion",
-        "reranking",
-        "generacion",
-        "evaluacion"
-      ],
-      "bloques": [
-        {
-          "pieza": "modelo.dominios"
-        },
-        {
-          "pieza": "modelo.etiquetas"
-        },
-        {
-          "pieza": "corpus.wiki"
-        },
-        {
-          "pieza": "ingesta.conectores"
-        },
-        {
-          "pieza": "formato.a-markdown"
-        },
-        {
-          "pieza": "limpieza.deduplicacion"
-        },
-        {
-          "pieza": "chunking.semantico"
-        },
-        {
-          "pieza": "metaetiquetado.seguridad"
-        },
-        {
-          "pieza": "metaetiquetado.vigencia"
-        },
-        {
-          "pieza": "sintesis.resumen-llm"
-        },
-        {
-          "pieza": "embedding.openai-3-small"
-        },
-        {
-          "pieza": "almacenamiento.pgvector"
-        },
-        {
-          "pieza": "ruido.colisiones"
-        },
-        {
-          "pieza": "recuperacion.prefiltro-metadata"
-        },
-        {
-          "pieza": "recuperacion.rbac-abac"
-        },
-        {
-          "pieza": "reranking.cross-encoder"
-        },
-        {
-          "pieza": "generacion.plantilla-citas"
-        },
-        {
-          "pieza": "evaluacion.dataset-aureo"
-        }
-      ]
-    },
-    {
-      "id": "conjunto-ragkit",
-      "nombre": "Conjunto: ragkit ★ (pipeline agéntico)",
-      "desc": "De la carpeta a la respuesta con ragkit: ingesta idempotente, clasificación por dominios, híbrida BM25+densa con RRF y agente con citas.",
-      "fasesActivas": [
-        "modelo",
-        "corpus",
-        "ingesta",
-        "formato",
-        "estructura",
-        "metaetiquetado",
-        "chunking",
-        "embedding",
-        "almacenamiento",
-        "ruido",
-        "recuperacion",
-        "reranking",
-        "generacion",
-        "evaluacion"
-      ],
-      "bloques": [
-        {
-          "pieza": "modelo.dominios"
-        },
-        {
-          "pieza": "corpus.carpeta-pdf"
-        },
-        {
-          "pieza": "formato.a-markdown"
-        },
-        {
-          "grupo": "grupo.ragkit",
-          "variante": "pipeline-agéntico"
-        },
-        {
-          "pieza": "ruido.colisiones"
-        },
-        {
-          "pieza": "evaluacion.dataset-aureo"
-        }
-      ]
-    },
-    {
-      "id": "conjunto-nucleus",
-      "nombre": "Conjunto: nucleus ★ (servicio)",
-      "desc": "Un solo tenant, servicio completo: nucleus trocea, embebe, guarda, filtra y reordera.",
-      "fasesActivas": [
-        "corpus",
-        "ingesta",
-        "chunking",
-        "embedding",
-        "almacenamiento",
-        "ruido",
-        "recuperacion",
-        "reranking",
-        "generacion",
-        "evaluacion"
-      ],
-      "bloques": [
-        {
-          "pieza": "corpus.carpeta-pdf"
-        },
-        {
-          "pieza": "ingesta.lectores-pdf"
-        },
-        {
-          "grupo": "grupo.nucleus",
-          "variante": "servicio-completo"
-        },
-        {
-          "pieza": "ruido.colisiones"
-        },
-        {
-          "pieza": "generacion.plantilla-citas"
-        },
-        {
-          "pieza": "evaluacion.metricas"
-        }
-      ]
-    }
-  ],
   "diccionario": {
     "secciones": [
       {
@@ -2351,6 +2321,18 @@
         "icon": "shield",
         "desc": "Metadatos, permisos y calidad: lo que convierte una demo en un sistema serio.",
         "terminos": [
+          {
+            "t": "auto-etiquetado",
+            "def": "Asignar dominio y etiquetas en la ingesta sin intervención humana: por convención (carpetas, frontmatter, sidecar JSON) o por semántica (embeddings o un LLM tier-2 contra la lista de dominios). Regla de oro: la lista de dominios y etiquetas debe estar bien definida y ACOTADA antes de automatizar — primero el modelo de conocimiento, después el automatismo."
+          },
+          {
+            "t": "frontmatter",
+            "def": "Bloque YAML en la cabecera de un documento (típico en Markdown) con sus metadatos: dominio, etiquetas, vigencia… El corpus se describe a sí mismo y los metadatos viajan con el contenido, versionados juntos."
+          },
+          {
+            "t": "sidecar",
+            "def": "Fichero de metadatos con el mismo nombre que el documento (doc.pdf → doc.json): separa la descripción del contenido sin tocar el original. Fácil de generar y editar en batch; riesgo, que las parejas se desincronicen."
+          },
           {
             "t": "tenant",
             "def": "Cliente o entidad aislada dentro de un sistema multiempresa. Cada chunk debe saber a qué tenant pertenece para que nadie recupere información ajena: modelarlo después de ingestar es carísimo."

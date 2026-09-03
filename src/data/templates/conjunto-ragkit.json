@@ -1,0 +1,42 @@
+{
+  "id": "conjunto-ragkit",
+  "nombre": "Conjunto: ragkit ★ (pipeline agéntico)",
+  "desc": "De la carpeta a la respuesta con ragkit: ingesta idempotente, clasificación por dominios, híbrida BM25+densa con RRF y agente con citas.",
+  "fasesActivas": [
+    "modelo",
+    "corpus",
+    "ingesta",
+    "formato",
+    "estructura",
+    "metaetiquetado",
+    "chunking",
+    "embedding",
+    "almacenamiento",
+    "ruido",
+    "recuperacion",
+    "reranking",
+    "generacion",
+    "evaluacion"
+  ],
+  "bloques": [
+    {
+      "pieza": "modelo.dominios"
+    },
+    {
+      "pieza": "corpus.carpeta-pdf"
+    },
+    {
+      "pieza": "formato.a-markdown"
+    },
+    {
+      "grupo": "grupo.ragkit",
+      "variante": "pipeline-agéntico"
+    },
+    {
+      "pieza": "ruido.colisiones"
+    },
+    {
+      "pieza": "evaluacion.dataset-aureo"
+    }
+  ]
+}

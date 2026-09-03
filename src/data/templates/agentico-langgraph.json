@@ -1,0 +1,59 @@
+{
+  "id": "agentico-langgraph",
+  "nombre": "Agéntico con LangGraph (la clásica de los tutoriales)",
+  "desc": "La que monta todo cristo en internet: PDFs a Markdown, chunking semántico, embeddings OpenAI, Chroma y un agente LangGraph que decide cuándo y cómo recuperar, con rerank y dataset áureo.",
+  "fasesActivas": [
+    "corpus",
+    "ingesta",
+    "formato",
+    "limpieza",
+    "chunking",
+    "metaetiquetado",
+    "embedding",
+    "almacenamiento",
+    "ruido",
+    "recuperacion",
+    "reranking",
+    "generacion",
+    "evaluacion"
+  ],
+  "bloques": [
+    {
+      "pieza": "corpus.carpeta-pdf"
+    },
+    {
+      "pieza": "ingesta.lectores-pdf"
+    },
+    {
+      "pieza": "formato.a-markdown"
+    },
+    {
+      "pieza": "limpieza.deduplicacion"
+    },
+    {
+      "pieza": "chunking.semantico"
+    },
+    {
+      "pieza": "metaetiquetado.dominio-tags"
+    },
+    {
+      "pieza": "embedding.openai-3-small"
+    },
+    {
+      "pieza": "almacenamiento.chroma"
+    },
+    {
+      "grupo": "grupo.langchain",
+      "variante": "agentes"
+    },
+    {
+      "pieza": "ruido.colisiones"
+    },
+    {
+      "pieza": "reranking.cross-encoder"
+    },
+    {
+      "pieza": "evaluacion.dataset-aureo"
+    }
+  ]
+}

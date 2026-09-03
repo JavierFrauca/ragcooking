@@ -11,7 +11,7 @@ Sitio web en español donde cualquier persona que quiera construir un RAG puede:
 
 **Todo es dato, nada es código.** El catálogo completo vive en [`src/data/catalogo.json`](src/data/catalogo.json):
 fases, piezas atómicas, conjuntos con variantes y átomos de fase, modelos de embedding con licencia/idiomas/maxTokens,
-almacenes con diseñador de modelo de datos, plantillas y diccionario. Actualizando el JSON se actualiza todo el sitio.
+almacenes con modelo de datos por defecto y diccionario; las recetas base en src/data/templates/ (un JSON cada una, se validan en build). Actualizando estos ficheros se actualiza todo el sitio.
 
 - **Astro 7 + TypeScript** — la biblioteca es estática (SEO); el editor es un módulo TS con drag & drop nativo.
 - **Validación por cobertura**: fases obligatorias (error), recomendadas (aviso), píldora ≤ maxTokens del embedding, embedding externo requerido…
