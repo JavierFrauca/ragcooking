@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fase · Chunking — ragcooking.info</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="marca" href="index.html"><span class="logo"><i data-lucide="chef-hat"></i></span>rag<em>cooking</em></a>
+  <span class="chip">Biblioteca · página de fase</span>
+  <span class="espacio"></span>
+  <nav class="nav-links">
+    <a href="index.html">hub</a><a href="editor-a.html">editor A</a><a href="editor-b.html">editor B</a>
+    <a class="activo" href="fase.html">fase</a><a href="ficha.html">ficha</a><a href="home.html">home</a>
+  </nav>
+</header>
+
+<main class="pagina">
+  <div class="migas"><a href="home.html">Biblioteca</a> › <a href="home.html#preparacion">Preparación</a> › <b>Chunking</b></div>
+
+  <div class="hero-fase">
+    <div class="icono-grande" style="background:#6B8E4E"><i data-lucide="scissors"></i></div>
+    <div>
+      <h1>Chunking</h1>
+      <div class="meta">
+        <span class="chip nivel-ob">Fase obligatoria</span>
+        <span class="chip">Estación: Preparación · mise en place</span>
+        <span class="chip">Fase 7 de 18</span>
+      </div>
+      <p style="margin:6px 0 0;max-width:640px">Trocear cada documento en <span class="term" data-term="chunk">chunks</span>: la unidad mínima
+      que el RAG recupera. En la cocina es el picado: ni tan grueso que no se cocine, ni tan fino que desaparezca el sabor.</p>
+    </div>
+  </div>
+
+  <div class="aviso-caja oro">
+    <i data-lucide="lightbulb"></i>
+    <div><span class="titulo-caja">La idea que lo cambia todo</span>
+    El tamaño del <span class="term" data-term="chunk">chunk</span> no se elige: <b>se hereda del dominio</b>. Un convenio se trocea por artículos;
+    un manual, por secciones; un correo, entero. Busca la <span class="term" data-term="píldora de información">píldora de información</span>:
+    el chunk que se basta a sí mismo para responder algo.</div>
+  </div>
+
+  <div class="aviso-caja fuego">
+    <i data-lucide="flame"></i>
+    <div><span class="titulo-caja">¿Qué pasa si la saltas?</span>
+    No puedes: sin <span class="term" data-term="chunking">chunking</span> no hay qué indexar. Pero saltarla <i>mal</i> es el error más caro del RAG:
+    chunks enormes diluyen el <span class="term" data-term="embedding">embedding</span>; chunks minimos vacían el contexto del <span class="term" data-term="reranking">rerank</span>.
+    El validador del lienzo la exige siempre.</div>
+  </div>
+
+  <h2 style="margin-top:34px">Cómo elegir: comparativa de piezas</h2>
+  <p>La tabla se genera desde el catálogo (dato, no código). Cada fila es arrastrable al lienzo en el sitio real.</p>
+  <table class="tabla-comparativa" id="tabla-chunking">
+    <thead><tr><th style="width:24%">Pieza</th><th>Qué hace</th><th style="width:24%">Pros</th><th style="width:24%">Contras</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="aviso-caja hierba">
+    <i data-lucide="link"></i>
+    <div><span class="titulo-caja">Piezas que la sustituyen (megapiezas)</span>
+    <span class="term" data-term="megapieza">Megapiezas</span> como <a href="ficha.html">Azure AI Search</a> (la cubre dentro de su pipeline gestionado)
+    o LlamaIndex (con sus node parsers) dan esta fase por cubierta. El lienzo lo refleja y el validador lo acepta.</div>
+  </div>
+
+  <h2 style="margin-top:30px">Términos de esta fase</h2>
+  <p style="margin-bottom:8px">Todo el sitio enlaza así cada término — pasa el ratón:</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="chip"><span class="term" data-term="chunk">chunk</span></span>
+    <span class="chip"><span class="term" data-term="chunking">chunking</span></span>
+    <span class="chip"><span class="term" data-term="overlap">overlap</span></span>
+    <span class="chip"><span class="term" data-term="píldora de información">píldora de información</span></span>
+    <span class="chip"><span class="term" data-term="medallón">arquitectura medallón</span></span>
+  </div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tb = document.querySelector('#tabla-chunking tbody');
+  tb.innerHTML = PIEZAS.filter(p => p.fase === 'chunking').map(p => `
+    <tr>
+      <td><span class="pieza-nombre"><i data-lucide="${p.icon}"></i> ${p.nombre}</span></td>
+      <td style="color:var(--tinta-2)">${p.tagline}</td>
+      <td><ul class="ok">${(p.pros||[]).map(x => `<li>${x}</li>`).join('')}</ul></td>
+      <td><ul class="ko">${(p.cons||[]).map(x => `<li>${x}</li>`).join('')}</ul></td>
+      <td><a class="btn mini" href="editor-a.html">al lienzo</a></td>
+    </tr>`).join('');
+  initIconos();
+});
+</script>
+</body>
+</html>

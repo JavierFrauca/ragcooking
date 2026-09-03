@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ESTACIONES, FASES, PIEZAS } from '../data/catalogo';
+---
+
+<BaseLayout titulo="Biblioteca · ragcooking.info">
+  <main class="pagina">
+    <span class="kicker" style="font:600 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--pimenton)"
+      >la biblioteca</span
+    >
+    <h1 style="margin:8px 0 6px">Cada fase, una página. Cada pieza, una ficha.</h1>
+    <p style="max-width:720px">
+      El pipeline completo del RAG en {FASES.length} fases y {PIEZAS.length} piezas. Navega por
+      estación, entra en cada fase y compara sus piezas antes de llevarlas al lienzo.
+    </p>
+
+    {
+      ESTACIONES.map((est) => (
+        <>
+          <div class="banda-estacion" style={`background:${est.color};position:static;margin-top:34px`}>
+            <i data-lucide={est.icon} />
+            <span class="nombre">{est.nombre}</span>
+            <span class="sub">· {est.sub}</span>
+            <span class="num">{FASES.filter((f) => f.est === est.id).length} fases</span>
+          </div>
+          <div class="cartones">
+            {FASES.filter((f) => f.est === est.id).map((f) => (
+              <a class="carton" href={`/biblioteca/${f.id}/`}>
+                <div class="icono-carton" style={`background:${est.color}`}>
+                  <i data-lucide={f.icon} />
+                </div>
+                <h3>{f.nombre}</h3>
+                <p>
+                  {f.desc} <b>{PIEZAS.filter((p) => p.fase === f.id).length} piezas →</b>
+                </p>
+                <span class={`chip ${{ obligatoria: 'nivel-ob', recomendada: 'nivel-rec', opcional: 'nivel-opc' }[f.nivel]}`}>
+                  {f.nivel}
+                </span>
+              </a>
+            ))}
+          </div>
+        </>
+      ))
+    }
+  </main>
+</BaseLayout>

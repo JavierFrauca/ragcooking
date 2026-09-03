@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout titulo="Aviso legal, privacidad y cookies · ragcooking.info">
+  <main class="pagina" style="max-width:820px">
+    <span class="kicker" style="font:600 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--pimenton)"
+      >legal, privacidad y rgpd</span
+    >
+    <h1 style="margin:8px 0 4px">Lo legal, en cristiano.</h1>
+    <p style="max-width:680px">Este sitio se toma en serio tu privacidad hasta el punto de no necesitar
+      casi nada tuyo. Aquí están los detalles — y un botón para borrar hasta la última miguita.</p>
+
+    <section id="aviso" style="margin-top:30px;scroll-margin-top:80px">
+      <h2><i data-lucide="scale"></i> Aviso legal y responsable</h2>
+      <div class="aviso-caja hierba">
+        <i data-lucide="user-round"></i>
+        <div>
+          <ul style="margin:0;padding-left:18px;color:var(--tinta-2);font-size:14px">
+            <li><b>Titular:</b> Javier Frauca.</li>
+            <li><b>Contacto:</b> <a href="mailto:javier_frauca@hotmail.com" class="mono">javier_frauca@hotmail.com</a>.</li>
+            <li><b>Natureleza:</b> sitio web divulgativo y educativo, sin ánimo de lucro directo.</li>
+            <li><b>Alojamiento:</b> sitio estático servido mediante GitHub Pages.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="proposito" style="margin-top:30px;scroll-margin-top:80px">
+      <h2><i data-lucide="target"></i> Propósito del sitio</h2>
+      <p>
+        ragcooking.info es un recetario técnico sobre sistemas RAG (Retrieval-Augmented Generation):
+        una biblioteca de referencia sobre cada pieza del pipeline y un constructor visual donde
+        componer arquitecturas. Su finalidad es exclusivamente <b>docente y divulgativa</b>. No vende
+        nada, no requiere registro y no ofrece servicios a usuarios identificados.
+      </p>
+    </section>
+
+    <section id="privacidad" style="margin-top:30px;scroll-margin-top:80px">
+      <h2><i data-lucide="shield-check"></i> Privacidad y protección de datos (RGPD)</h2>
+      <p>Conforme al Reglamento (UE) 2016/679 (RGPD) y la LOPDGDD 3/2018, te informamos:</p>
+      <ul style="color:var(--tinta-2);font-size:14px">
+        <li><b>No recogemos datos personales.</b> No hay registro, ni formularios, ni cuentas, ni newsletters.</li>
+        <li><b>No hay analítica ni rastreo</b>: ni Google Analytics, ni píxeles, ni publicidad, ni redes sociales incrustadas.</li>
+        <li><b>Todo el sitio se sirve desde el propio dominio</b>: las tipografías y los iconos están autohospedados, de modo que tu navegador <b>no hace peticiones a servidores de terceros</b> al visitarnos.</li>
+        <li>El alojamiento (GitHub Pages) puede conservar <b>registros técnicos de acceso</b> estándar (IP, fecha, recurso solicitado), como cualquier servidor web, gestionados por el proveedor de alojamiento conforme a sus propias políticas; este sitio no accede a ellos ni los utiliza.</li>
+      </ul>
+    </section>
+
+    <section id="almacenamiento" style="margin-top:30px;scroll-margin-top:80px">
+      <h2><i data-lucide="hard-drive"></i> Almacenamiento local (tus recetas)</h2>
+      <p>
+        El constructor «Cocina tu RAG» guarda tu arquitectura en el <b>almacenamiento local de tu
+        navegador</b> (localStorage, claves <span class="mono">ragcooking-*</span>) para que no la
+        pierdas al recargar. Es la única finalidad: <b>ese dato nunca sale de tu equipo</b> — no se
+        envía a ningún servidor, ni al nuestro (que ni siquiera tiene backend).
+      </p>
+      <p>
+        El botón de exportar genera un fichero JSON <b>descargado directamente por tu navegador</b>;
+        lo que hagas con él ya es cosa tuya. Este almacenamiento es <i>estrictamente necesario</i>
+        para el servicio que nos has pedido (guardar tu receta), por lo que no requiere consentimiento.
+      </p>
+      <div class="aviso-caja fuego">
+        <i data-lucide="trash-2"></i>
+        <div style="flex:1">
+          <span class="titulo-caja">Borrar mis datos ahora</span>
+          <p style="margin:4px 0 10px;font-size:13.5px">Elimina del navegador todo lo guardado por este sitio (recetas y borradores).</p>
+          <button class="btn primario" id="btn-borrar-datos"><i data-lucide="trash-2"></i> Borrar mis datos de este navegador</button>
+          <span id="borrado-ok" style="display:none;color:var(--ok);font-weight:600;margin-left:10px">✓ datos eliminados</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="cookies" style="margin-top:30px;scroll-margin-top:80px">
+      <h2><i data-lucide="cookie"></i> Cookies</h2>
+      <p>
+        <b>Este sitio no usa cookies.</b> Ni propias de sesión ni de terceros. Por eso no verás un
+        banner pidiendo consentimiento: no hay nada que consentir. La única huella es el
+        almacenamiento local descrito arriba, que es información guardada por y para ti, y que puedes
+        borrar desde aquí arriba o desde tu navegador en cualquier momento.
+      </p>
+    </section>
+
+    <section id="derechos" style="margin-top:30px;scroll-margin-top:80px">
+      <h2><i data-lucide="gavel"></i> Tus derechos</h2>
+      <p>
+        Al no tratar datos personales, en principio no hay ejercicios de derechos que atender — pero
+        si crees que algo aquí afecta a tus datos (acceso, rectificación, supresión, oposición,
+        limitación o portabilidad, arts. 15-22 RGPD), escríbeme a
+        <a href="mailto:javier_frauca@hotmail.com" class="mono">javier_frauca@hotmail.com</a>
+        y lo resolvemos de inmediato. También puedes acudir a la Agencia Española de Protección de
+        Datos (aepd.es).
+      </p>
+    </section>
+
+    <section id="atribuciones" style="margin-top:30px;scroll-margin-top:80px">
+      <h2><i data-lucide="heart"></i> Atribuciones</h2>
+      <p style="font-size:13.5px;color:var(--tinta-2)">
+        Tipografías Fraunces, Inter y JetBrains Mono (licencias SIL OFL) e iconos Lucide (ISC),
+        autohospedados en este dominio. Marcas y productos citados (LangChain, LlamaIndex, OpenAI,
+        etc.) pertenecen a sus respectivos propietarios; se mencionan con fines divulgativos.
+      </p>
+    </section>
+
+    <p style="margin-top:34px;font:italic 400 13px var(--serif);color:var(--tinta-2)">
+      Última actualización: septiembre de 2026.
+    </p>
+  </main>
+
+  <script>
+    document.getElementById('btn-borrar-datos')?.addEventListener('click', () => {
+      const claves = Object.keys(localStorage).filter((k) => k.startsWith('ragcooking'));
+      claves.forEach((k) => localStorage.removeItem(k));
+      const ok = document.getElementById('borrado-ok') as HTMLElement | null;
+      if (ok) ok.style.display = 'inline';
+      setTimeout(() => ok && (ok.style.display = 'none'), 4000);
+    });
+  </script>
+</BaseLayout>

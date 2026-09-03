@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototipo · Hito 0 — ragcooking.info</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="marca" href="index.html"><span class="logo"><i data-lucide="chef-hat"></i></span>rag<em>cooking</em></a>
+  <span class="chip">Hito 0 · mockups navegables</span>
+  <span class="espacio"></span>
+  <nav class="nav-links">
+    <a class="activo" href="index.html">hub</a><a href="editor-a.html">editor A</a><a href="editor-b.html">editor B</a>
+    <a href="fase.html">fase</a><a href="ficha.html">ficha</a><a href="home.html">home</a>
+  </nav>
+</header>
+
+<main class="pagina">
+  <span class="kicker" style="font:600 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--pimenton)">prototipo para decidir</span>
+  <h1 style="margin:8px 0 6px">El editor manda.</h1>
+  <p style="max-width:720px">Este prototipo implementa el <b>Hito 0</b> del roadmap: el lienzo funcional con sus dos variantes de
+  <span class="term" data-term="megapieza">megapieza</span>, la página de fase, la ficha de megapieza y el concepto de home.
+  Todo funciona de verdad: drag &amp; drop, validación por cobertura, comentarios, plantillas, guardado en el navegador
+  (<span class="mono">localStorage</span>) y export/import JSON.</p>
+
+  <div class="aviso-caja oro">
+    <i data-lucide="clipboard-check"></i>
+    <div><span class="titulo-caja">Qué decidir con este prototipo</span>
+    <b>1)</b> ¿Megapiezas como <b>carril propio de robots</b> (A) o <b>ancladas con fantasmas</b> (B)? Pruébala con la plantilla
+    «Megapiezas: ragkit + Azure» en ambas. <b>2)</b> ¿La estética recetario técnico convence? <b>3)</b> ¿Algo del editor incomoda?
+    </div>
+  </div>
+
+  <div class="hub-grid">
+    <a class="hub-card" href="editor-a.html">
+      <span class="chip etiqueta" style="background:var(--azafran-suave);border-color:var(--azafran)">prioridad 1</span>
+      <div class="icono-grande" style="background:#D9A02B"><i data-lucide="bot"></i></div>
+      <h3>Editor · Variante A</h3>
+      <p>Megapiezas en su carril de robots 🤖; las fases cubiertas muestran una tira y quedan tintadas. Arrastra, valida, exporta.</p>
+    </a>
+    <a class="hub-card" href="editor-b.html">
+      <span class="chip etiqueta" style="background:var(--sal-suave);border-color:var(--sal)">prioridad 1</span>
+      <div class="icono-grande" style="background:#4A6FA5"><i data-lucide="bot"></i></div>
+      <h3>Editor · Variante B</h3>
+      <p>La megapieza se ancla en su fase como bloque grande y cada fase cubierta recibe un fantasma que apunta al ancla.</p>
+    </a>
+    <a class="hub-card" href="fase.html">
+      <span class="chip etiqueta">biblioteca</span>
+      <div class="icono-grande" style="background:#6B8E4E"><i data-lucide="scissors"></i></div>
+      <h3>Página de fase · Chunking</h3>
+      <p>Explicación didáctica + "qué pasa si la saltas" + tabla comparativa generada desde el catálogo + términos con diccionario.</p>
+    </a>
+    <a class="hub-card" href="ficha.html">
+      <span class="chip etiqueta">biblioteca</span>
+      <div class="icono-grande" style="background:#C14B2E"><i data-lucide="database"></i></div>
+      <h3>Ficha de megapieza · Azure AI Search</h3>
+      <p>Qué cubre (4 fases), qué cedes (lock-in, coste, control del chunking) y con qué combina.</p>
+    </a>
+    <a class="hub-card" href="home.html">
+      <span class="chip etiqueta">concepto</span>
+      <div class="icono-grande" style="background:#8A5A83"><i data-lucide="chef-hat"></i></div>
+      <h3>Home · concepto</h3>
+      <p>La receta animada de las 5 estaciones y el flujo maestro determinista→semántico. (Prioridad visual menor.)</p>
+    </a>
+    <a class="hub-card" href="editor-a.html?template=megapiezas">
+      <span class="chip etiqueta" style="background:var(--ciruela-suave);border-color:var(--ciruela);color:var(--ciruela)">atajo</span>
+      <div class="icono-grande" style="background:#8A5A83"><i data-lucide="zap"></i></div>
+      <h3>Demo exprés de megapiezas</h3>
+      <p>Abre el editor A con la plantilla «ragkit ★ + Azure» cargada: dos megapiezas cubren 9 fases del pipeline.</p>
+    </a>
+  </div>
+
+  <h2>Sistema de diseño «recetario técnico»</h2>
+  <p>Calidez de libro de recetas + limpieza de documentación técnica.</p>
+  <div class="tokens">
+    <span class="token-muestra"><span class="bolita" style="background:#FAF4E8;border:1px solid #D4C6A8"></span>papel</span>
+    <span class="token-muestra"><span class="bolita" style="background:#2B2620"></span>tinta</span>
+    <span class="token-muestra"><span class="bolita" style="background:#D9A02B"></span>azafrán · aprovisionamiento</span>
+    <span class="token-muestra"><span class="bolita" style="background:#6B8E4E"></span>albahaca · preparación</span>
+    <span class="token-muestra"><span class="bolita" style="background:#C14B2E"></span>pimentón · cocción</span>
+    <span class="token-muestra"><span class="bolita" style="background:#4A6FA5"></span>sal · servicio</span>
+    <span class="token-muestra"><span class="bolita" style="background:#8A5A83"></span>ciruela · calidad</span>
+  </div>
+  <div style="display:flex;gap:26px;flex-wrap:wrap;margin-top:18px">
+    <div><span class="serif" style="font-size:26px;font-weight:600">Fraunces — títulos</span><br><span style="font-size:13px;color:var(--tinta-2)">serif expresiva, con itálicas de recetario</span></div>
+    <div><span style="font-size:22px;font-weight:600">Inter — interfaz</span><br><span style="font-size:13px;color:var(--tinta-2)">sans limpia para UI y lectura</span></div>
+    <div><span class="mono" style="font-size:18px">JetBrains Mono — datos</span><br><span style="font-size:13px;color:var(--tinta-2)">ids, JSON, validaciones</span></div>
+  </div>
+
+  <p style="margin-top:34px;font-size:13px;color:var(--tinta-2)">Notas del prototipo: el catálogo
+  (<span class="mono">assets/data.js</span>) es semilla — 18 fases, ~45 piezas, 3 plantillas, 22 términos del diccionario.
+  Sirve cualquier carpeta con <span class="mono">python -m http.server</span> y abre <span class="mono">index.html</span>.</p>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

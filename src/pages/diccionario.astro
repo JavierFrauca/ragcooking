@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { DICCIONARIO } from '../data/catalogo';
+const total = DICCIONARIO.reduce((n, s) => n + s.terminos.length, 0);
+const colores = ['#D9A02B', '#C14B2E', '#4A6FA5', '#8A5A83', '#6B8E4E', '#2B2620'];
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+---
+
+<BaseLayout titulo="Diccionario · ragcooking.info">
+  <main class="pagina">
+    <span class="kicker" style="font:600 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--pimenton)"
+      >diccionario de términos</span
+    >
+    <h1 style="margin:8px 0 6px">Nadie se queda fuera por vocabulario.</h1>
+    <p style="max-width:720px">
+      Todo término técnico del sitio, organizado en apartados, con explicación didáctica y — cuando existe —
+      <b>enlace a la fuente oficial</b> (Hugging Face de los modelos open, web del creador en el resto).
+      {total} entradas en {DICCIONARIO.length} apartados.
+    </p>
+
+    <div class="dicc-buscador">
+      <input id="buscar-termino" type="search" placeholder="Buscar término o concepto… (p. ej. pildora, rerank, tenant — sin acentos también)" autocomplete="off" />
+      <span id="contador-terminos" class="chip"></span>
+    </div>
+
+    <nav style="display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px">
+      {
+        DICCIONARIO.map((s, i) => (
+          <a class="chip" href={`#${s.id}`} style={`border-color:${colores[i % colores.length]};color:${colores[i % colores.length]}`}>
+            {s.nombre} · {s.terminos.length}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div id="dicc-vacio" class="aviso-caja oro" style="display:none">
+      <i data-lucide="search-x"></i>
+      <div><span class="titulo-caja">Sin resultados</span>
+      Prueba con otra palabra — el buscador ignora acentos y busca también dentro de las definiciones.</div>
+    </div>
+
+    {
+      DICCIONARIO.map((s, i) => (
+        <section id={s.id} data-seccion style="margin-top:38px;scroll-margin-top:150px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span
+              class="icono-carton"
+              style={`background:${colores[i % colores.length]};width:38px;height:38px;border-radius:11px;margin:0`}
+            >
+              <i data-lucide={s.icon} />
+            </span>
+            <div>
+              <h2 style="margin:0;font-size:22px">{s.nombre}</h2>
+              <p style="margin:0;font-size:13px">{s.desc}</p>
+            </div>
+          </div>
+          <div class="cartones" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));margin-top:16px">
+            {s.terminos.map((t) => (
+              <div class="carton" style="cursor:default" data-t={esc(t.t)} data-d={esc(t.def)}>
+                <h3 style="font-size:17px">{t.t}</h3>
+                <p>{t.def}</p>
+                {t.mas && (
+                  <a href={t.mas} target="_blank" rel="noopener" style="font-size:12.5px;font-weight:600">
+                    más información ↗
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </main>
+
+  <script>
+    const input = document.getElementById('buscar-termino') as HTMLInputElement;
+    const contador = document.getElementById('contador-terminos')!;
+    const vacio = document.getElementById('dicc-vacio')!;
+    const secciones = Array.from(document.querySelectorAll<HTMLElement>('section[data-seccion]'));
+    const norm = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const resaltar = (texto: string, q: string) => {
+      if (!q) return texto;
+      const i = norm(texto).indexOf(q);
+      if (i < 0) return texto;
+      return texto.slice(0, i) + '<mark>' + texto.slice(i, i + q.length) + '</mark>' + texto.slice(i + q.length);
+    };
+    function filtrar() {
+      const q = norm(input.value.trim());
+      let visibles = 0;
+      for (const sec of secciones) {
+        let enSeccion = 0;
+        for (const card of Array.from(sec.querySelectorAll<HTMLElement>('.carton'))) {
+          const titulo = card.dataset.t || '';
+          const def = card.dataset.d || '';
+          const coincide = !q || norm(titulo + ' ' + def).includes(q);
+          card.style.display = coincide ? '' : 'none';
+          if (coincide) {
+            enSeccion++;
+            const h3 = card.querySelector('h3')!;
+            const p = card.querySelector('p')!;
+            h3.innerHTML = resaltar(titulo, q);
+            p.innerHTML = resaltar(def, q);
+          }
+        }
+        sec.style.display = enSeccion ? '' : 'none';
+        visibles += enSeccion;
+      }
+      contador.textContent = q ? visibles + (visibles === 1 ? ' término' : ' términos') + ' para «' + input.value.trim() + '»' : '';
+      vacio.style.display = q && !visibles ? '' : 'none';
+    }
+    input.addEventListener('input', filtrar);
+  </script>
+</BaseLayout>

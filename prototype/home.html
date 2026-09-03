@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ragcooking.info — cocina tu RAG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="marca" href="index.html"><span class="logo"><i data-lucide="chef-hat"></i></span>rag<em>cooking</em></a>
+  <span class="chip">concepto de home · Hito 0</span>
+  <span class="espacio"></span>
+  <nav class="nav-links">
+    <a href="index.html">hub</a><a href="editor-a.html">editor A</a><a href="editor-b.html">editor B</a>
+    <a href="fase.html">fase</a><a href="ficha.html">ficha</a><a class="activo" href="home.html">home</a>
+  </nav>
+</header>
+
+<main>
+  <section class="home-hero">
+    <span class="kicker">ragcooking.info · el recetario del RAG</span>
+    <h1>Todo RAG es una <em>receta</em>.<br>Aprende los ingredientes y cocina la tuya.</h1>
+    <p class="sub">Qué es un RAG, cada pieza del pipeline explicada con ejemplos, y un lienzo donde
+    compones tu arquitectura apilando piezas — con validación, guardado en tu navegador y exportación a JSON.</p>
+    <div class="home-ctas">
+      <a class="btn primario" href="editor-a.html"><i data-lucide="chef-hat"></i> Cocina tu RAG</a>
+      <a class="btn secundario" href="fase.html"><i data-lucide="book-open"></i> Explora la biblioteca</a>
+      <a class="btn" href="home.html#diccionario"><i data-lucide="book-a"></i> Diccionario</a>
+    </div>
+  </section>
+
+  <section style="max-width:1060px;margin:0 auto;padding:0 26px">
+    <h2 style="text-align:center">La receta, paso a paso</h2>
+    <p style="text-align:center">Las 18 fases agrupadas en 5 estaciones — se animan en orden, como en cocina real:</p>
+    <div class="receta-animada">
+      <div class="paso-receta" style="animation-delay:0s">
+        <div class="icono-bola" style="background:#D9A02B"><i data-lucide="shopping-basket"></i></div>
+        <span class="paso-n">Estación 1</span><h3>Aprovisionamiento</h3>
+        <p>Modelo de conocimiento, corpus, ingesta y limpieza. La compra: qué entra a la cocina.</p>
+      </div>
+      <div class="paso-receta" style="animation-delay:1.4s">
+        <div class="icono-bola" style="background:#6B8E4E"><i data-lucide="chef-hat"></i></div>
+        <span class="paso-n">Estación 2</span><h3>Preparación</h3>
+        <p>Estructura, transversales, chunking, metaetiquetado y síntesis. El mise en place.</p>
+      </div>
+      <div class="paso-receta" style="animation-delay:2.8s">
+        <div class="icono-bola" style="background:#C14B2E"><i data-lucide="flame"></i></div>
+        <span class="paso-n">Estación 3</span><h3>Cocción</h3>
+        <p>Embeddings, almacenamiento y medición de ruido. Aquí el corpus se transforma.</p>
+      </div>
+      <div class="paso-receta" style="animation-delay:4.2s">
+        <div class="icono-bola" style="background:#4A6FA5"><i data-lucide="utensils"></i></div>
+        <span class="paso-n">Estación 4</span><h3>Servicio</h3>
+        <p>Framework, recuperación, reranking y generación. Se emplata la respuesta.</p>
+      </div>
+      <div class="paso-receta" style="animation-delay:5.6s">
+        <div class="icono-bola" style="background:#8A5A83"><i data-lucide="clipboard-check"></i></div>
+        <span class="paso-n">Estación 5</span><h3>Calidad y gobierno</h3>
+        <p>Evaluación con dataset áureo y gobierno del corpus. El crítico prueba el plato.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="flujo-maestro">
+    <h2>Primero determinista, luego semántico</h2>
+    <p style="max-width:660px;margin:6px auto;color:var(--tinta-2)">La regla de oro de la recuperación:
+    primero se decide qué información <b>puede competir</b> (filtros deterministas); después qué es <b>relevante</b> (semántica).
+    Nunca al revés — y nunca el LLM como autoridad de seguridad.</p>
+    <div class="pasos">
+      <span class="paso-fm determinista" style="animation-delay:0s">IDENTIDAD</span><span class="flecha" style="animation-delay:.3s">→</span>
+      <span class="paso-fm determinista" style="animation-delay:.6s">REGLAS</span><span class="flecha" style="animation-delay:.9s">→</span>
+      <span class="paso-fm determinista" style="animation-delay:1.2s">FILTRO DETERMINISTA</span><span class="flecha" style="animation-delay:1.5s">→</span>
+      <span class="paso-fm" style="animation-delay:1.8s">BÚSQUEDA SEMÁNTICA</span><span class="flecha" style="animation-delay:2.1s">→</span>
+      <span class="paso-fm" style="animation-delay:2.4s">RERANKING</span><span class="flecha" style="animation-delay:2.7s">→</span>
+      <span class="paso-fm" style="animation-delay:3s">LLM</span>
+    </div>
+  </section>
+
+  <section style="max-width:1060px;margin:0 auto;padding:0 26px 80px">
+    <div class="cartones">
+      <a class="carton" href="fase.html">
+        <div class="icono-carton" style="background:#6B8E4E"><i data-lucide="book-open"></i></div>
+        <h3>La biblioteca</h3>
+        <p>Cada fase con su página y cada pieza con su ficha: alcance, cuándo usarla, ejemplos y tablas de "cómo elegir".</p>
+      </a>
+      <a class="carton" href="editor-a.html">
+        <div class="icono-carton" style="background:#C14B2E"><i data-lucide="chef-hat"></i></div>
+        <h3>El constructor</h3>
+        <p>Apila piezas por fases, valida cobertura, comenta bloques y guarda tu receta en el navegador. Exporta a JSON.</p>
+      </a>
+      <a class="carton" href="home.html#diccionario" id="diccionario">
+        <div class="icono-carton" style="background:#D9A02B"><i data-lucide="book-a"></i></div>
+        <h3>El diccionario</h3>
+        <p>Todo término técnico del sitio enlaza a su explicación didáctica. Nadie se queda fuera por vocabulario.</p>
+      </a>
+    </div>
+    <p style="text-align:center;font-family:var(--serif);font-style:italic;font-size:16px">
+      "El 80% del éxito de un RAG ocurre antes del prompt."</p>
+  </section>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

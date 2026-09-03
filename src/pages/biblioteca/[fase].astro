@@ -1,0 +1,145 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ESTACIONES, FASES, PIEZAS, GRUPOS, TERMINOS } from '../../data/catalogo';
+
+export function getStaticPaths() {
+  return FASES.map((fase) => ({ params: { fase: fase.id } }));
+}
+
+const fase = FASES.find((f) => f.id === Astro.params.fase)!;
+const estacion = ESTACIONES.find((e) => e.id === fase.est)!;
+const piezas = PIEZAS.filter((p) => p.fase === fase.id);
+const gruposQueCubren = GRUPOS.filter((g) => g.variantes.some((v) => v.atomos.some((a) => a.fase === fase.id)));
+const nivelCls = { obligatoria: 'nivel-ob', recomendada: 'nivel-rec', opcional: 'nivel-opc' }[fase.nivel];
+---
+
+<BaseLayout titulo={`${fase.nombre} · ragcooking.info`}>
+  <main class="pagina">
+    <div class="migas">
+      <a href="/biblioteca">Biblioteca</a> › <a href="/biblioteca">{estacion.nombre}</a> ›
+      <b>{fase.nombre}</b>
+    </div>
+
+    <div class="hero-fase">
+      <div class="icono-grande" style={`background:${estacion.color}`}>
+        <i data-lucide={fase.icon}></i>
+      </div>
+      <div>
+        <h1>{fase.nombre}</h1>
+        <div class="meta">
+          <span class={`chip ${nivelCls}`}>Fase {fase.nivel}</span>
+          <span class="chip">Estación: {estacion.nombre} · {estacion.sub}</span>
+          <span class="chip">{piezas.length} piezas</span>
+        </div>
+        <p style="margin:6px 0 0;max-width:640px">{fase.desc}</p>
+      </div>
+    </div>
+
+    <div class={`aviso-caja ${fase.nivel === 'obligatoria' ? 'fuego' : 'oro'}`}>
+      <i data-lucide={fase.nivel === 'obligatoria' ? 'flame' : 'lightbulb'}></i>
+      <div>
+        <span class="titulo-caja">Fase {fase.nivel}</span>
+        {
+          fase.nivel === 'obligatoria' ? (
+            <p style="margin:0">
+              El validador del constructor exige cubrirla siempre: con una pieza propia o con un
+              framework que la incluya.
+            </p>
+          ) : fase.nivel === 'recomendada' ? (
+            <p style="margin:0">
+              Sin cubrir genera aviso en el lienzo: puedes saltarla, pero conviene saber qué te pierdes.
+            </p>
+          ) : (
+            <p style="margin:0">
+              Solo cuando tu dominio la necesita: elige esta fase en el constructor y suelta piezas sobre ella.
+            </p>
+          )
+        }
+      </div>
+    </div>
+
+    <h2 style="margin-top:34px">Cómo elegir: comparativa de piezas</h2>
+    <p>Generada desde el catálogo (dato, no código).</p>
+    <table class="tabla-comparativa">
+      <thead>
+        <tr>
+          <th style="width:24%">Pieza</th>
+          <th>Qué hace</th>
+          <th style="width:22%">Pros</th>
+          <th style="width:22%">Contras</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          piezas.map((p) => (
+            <tr>
+              <td>
+                <span class="pieza-nombre">
+                  <i data-lucide={p.icon} /> {p.nombre}
+                  {p.origin === 'propio' && <span style="color:var(--azafran)"> ★</span>}
+                </span>
+              </td>
+              <td style="color:var(--tinta-2)">
+                {p.tagline}
+                {p.maxTokens && (
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">
+                    <span class="chip">{p.licencia === 'open' ? '🟢 open' : '🔒 propietario'}</span>
+                    <span class="chip">🌐 {p.idiomas}</span>
+                    <span class="chip">📏 {p.maxTokens} tokens</span>
+                    <span class="chip">{p.dimensiones}d</span>
+                  </div>
+                )}
+                {p.modeloDatos && <span class="chip" style="margin-top:6px">🧊 incluye diseñador de modelo de datos</span>}
+              </td>
+              <td>
+                <ul class="ok">{(p.pros || []).map((x) => <li>{x}</li>)}</ul>
+              </td>
+              <td>
+                <ul class="ko">{(p.cons || []).map((x) => <li>{x}</li>)}</ul>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+
+    {
+      gruposQueCubren.length > 0 && (
+        <div class="aviso-caja hierba" style="margin-top:26px">
+          <i data-lucide="bot" />
+          <div>
+            <span class="titulo-caja">Conjuntos (frameworks) que cubren esta fase</span>
+            <p style="margin:4px 0 0;font-size:13.5px">
+              Estos conjuntos colocan sus propios bloques en esta fase. Suelta uno en el lienzo y
+              expándelo para no perder trazabilidad.
+            </p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+              {gruposQueCubren.map((g) => (
+                <span class="chip mega">
+                  {g.nombre} · {g.variantes[0].atomos.length}+ fases
+                  {g.origin === 'propio' ? ' ★' : ''}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    <h2 style="margin-top:30px">Términos relacionados</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {
+        Object.keys(TERMINOS)
+          .filter((t) => fase.desc.toLowerCase().includes(t.split(' ')[0].toLowerCase()))
+          .slice(0, 4)
+          .map((t) => <span class="chip" title={TERMINOS[t]}>{t}</span>)
+      }
+      <a class="chip" href="/diccionario">ver diccionario completo →</a>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:34px;flex-wrap:wrap">
+      <a class="btn primario" href="/constructor"><i data-lucide="chef-hat"></i> Usar esta fase en mi receta</a>
+      <a class="btn" href="/biblioteca"><i data-lucide="arrow-left"></i> Volver a la biblioteca</a>
+    </div>
+  </main>
+</BaseLayout>

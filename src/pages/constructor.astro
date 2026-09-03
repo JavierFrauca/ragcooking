@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout titulo="Cocina tu RAG · ragcooking.info" claseBody="pag-editor">
+  <div class="editor-page">
+    <div class="toolbar-editor" style="display:flex;align-items:center;gap:10px;padding:10px 18px;background:var(--carta);border-bottom:1.5px solid var(--linea);flex-wrap:wrap;flex:none">
+      <span class="chip" style="background:var(--pimenton-suave);border-color:var(--pimenton)">cocina tu rag</span>
+      <span class="chip">los conjuntos (frameworks) se expanden: trazabilidad total</span>
+      <span style="flex:1"></span>
+      <span class="savestate" id="savestate">…</span>
+      <button class="btn mini" id="btn-plantillas"><i data-lucide="book-open"></i> Plantillas</button>
+      <button class="btn mini" id="btn-nueva"><i data-lucide="plus"></i> Nueva</button>
+      <button class="btn mini" id="btn-importar"><i data-lucide="file-up"></i> Importar</button>
+      <button class="btn mini primario" id="btn-exportar"><i data-lucide="file-down"></i> Exportar</button>
+    </div>
+
+    <div class="editor columna-b">
+      <aside class="paleta">
+        <div class="buscador">
+          <input id="buscador" type="search" placeholder="Buscar pieza o conjunto… (pgvector, rerank, ragkit)" />
+        </div>
+        <div id="paleta"></div>
+      </aside>
+
+      <main class="canvas-wrap">
+        <div id="selector-fases" class="selector-fases"></div>
+        <div id="canvas"></div>
+      </main>
+
+      <aside class="panel-val">
+        <h2 class="serif">Validación</h2>
+        <p class="sub">Cobertura de fases en vivo</p>
+        <div id="semaforo" class="semaforo"></div>
+        <div id="mapa-fases" class="mapa-fases"></div>
+        <div id="lista-val" class="lista-val"></div>
+        <div class="leyenda">
+          <div class="fila-leyenda">Clic en una fase arriba para activarla/desactivarla</div>
+          <div class="fila-leyenda"><span class="chip nivel-ob">Obligat.</span> error si falta o está desactivada</div>
+          <div class="fila-leyenda"><span class="chip nivel-rec">Recom.</span> aviso si está activa y vacía</div>
+          <div class="fila-leyenda"><span class="chip mega">conjunto</span> framework = varios bloques expandibles</div>
+          <div class="fila-leyenda">★ piezas propias (ragkit, nucleus)</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <style is:global>
+    /* página del editor: el body no scrollea; cada columna tiene su propio scroll */
+    body.pag-editor { height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+    body.pag-editor > header { flex: none; position: static; }
+    body.pag-editor > footer { flex: none; }
+    .editor-page { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .editor-page .editor { flex: 1; min-height: 0; }
+  </style>
+
+  <script src="../scripts/editor.ts"></script>
+</BaseLayout>

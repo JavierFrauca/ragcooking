@@ -1,0 +1,28 @@
+---
+interface Props {
+  titulo?: string;
+}
+const { titulo = 'ragcooking.info — el recetario del RAG' } = Astro.props;
+const ruta = Astro.url.pathname;
+const activa = (prefijo: string) => (ruta === prefijo || (prefijo !== '/' && ruta.startsWith(prefijo)) ? 'activo' : '');
+---
+
+<header class="topbar">
+  <a class="marca" href="/"><span class="logo"><i data-lucide="chef-hat"></i></span>rag<em>cooking</em></a>
+  <span class="sep"></span>
+  <nav class="nav-links">
+    <a class={activa('/')} href="/">inicio</a>
+    <a class={activa('/biblioteca')} href="/biblioteca">biblioteca</a>
+    <a class={activa('/constructor')} href="/constructor">cocina tu rag</a>
+    <a class={activa('/diccionario')} href="/diccionario">diccionario</a>
+    <a class={activa('/legal')} href="/legal">legal</a>
+  </nav>
+  <span class="espacio"></span>
+  <span class="chip">beta · hito 2</span>
+</header>
+
+<script is:inline src="/vendor/lucide.min.js"></script>
+<script>
+  // inicializa iconos lucide en cada navegación
+  document.addEventListener('astro:page-load', () => (window as any).lucide?.createIcons());
+</script>

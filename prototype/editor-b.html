@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor · Variante B — ragcooking.info</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="marca" href="index.html"><span class="logo"><i data-lucide="chef-hat"></i></span>rag<em>cooking</em></a>
+  <span class="chip" style="background:var(--sal-suave);border-color:var(--sal)">Prototipo · Hito 0 · <b>Variante B</b></span>
+  <span class="sep"></span>
+  <nav class="nav-links">
+    <a href="index.html">hub</a>
+    <a href="editor-a.html">editor A</a>
+    <a class="activo" href="editor-b.html">editor B</a>
+    <a href="fase.html">fase</a>
+    <a href="ficha.html">ficha</a>
+    <a href="home.html">home</a>
+  </nav>
+  <span class="espacio"></span>
+  <span class="savestate" id="savestate">…</span>
+  <button class="btn mini" id="btn-plantillas"><i data-lucide="book-open"></i> Plantillas</button>
+  <button class="btn mini" id="btn-nueva"><i data-lucide="plus"></i> Nueva</button>
+  <button class="btn mini" id="btn-importar"><i data-lucide="file-up"></i> Importar</button>
+  <button class="btn mini primario" id="btn-exportar"><i data-lucide="file-down"></i> Exportar</button>
+</header>
+
+<div class="editor columna-b">
+  <aside class="paleta">
+    <div class="buscador"><input id="buscador" type="search" placeholder="Buscar pieza… (p. ej. pgvector, rerank)"></div>
+    <div id="paleta"></div>
+  </aside>
+
+  <main class="canvas-wrap"><div id="canvas"></div></main>
+
+  <aside class="panel-val">
+    <h2 class="serif">Validación</h2>
+    <p class="sub">Cobertura de fases en vivo</p>
+    <div id="semaforo" class="semaforo"></div>
+    <div id="mapa-fases" class="mapa-fases"></div>
+    <div id="lista-val" class="lista-val"></div>
+    <div class="leyenda">
+      <div class="fila-leyenda"><span class="chip nivel-ob">Obligat.</span> error si falta cobertura</div>
+      <div class="fila-leyenda"><span class="chip nivel-rec">Recom.</span> aviso si falta cobertura</div>
+      <div class="fila-leyenda"><span class="chip nivel-opc">Opcional</span> sin aviso</div>
+      <div class="fila-leyenda"><span class="chip mega">megapieza</span> se ancla y deja <b>fantasmas</b> en las fases que cubre</div>
+      <div class="fila-leyenda">★ piezas propias (ragkit, nucleus)</div>
+    </div>
+  </aside>
+</div>
+
+<script>window.EDITOR_VARIANTE = 'B';</script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/editor.js"></script>
+</body>
+</html>

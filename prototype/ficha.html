@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha · Azure AI Search (megapieza) — ragcooking.info</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="marca" href="index.html"><span class="logo"><i data-lucide="chef-hat"></i></span>rag<em>cooking</em></a>
+  <span class="chip mega">Biblioteca · ficha de megapieza</span>
+  <span class="espacio"></span>
+  <nav class="nav-links">
+    <a href="index.html">hub</a><a href="editor-a.html">editor A</a><a href="editor-b.html">editor B</a>
+    <a href="fase.html">fase</a><a class="activo" href="ficha.html">ficha</a><a href="home.html">home</a>
+  </nav>
+</header>
+
+<main class="pagina">
+  <div class="migas"><a href="home.html">Biblioteca</a> › <a href="fase.html">Almacenamiento</a> › <b>Azure AI Search</b></div>
+
+  <div class="hero-fase">
+    <div class="icono-grande" style="background:#C14B2E"><i data-lucide="database"></i></div>
+    <div>
+      <h1>Azure AI Search</h1>
+      <div class="meta">
+        <span class="chip mega">megapieza</span>
+        <span class="chip">comercial · Microsoft</span>
+        <span class="chip">Fase ancla: Almacenamiento</span>
+      </div>
+      <p style="margin:6px 0 0;max-width:640px">Indexa, trocea, embebe y busca en un solo servicio gestionado.
+      El robot de cocina de Microsoft: compras un aparato y te ahorras media cocina.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:26px">Qué cubre esta pieza</h2>
+  <p>Cuando la sueltas en el lienzo, estas cuatro fases quedan cubiertas — el validador las da por hechas:</p>
+  <div class="covers-visual">
+    <span class="cover-chip ancla" style="background:#C14B2E"><i data-lucide="database"></i> Almacenamiento (ancla)</span>
+    <span class="cover-chip" style="background:#6B8E4E"><i data-lucide="scissors"></i> Chunking</span>
+    <span class="cover-chip" style="background:#C14B2E"><i data-lucide="atom"></i> Embedding</span>
+    <span class="cover-chip" style="background:#4A6FA5"><i data-lucide="search"></i> Recuperación</span>
+  </div>
+  <p style="font-size:13px;color:var(--tinta-2)">La fase ancla (con halo) es donde vive el bloque; las demás muestran cobertura
+  (<b>tira</b> en la variante A, <b>fantasma</b> en la B).</p>
+
+  <div class="aviso-caja fuego">
+    <i data-lucide="flame"></i>
+    <div><span class="titulo-caja">Qué cedes (esto es lo didáctico)</span>
+    <b>Control del chunking</b>: su skillset trocea como quiere, no como tu dominio pide ·
+    <b>Coste</b>: pagas por operación de indexado y consulta ·
+    <b>Lock-in</b>: tu índice vive en Azure. La <span class="term" data-term="píldora de información">píldora de información</span>
+    de tu dominio quizá merece un <span class="term" data-term="chunking">chunking</span> propio.</div>
+  </div>
+
+  <h2 style="margin-top:28px">Pros y contras</h2>
+  <table class="tabla-comparativa">
+    <thead><tr><th>Pros</th><th>Contras</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><ul class="ok"><li>Pipeline completo gestionado (menos piezas que mantener)</li><li>Seguridad empresarial y RBAC integrado</li><li>Búsqueda híbrida (BM25 + densa) nativa</li></ul></td>
+        <td><ul class="ko"><li>Lock-in de ecosistema</li><li>Coste por operación</li><li>Control fino del chunking limitado</li></ul></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:28px">Combina bien con</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="chip">Definir dominios <i data-lucide="sitemap" style="width:11px;height:11px"></i></span>
+    <span class="chip">Metadatos de seguridad <i data-lucide="lock" style="width:11px;height:11px"></i></span>
+    <span class="chip">Hilado de documentos <i data-lucide="link" style="width:11px;height:11px"></i></span>
+    <span class="chip">Boost de transversales <i data-lucide="trending-up" style="width:11px;height:11px"></i></span>
+    <span class="chip">Dataset áureo <i data-lucide="target" style="width:11px;height:11px"></i></span>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:34px;flex-wrap:wrap">
+    <a class="btn primario" href="editor-a.html?template=megapiezas"><i data-lucide="chef-hat"></i> Verla en el lienzo (variante A)</a>
+    <a class="btn" href="editor-b.html?template=megapiezas"><i data-lucide="chef-hat"></i> Verla en el lienzo (variante B)</a>
+  </div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

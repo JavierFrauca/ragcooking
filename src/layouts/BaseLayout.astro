@@ -1,0 +1,55 @@
+---
+import Topbar from '../components/Topbar.astro';
+import '../styles/global.css';
+import '../styles/fuentes.css';
+
+interface Props {
+  titulo?: string;
+  claseBody?: string;
+}
+const { titulo = 'ragcooking.info — el recetario del RAG', claseBody = '' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{titulo}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#C14B2E" />
+  </head>
+  <body class={claseBody}>
+    <Topbar />
+    <slot />
+    <footer class="pie-legal">
+      <div>
+        <b>ragcooking.info</b> — el recetario del RAG · hecho por Javier Frauca
+      </div>
+      <nav>
+        <a href="/legal#aviso">aviso legal</a> ·
+        <a href="/legal#privacidad">privacidad y RGPD</a> ·
+        <a href="/legal#almacenamiento">almacenamiento local</a> ·
+        <a href="/legal#cookies">cookies</a>
+      </nav>
+      <div style="font-size:11.5px">Sin cookies de rastreo · sin analítica · tus recetas viven solo en tu navegador</div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .pie-legal {
+    border-top: 1.5px solid var(--linea);
+    background: var(--papel-2);
+    padding: 18px 26px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font: 400 13px var(--sans);
+    color: var(--tinta-2);
+  }
+  .pie-legal nav a { color: var(--tinta-2); font-weight: 600; }
+</style>

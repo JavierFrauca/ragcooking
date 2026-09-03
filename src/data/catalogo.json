@@ -1,0 +1,2514 @@
+{
+  "schema": "ragcooking.catalogo",
+  "version": 2,
+  "actualizado": "2026-09-03",
+  "descripcion": "Fuente única de verdad de ragcooking.info: estaciones, fases, piezas atómicas, grupos (frameworks/conjuntos de bloques) con variantes y átomos de fase, modelos de embedding con sus propiedades, asistente de modelo de datos para almacenes, plantillas y diccionario. Actualizando este fichero se actualiza todo el sitio.",
+  "estaciones": [
+    {
+      "id": "aprovisionamiento",
+      "nombre": "Aprovisionamiento",
+      "sub": "La compra",
+      "color": "#D9A02B",
+      "icon": "shopping-basket"
+    },
+    {
+      "id": "preparacion",
+      "nombre": "Preparación",
+      "sub": "Mise en place",
+      "color": "#6B8E4E",
+      "icon": "chef-hat"
+    },
+    {
+      "id": "coccion",
+      "nombre": "Cocción",
+      "sub": "Cocinar y guardar",
+      "color": "#C14B2E",
+      "icon": "flame"
+    },
+    {
+      "id": "servicio",
+      "nombre": "Servicio",
+      "sub": "Emplatar y servir",
+      "color": "#4A6FA5",
+      "icon": "utensils"
+    },
+    {
+      "id": "calidad",
+      "nombre": "Calidad y gobierno",
+      "sub": "El crítico",
+      "color": "#8A5A83",
+      "icon": "clipboard-check"
+    }
+  ],
+  "fases": [
+    {
+      "id": "modelo",
+      "est": "aprovisionamiento",
+      "nivel": "recomendada",
+      "icon": "sitemap",
+      "nombre": "Modelo de conocimiento",
+      "desc": "Dominios y etiquetas con descripción. Se diseña ANTES de ingestar: lo que nunca se modeló no se puede filtrar."
+    },
+    {
+      "id": "corpus",
+      "est": "aprovisionamiento",
+      "nivel": "obligatoria",
+      "icon": "folder-open",
+      "nombre": "Corpus",
+      "desc": "Fuentes del conocimiento: ficheros, web, APIs, MCPs, wikis…"
+    },
+    {
+      "id": "ingesta",
+      "est": "aprovisionamiento",
+      "nivel": "obligatoria",
+      "icon": "download",
+      "nombre": "Ingesta",
+      "desc": "Extracción y carga: lectores de formato, OCR, scrapers, conectores."
+    },
+    {
+      "id": "formato",
+      "est": "aprovisionamiento",
+      "nivel": "recomendada",
+      "icon": "file-code",
+      "nombre": "Normalización de formato",
+      "desc": "Todo el corpus a un formato común (normalmente Markdown): PDF, DOCX, HTML, correo → una sola bandeja estructurada antes de curar."
+    },
+    {
+      "id": "limpieza",
+      "est": "aprovisionamiento",
+      "nivel": "recomendada",
+      "icon": "paintbrush",
+      "nombre": "Limpieza",
+      "desc": "Normalización, deduplicación, corrección, calidad."
+    },
+    {
+      "id": "estructura",
+      "est": "preparacion",
+      "nivel": "opcional",
+      "icon": "layers",
+      "nombre": "Estructura",
+      "desc": "Segmentación y clasificación por dominios y tipos documentales."
+    },
+    {
+      "id": "transversales",
+      "est": "preparacion",
+      "nivel": "opcional",
+      "icon": "link",
+      "nombre": "Transversales",
+      "desc": "Hilado de documentos: conceptos con respuesta en chunks de distintos dominios."
+    },
+    {
+      "id": "chunking",
+      "est": "preparacion",
+      "nivel": "obligatoria",
+      "icon": "scissors",
+      "nombre": "Chunking",
+      "desc": "La píldora de información: el tamaño se hereda del dominio y debe caber en el modelo de embedding."
+    },
+    {
+      "id": "metaetiquetado",
+      "est": "preparacion",
+      "nivel": "recomendada",
+      "icon": "tags",
+      "nombre": "Metaetiquetado",
+      "desc": "Metadatos por chunk: dominio, etiquetas, vigencia, seguridad, linaje."
+    },
+    {
+      "id": "sintesis",
+      "est": "preparacion",
+      "nivel": "opcional",
+      "icon": "sparkles",
+      "nombre": "Síntesis",
+      "desc": "Resúmenes con LLM de chunks o documentos (doble campo: resumen + original)."
+    },
+    {
+      "id": "embedding",
+      "est": "coccion",
+      "nivel": "obligatoria",
+      "icon": "atom",
+      "nombre": "Embedding",
+      "desc": "Modelo que convierte texto en vectores. Su límite de tokens determina el tamaño máximo de la píldora."
+    },
+    {
+      "id": "almacenamiento",
+      "est": "coccion",
+      "nivel": "obligatoria",
+      "icon": "database",
+      "nombre": "Almacenamiento",
+      "desc": "BD vectorial, índice léxico (BM25) o híbrido, con metadatos filtrables y modelo de datos diseñado."
+    },
+    {
+      "id": "ruido",
+      "est": "coccion",
+      "nivel": "recomendada",
+      "icon": "activity",
+      "nombre": "Medición de ruido",
+      "desc": "Detectar chunks que se tropiezan con búsquedas de dominios no alineados."
+    },
+    {
+      "id": "framework",
+      "est": "servicio",
+      "nivel": "recomendada",
+      "icon": "wrench",
+      "nombre": "Framework",
+      "desc": "Orquestación: un conjunto que ya orquesta (LlamaIndex, LangChain…) o tu propio código. No es obligatoria: si tu arquitectura se sostiene sola, déjala."
+    },
+    {
+      "id": "recuperacion",
+      "est": "servicio",
+      "nivel": "obligatoria",
+      "icon": "search",
+      "nombre": "Recuperación",
+      "desc": "Densa, sparse, híbrida, prefiltro determinista por metadatos."
+    },
+    {
+      "id": "reranking",
+      "est": "servicio",
+      "nivel": "recomendada",
+      "icon": "arrow-up-wide-narrow",
+      "nombre": "Reranking",
+      "desc": "Cross-encoders, rerankers, boost de transversales."
+    },
+    {
+      "id": "generacion",
+      "est": "servicio",
+      "nivel": "obligatoria",
+      "icon": "bot",
+      "nombre": "Generación",
+      "desc": "LLM generador, plantillas de prompt, citas de fuentes."
+    },
+    {
+      "id": "evaluacion",
+      "est": "calidad",
+      "nivel": "recomendada",
+      "icon": "target",
+      "nombre": "Evaluación",
+      "desc": "Dataset áureo, métricas (recall, precisión), umbral de aceptación."
+    },
+    {
+      "id": "gobierno",
+      "est": "calidad",
+      "nivel": "opcional",
+      "icon": "shield",
+      "nombre": "Gobierno",
+      "desc": "Frescura, ciclo de vida, coste, despliegue continuo."
+    }
+  ],
+  "piezas": [
+    {
+      "id": "modelo.dominios",
+      "fase": "modelo",
+      "nombre": "Definir dominios",
+      "icon": "sitemap",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Divide el corpus en dominios, cada uno con su descripción",
+      "pros": [
+        "Enfoca el corpus",
+        "Habilita prefiltros por dominio"
+      ],
+      "cons": [
+        "Requiere conocimiento del negocio"
+      ]
+    },
+    {
+      "id": "modelo.etiquetas",
+      "fase": "modelo",
+      "nombre": "Taxonomía de etiquetas",
+      "icon": "tags",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Etiquetas con descripción y propósito: la segunda dimensión de la búsqueda",
+      "pros": [
+        "Filtros y reordenación",
+        "Vocabulario común"
+      ],
+      "cons": [
+        "Mantenimiento continuo"
+      ]
+    },
+    {
+      "id": "corpus.carpeta-pdf",
+      "fase": "corpus",
+      "nombre": "Carpeta de PDFs",
+      "icon": "folder",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Ficheros PDF en carpetas: contratos, convenios, manuales…",
+      "pros": [
+        "Simplicidad total"
+      ],
+      "cons": [
+        "Sin frescura automática"
+      ]
+    },
+    {
+      "id": "corpus.paginas-web",
+      "fase": "corpus",
+      "nombre": "Páginas web",
+      "icon": "globe",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Contenido de URLs y sitemaps",
+      "pros": [
+        "Siempre fresco (crawling)"
+      ],
+      "cons": [
+        "Ruido de plantilla"
+      ]
+    },
+    {
+      "id": "corpus.mcp",
+      "fase": "corpus",
+      "nombre": "Servidores MCP",
+      "icon": "plug",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Orígenes expuestos como Model Context Protocol",
+      "pros": [
+        "Estándar emergente"
+      ],
+      "cons": [
+        "Calidad variable de servidores"
+      ]
+    },
+    {
+      "id": "corpus.apis",
+      "fase": "corpus",
+      "nombre": "APIs de origen",
+      "icon": "webhook",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "APIs internas o de terceros",
+      "pros": [
+        "Datos vivos"
+      ],
+      "cons": [
+        "Autenticación y límites"
+      ]
+    },
+    {
+      "id": "corpus.wiki",
+      "fase": "corpus",
+      "nombre": "Wiki corporativa",
+      "icon": "book-open",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Confluence, Notion, MediaWiki…",
+      "pros": [
+        "Conocimiento curado"
+      ],
+      "cons": [
+        "Permisos heredados complejos"
+      ]
+    },
+    {
+      "id": "corpus.bdd",
+      "fase": "corpus",
+      "nombre": "Base de datos origen",
+      "icon": "table",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Registros estructurados que también son conocimiento",
+      "pros": [
+        "Datos limpios de serie"
+      ],
+      "cons": [
+        "Texto pobre sin curar"
+      ]
+    },
+    {
+      "id": "ingesta.lectores-pdf",
+      "fase": "ingesta",
+      "nombre": "Lectores de PDF",
+      "icon": "file-text",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Extraen texto, tablas y estructura",
+      "pros": [
+        "Maduro"
+      ],
+      "cons": [
+        "PDFs sucios"
+      ]
+    },
+    {
+      "id": "ingesta.ocr",
+      "fase": "ingesta",
+      "nombre": "OCR",
+      "icon": "scan-text",
+      "level": "avanzada",
+      "origin": "comercial",
+      "tagline": "Texto de documentos escaneados",
+      "pros": [
+        "Desbloquea el papel"
+      ],
+      "cons": [
+        "Coste y errores"
+      ]
+    },
+    {
+      "id": "ingesta.scraper",
+      "fase": "ingesta",
+      "nombre": "Scraper web",
+      "icon": "download",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Descarga y limpia HTML",
+      "pros": [
+        "Automatizable"
+      ],
+      "cons": [
+        "Frágil ante cambios"
+      ]
+    },
+    {
+      "id": "ingesta.conectores",
+      "fase": "ingesta",
+      "nombre": "Conectores",
+      "icon": "cable",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Conectores ya hechos (SharePoint, Drive, Notion, Jira…)",
+      "pros": [
+        "Ahorra pipas"
+      ],
+      "cons": [
+        "Dependes del proveedor"
+      ]
+    },
+    {
+      "id": "limpieza.normalizacion",
+      "fase": "limpieza",
+      "nombre": "Normalización",
+      "icon": "paintbrush",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Unicode, mayúsculas, espacios, caracteres huérfanos",
+      "pros": [
+        "Embeddings más limpios"
+      ],
+      "cons": [
+        "—"
+      ]
+    },
+    {
+      "id": "limpieza.deduplicacion",
+      "fase": "limpieza",
+      "nombre": "Deduplicación",
+      "icon": "copy",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Detecta documentos y chunks repetidos",
+      "pros": [
+        "Menos ruido"
+      ],
+      "cons": [
+        "Coste computacional"
+      ]
+    },
+    {
+      "id": "limpieza.correccion",
+      "fase": "limpieza",
+      "nombre": "Corrección de calidad",
+      "icon": "check",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Errores de OCR, codificación, huérfanos",
+      "pros": [
+        "Calidad del corpus"
+      ],
+      "cons": [
+        "Requiere revisión"
+      ]
+    },
+    {
+      "id": "limpieza.deteccion-idioma",
+      "fase": "limpieza",
+      "nombre": "Detección de idioma",
+      "icon": "languages",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Separa el corpus por idioma: condiciona el modelo de embedding",
+      "pros": [
+        "Evita mezclar idiomas en el índice"
+      ],
+      "cons": [
+        "—"
+      ]
+    },
+    {
+      "id": "estructura.por-dominios",
+      "fase": "estructura",
+      "nombre": "Segmentar por dominios",
+      "icon": "layers",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Subcorpus por dominio del modelo",
+      "pros": [
+        "Pipelines por dominio"
+      ],
+      "cons": [
+        "Sobrecoste operativo"
+      ]
+    },
+    {
+      "id": "estructura.por-tipo",
+      "fase": "estructura",
+      "nombre": "Clasificar por tipo documental",
+      "icon": "folder-tree",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Convenio, sentencia, manual, política…",
+      "pros": [
+        "Chunking por tipo"
+      ],
+      "cons": [
+        "Taxonomía previa"
+      ]
+    },
+    {
+      "id": "transversales.hilado",
+      "fase": "transversales",
+      "nombre": "Hilado de documentos",
+      "icon": "link",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Documentos transversales que enlazan chunks de varios dominios; peso extra en rerank",
+      "pros": [
+        "Conceptos multi-dominio resueltos"
+      ],
+      "cons": [
+        "Mantenimiento humano"
+      ]
+    },
+    {
+      "id": "transversales.mapa-conceptos",
+      "fase": "transversales",
+      "nombre": "Mapa de conceptos",
+      "icon": "network",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Inventario de conceptos multi-dominio: qué concepto vive en qué dominios",
+      "pros": [
+        "Guía el hilado"
+      ],
+      "cons": [
+        "Elaboración inicial"
+      ]
+    },
+    {
+      "id": "chunking.fijo",
+      "fase": "chunking",
+      "nombre": "Chunking fijo",
+      "icon": "scissors",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Tamaño y overlap fijos; define aquí el tamaño de tu píldora",
+      "pildora": true,
+      "pros": [
+        "Simple y rápido"
+      ],
+      "cons": [
+        "Corta ideas por la mitad"
+      ]
+    },
+    {
+      "id": "chunking.semantico",
+      "fase": "chunking",
+      "nombre": "Chunking semántico",
+      "icon": "brain",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Corta donde el texto cambia de tema; la píldora la marca el tema",
+      "pildora": true,
+      "pros": [
+        "Chunks coherentes"
+      ],
+      "cons": [
+        "Más coste de proceso"
+      ]
+    },
+    {
+      "id": "chunking.estructura",
+      "fase": "chunking",
+      "nombre": "Por estructura",
+      "icon": "list",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Respeta secciones, artículos, cláusulas; el dominio marca la píldora",
+      "pildora": true,
+      "pros": [
+        "Perfecto para normativa"
+      ],
+      "cons": [
+        "Documentos bien formados"
+      ]
+    },
+    {
+      "id": "chunking.jerarquico",
+      "fase": "chunking",
+      "nombre": "Jerárquico (padre-hijo)",
+      "icon": "git-branch",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Chunks pequeños que recuerdan a su padre",
+      "pildora": true,
+      "pros": [
+        "Contexto amplio"
+      ],
+      "cons": [
+        "Índice doble"
+      ]
+    },
+    {
+      "id": "metaetiquetado.dominio-tags",
+      "fase": "metaetiquetado",
+      "nombre": "Dominio + etiquetas",
+      "icon": "tags",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Cada chunk lleva su dominio y etiquetas",
+      "pros": [
+        "Prefiltro potente"
+      ],
+      "cons": [
+        "—"
+      ]
+    },
+    {
+      "id": "metaetiquetado.seguridad",
+      "fase": "metaetiquetado",
+      "nombre": "Metadatos de seguridad",
+      "icon": "lock",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "tenant, empresa, grupo, rol, país, clasificación — modelar ANTES de ingestar",
+      "pros": [
+        "Filtro determinista",
+        "Seguridad auditable"
+      ],
+      "cons": [
+        "Re-catalogar si llega tarde"
+      ]
+    },
+    {
+      "id": "metaetiquetado.vigencia",
+      "fase": "metaetiquetado",
+      "nombre": "Vigencia y versionado",
+      "icon": "calendar-clock",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Fechas de vigencia y versión para descartar lo caducado",
+      "pros": [
+        "Respuestas vigentes"
+      ],
+      "cons": [
+        "Disciplina de datos"
+      ]
+    },
+    {
+      "id": "metaetiquetado.linaje",
+      "fase": "metaetiquetado",
+      "nombre": "Linaje documental",
+      "icon": "git-commit-horizontal",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "De qué documento, versión y página nace cada chunk",
+      "pros": [
+        "Trazabilidad total"
+      ],
+      "cons": [
+        "Disciplina de datos"
+      ]
+    },
+    {
+      "id": "sintesis.resumen-llm",
+      "fase": "sintesis",
+      "nombre": "Resumen con LLM",
+      "icon": "sparkles",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Doble campo: resumen firmado + texto original; el embedding puede ir sobre el resumen",
+      "pros": [
+        "Chunks digestivos"
+      ],
+      "cons": [
+        "Coste de síntesis"
+      ]
+    },
+    {
+      "id": "sintesis.por-dominio",
+      "fase": "sintesis",
+      "nombre": "Síntesis por dominio",
+      "icon": "sticky-note",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Una síntesis firmada por experto por cada dominio del corpus (Gold)",
+      "pros": [
+        "Contradicciones resueltas"
+      ],
+      "cons": [
+        "Requiere expertos"
+      ]
+    },
+    {
+      "id": "embedding.openai-3-small",
+      "fase": "embedding",
+      "nombre": "text-embedding-3-small",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comercial",
+      "proveedor": "OpenAI",
+      "licencia": "propietario",
+      "idiomas": "multilingüe",
+      "maxTokens": 8191,
+      "dimensiones": 1536,
+      "tagline": "El estándar comercial: barato, sólido y multilingüe",
+      "pros": [
+        "Calidad/precio excelente",
+        "Multilingüe"
+      ],
+      "cons": [
+        "Propietario: API y coste por token"
+      ]
+    },
+    {
+      "id": "embedding.openai-3-large",
+      "fase": "embedding",
+      "nombre": "text-embedding-3-large",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comercial",
+      "proveedor": "OpenAI",
+      "licencia": "propietario",
+      "idiomas": "multilingüe",
+      "maxTokens": 8191,
+      "dimensiones": 3072,
+      "tagline": "Más precisión, más dimensiones, más coste",
+      "pros": [
+        "Máxima calidad OpenAI"
+      ],
+      "cons": [
+        "Coste y almacenamiento"
+      ]
+    },
+    {
+      "id": "embedding.bge-m3",
+      "fase": "embedding",
+      "nombre": "BGE-M3",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comunidad",
+      "proveedor": "BAAI",
+      "licencia": "open",
+      "idiomas": "multilingüe (100+)",
+      "maxTokens": 8192,
+      "dimensiones": 1024,
+      "tagline": "El open multilingüe de referencia; se ejecuta en local",
+      "pros": [
+        "Gratis y local",
+        "Multilingüe y 8k de contexto"
+      ],
+      "cons": [
+        "Dimensiones grandes",
+        "Necesitas GPU/CPU para servirlo"
+      ]
+    },
+    {
+      "id": "embedding.qwen3-embed",
+      "fase": "embedding",
+      "nombre": "Qwen3-Embedding",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comunidad",
+      "proveedor": "Alibaba / Qwen",
+      "licencia": "open",
+      "idiomas": "multilingüe (100+)",
+      "maxTokens": 32768,
+      "dimensiones": 1024,
+      "tagline": "Top open en MTEB multilingüe: píldoras de hasta 32k tokens y dimensiones flexibles (MRL; 1024d el 0.6B, 4096d el 8B)",
+      "pros": [
+        "Top open en MTEB multilingüe",
+        "32k tokens de contexto",
+        "Dimensiones flexibles (MRL)",
+        "Consciente de instrucciones"
+      ],
+      "cons": [
+        "Los tamaños 4B/8B piden GPU",
+        "Menos integrado en clouds que OpenAI/Cohere"
+      ]
+    },
+    {
+      "id": "embedding.e5-multilingual",
+      "fase": "embedding",
+      "nombre": "multilingual-e5-large",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comunidad",
+      "proveedor": "Microsoft Research",
+      "licencia": "open",
+      "idiomas": "multilingüe",
+      "maxTokens": 512,
+      "dimensiones": 1024,
+      "tagline": "Excelente calidad… si tus píldoras caben en 512 tokens",
+      "pros": [
+        "Calidad contrastada",
+        "Ligero"
+      ],
+      "cons": [
+        "Solo 512 tokens: píldoras pequeñas"
+      ]
+    },
+    {
+      "id": "embedding.cohere-embed-v4",
+      "fase": "embedding",
+      "nombre": "Cohere embed v4",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comercial",
+      "proveedor": "Cohere",
+      "licencia": "propietario",
+      "idiomas": "multilingüe (100+)",
+      "maxTokens": 128000,
+      "dimensiones": 1536,
+      "tagline": "Muy fuerte en multilingüe y documentos largos",
+      "pros": [
+        "Multilingüe top",
+        "Contexto enorme"
+      ],
+      "cons": [
+        "API externa"
+      ]
+    },
+    {
+      "id": "embedding.gemini-embedding",
+      "fase": "embedding",
+      "nombre": "Gemini embedding",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comercial",
+      "proveedor": "Google",
+      "licencia": "propietario",
+      "idiomas": "multilingüe (100+)",
+      "maxTokens": 2048,
+      "dimensiones": 3072,
+      "tagline": "El de Google: fuerte en clasificación y retrieval",
+      "pros": [
+        "Integrado con Vertex/Gemini"
+      ],
+      "cons": [
+        "Solo 2048 tokens por píldora"
+      ]
+    },
+    {
+      "id": "embedding.voyage-3",
+      "fase": "embedding",
+      "nombre": "voyage-3-large",
+      "icon": "atom",
+      "level": "avanzada",
+      "origin": "comercial",
+      "proveedor": "Voyage AI",
+      "licencia": "propietario",
+      "idiomas": "multilingüe",
+      "maxTokens": 32000,
+      "dimensiones": 2048,
+      "tagline": "Especializado en RAG y código; contexto larguísimo",
+      "pros": [
+        "Top en benchmarks RAG"
+      ],
+      "cons": [
+        "Proveedor menor, coste"
+      ]
+    },
+    {
+      "id": "embedding.nomic-embed",
+      "fase": "embedding",
+      "nombre": "nomic-embed-text-v1.5",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comunidad",
+      "proveedor": "Nomic",
+      "licencia": "open",
+      "idiomas": "solo inglés",
+      "maxTokens": 8192,
+      "dimensiones": 768,
+      "tagline": "Open y eficiente… pero solo inglés: ojo con tu corpus",
+      "pros": [
+        "Open, rápido, barato"
+      ],
+      "cons": [
+        "Solo inglés"
+      ]
+    },
+    {
+      "id": "embedding.sentence-transformers",
+      "fase": "embedding",
+      "nombre": "sentence-transformers",
+      "icon": "atom",
+      "level": "core",
+      "origin": "comunidad",
+      "proveedor": "SBERT.net",
+      "licencia": "open",
+      "idiomas": "según modelo",
+      "maxTokens": 512,
+      "dimensiones": 384,
+      "tagline": "La navaja suiza local: elige el modelo según idioma y tamaño",
+      "pros": [
+        "Modelos locales pequeños"
+      ],
+      "cons": [
+        "Calidad variable según modelo"
+      ]
+    },
+    {
+      "id": "embedding.mistral-embed",
+      "fase": "embedding",
+      "nombre": "mistral-embed",
+      "icon": "atom",
+      "level": "avanzada",
+      "origin": "comercial",
+      "proveedor": "Mistral",
+      "licencia": "propietario",
+      "idiomas": "multilingüe",
+      "maxTokens": 8192,
+      "dimensiones": 1024,
+      "tagline": "El de Mistral, bueno y competitivo en europeo",
+      "pros": [
+        "Buen precio",
+        "Fuerte en idiomas UE"
+      ],
+      "cons": [
+        "API externa"
+      ]
+    },
+    {
+      "id": "almacenamiento.chroma",
+      "fase": "almacenamiento",
+      "nombre": "Chroma",
+      "icon": "database",
+      "level": "core",
+      "origin": "comunidad",
+      "modeloDatos": true,
+      "tagline": "Vector store ligero para empezar; diseña aquí tu modelo de datos",
+      "pros": [
+        "Cero fricción"
+      ],
+      "cons": [
+        "Escala limitada"
+      ]
+    },
+    {
+      "id": "almacenamiento.pgvector",
+      "fase": "almacenamiento",
+      "nombre": "PostgreSQL + pgvector",
+      "icon": "database",
+      "level": "core",
+      "origin": "comunidad",
+      "modeloDatos": true,
+      "tagline": "Vectores + SQL: el prefiltro determinista más potente",
+      "pros": [
+        "Filtros SQL",
+        "Transaccional"
+      ],
+      "cons": [
+        "No es BD vectorial nativa"
+      ]
+    },
+    {
+      "id": "almacenamiento.qdrant",
+      "fase": "almacenamiento",
+      "nombre": "Qdrant",
+      "icon": "database",
+      "level": "core",
+      "origin": "comunidad",
+      "modeloDatos": true,
+      "tagline": "Rust, filtros de payload rápidos",
+      "pros": [
+        "Rápido con filtros"
+      ],
+      "cons": [
+        "Ecosistema menor"
+      ]
+    },
+    {
+      "id": "almacenamiento.weaviate",
+      "fase": "almacenamiento",
+      "nombre": "Weaviate",
+      "icon": "database",
+      "level": "core",
+      "origin": "comunidad",
+      "modeloDatos": true,
+      "integrates": [
+        "embedding"
+      ],
+      "tagline": "BD vectorial con módulos vectorizer (embedding integrado)",
+      "pros": [
+        "Integra embedding"
+      ],
+      "cons": [
+        "Operación propia"
+      ]
+    },
+    {
+      "id": "almacenamiento.pinecone",
+      "fase": "almacenamiento",
+      "nombre": "Pinecone",
+      "icon": "database",
+      "level": "core",
+      "origin": "comercial",
+      "modeloDatos": true,
+      "integrates": [
+        "embedding"
+      ],
+      "tagline": "Vector DB gestionada con inferencia integrada",
+      "pros": [
+        "Sin ops"
+      ],
+      "cons": [
+        "Coste, lock-in"
+      ]
+    },
+    {
+      "id": "almacenamiento.milvus",
+      "fase": "almacenamiento",
+      "nombre": "Milvus",
+      "icon": "database",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "modeloDatos": true,
+      "tagline": "El tractor: escala masiva con despliegue distribuido",
+      "pros": [
+        "Escala enorme"
+      ],
+      "cons": [
+        "Operación compleja"
+      ]
+    },
+    {
+      "id": "almacenamiento.mongodb-atlas",
+      "fase": "almacenamiento",
+      "nombre": "MongoDB Atlas Vector Search",
+      "icon": "database",
+      "level": "core",
+      "origin": "comercial",
+      "modeloDatos": true,
+      "tagline": "Si ya vives en Mongo, tus vectores viven contigo",
+      "pros": [
+        "Reutiliza tu Mongo"
+      ],
+      "cons": [
+        "Atado a Atlas"
+      ]
+    },
+    {
+      "id": "almacenamiento.faiss",
+      "fase": "almacenamiento",
+      "nombre": "FAISS",
+      "icon": "database",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "modeloDatos": true,
+      "tagline": "Librería de índices: velocidad pura, tú montas el resto",
+      "pros": [
+        "Rapidísimo"
+      ],
+      "cons": [
+        "No es una BD: sin metadatos ni persistencia de serie"
+      ]
+    },
+    {
+      "id": "almacenamiento.nucleus-rack",
+      "fase": "almacenamiento",
+      "nombre": "nucleus rack",
+      "icon": "orbit",
+      "level": "core",
+      "origin": "propio",
+      "modeloDatos": true,
+      "tagline": "El rack validado de nucleus: almacén con metadatos de dominio, seguridad y vigencia para búsqueda determinista (github.com/JavierFrauca)",
+      "pros": [
+        "Prefiltro determinista integrado (identidad → reglas → filtro)",
+        "Metadatos de dominio y seguridad de serie",
+        "Boost de transversales al servir"
+      ],
+      "cons": [
+        "Cuña propia 😄"
+      ]
+    },
+    {
+      "id": "ruido.colisiones",
+      "fase": "ruido",
+      "nombre": "Test de colisiones",
+      "icon": "activity",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "¿Mi chunk responde a preguntas de otro dominio? Mide el tropiezo",
+      "pros": [
+        "Detecta ruido entre dominios"
+      ],
+      "cons": [
+        "Requiere queries de prueba"
+      ]
+    },
+    {
+      "id": "ruido.umbral",
+      "fase": "ruido",
+      "nombre": "Umbral de interferencia",
+      "icon": "sliders-horizontal",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Alerta cuando un chunk asoma en búsquedas de dominios ajenos por encima del umbral",
+      "pros": [
+        "Vigilancia continua"
+      ],
+      "cons": [
+        "Calibración del umbral"
+      ]
+    },
+    {
+      "id": "framework.custom",
+      "fase": "framework",
+      "nombre": "Custom (a medida)",
+      "icon": "wrench",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Tu propio pipeline: control total, todo el mantenimiento",
+      "pros": [
+        "Control absoluto"
+      ],
+      "cons": [
+        "Todo el mantenimiento es tuyo"
+      ]
+    },
+    {
+      "id": "recuperacion.densa",
+      "fase": "recuperacion",
+      "nombre": "Búsqueda densa",
+      "icon": "search",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Similitud semántica de embeddings",
+      "pros": [
+        "Entiende sinonimia"
+      ],
+      "cons": [
+        "Sufre sin prefiltro"
+      ]
+    },
+    {
+      "id": "recuperacion.sparse-bm25",
+      "fase": "recuperacion",
+      "nombre": "BM25 (sparse)",
+      "icon": "search",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Clásico léxico: palabras exactas",
+      "pros": [
+        "Preciso con términos raros"
+      ],
+      "cons": [
+        "Ciego a sinónimos"
+      ]
+    },
+    {
+      "id": "recuperacion.hibrida",
+      "fase": "recuperacion",
+      "nombre": "Híbrida densa + sparse",
+      "icon": "shuffle",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Lo mejor de los dos mundos con fusión (RRF)",
+      "pros": [
+        "Robusta"
+      ],
+      "cons": [
+        "Dos índices"
+      ]
+    },
+    {
+      "id": "recuperacion.prefiltro-metadata",
+      "fase": "recuperacion",
+      "nombre": "Prefiltro por metadatos",
+      "icon": "filter",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "La semántica encuentra lo parecido; el filtro decide qué puede competir",
+      "pros": [
+        "Precisión sube",
+        "Universo reducido"
+      ],
+      "cons": [
+        "Metadatos obligatorios"
+      ]
+    },
+    {
+      "id": "recuperacion.rbac-abac",
+      "fase": "recuperacion",
+      "nombre": "RBAC / ABAC",
+      "icon": "shield",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Identidad → reglas → filtro. Nunca el LLM como autoridad de seguridad",
+      "pros": [
+        "Seguridad determinista"
+      ],
+      "cons": [
+        "Modelo de permisos previo"
+      ]
+    },
+    {
+      "id": "reranking.cross-encoder",
+      "fase": "reranking",
+      "nombre": "Cross-encoder",
+      "icon": "arrow-up-wide-narrow",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Reordena los top-k con un modelo cruzado",
+      "pros": [
+        "Gran ganancia"
+      ],
+      "cons": [
+        "Latencia"
+      ]
+    },
+    {
+      "id": "reranking.boost-transversales",
+      "fase": "reranking",
+      "nombre": "Boost de transversales",
+      "icon": "trending-up",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Los documentos hilados entre dominios pesan más",
+      "pros": [
+        "Conceptos transversales"
+      ],
+      "cons": [
+        "Requiere fase transversales"
+      ]
+    },
+    {
+      "id": "generacion.llm-generador",
+      "fase": "generacion",
+      "nombre": "LLM generador",
+      "icon": "bot",
+      "level": "core",
+      "origin": "comercial",
+      "tagline": "El modelo que redacta la respuesta (GPT, Claude, Gemini, Llama, Mistral…)",
+      "pros": [
+        "—"
+      ],
+      "cons": [
+        "—"
+      ]
+    },
+    {
+      "id": "generacion.plantilla-citas",
+      "fase": "generacion",
+      "nombre": "Plantilla con citas",
+      "icon": "quote",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Responde citando el chunk y la fuente",
+      "pros": [
+        "Trazabilidad"
+      ],
+      "cons": [
+        "—"
+      ]
+    },
+    {
+      "id": "evaluacion.dataset-aureo",
+      "fase": "evaluacion",
+      "nombre": "Dataset áureo",
+      "icon": "target",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Preguntas y respuestas patrón: Recall ≥ 90% o cero, no-deployment",
+      "pros": [
+        "Validación medible"
+      ],
+      "cons": [
+        "Esfuerzo inicial"
+      ]
+    },
+    {
+      "id": "evaluacion.metricas",
+      "fase": "evaluacion",
+      "nombre": "Métricas continuas",
+      "icon": "gauge",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Recall, precisión y deriva en cada despliegue",
+      "pros": [
+        "Anticipa regresiones"
+      ],
+      "cons": [
+        "Infraestructura"
+      ]
+    },
+    {
+      "id": "gobierno.frescura",
+      "fase": "gobierno",
+      "nombre": "Frescura del corpus",
+      "icon": "refresh-cw",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Reingesta idempotente programada",
+      "pros": [
+        "Sin corpus caducado"
+      ],
+      "cons": [
+        "Pipelines estables"
+      ]
+    },
+    {
+      "id": "gobierno.coste",
+      "fase": "gobierno",
+      "nombre": "Control de coste",
+      "icon": "coins",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Presupuesto por ingesta y por consulta",
+      "pros": [
+        "Sin sorpresas"
+      ],
+      "cons": [
+        "—"
+      ]
+    },
+    {
+      "id": "formato.a-markdown",
+      "fase": "formato",
+      "nombre": "Todo a Markdown",
+      "icon": "file-code",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "PDF, DOCX, HTML, correo → Markdown conservando estructura (títulos, listas, tablas)",
+      "pros": [
+        "Un único formato estructurado",
+        "Base perfecta para chunking por estructura"
+      ],
+      "cons": [
+        "Tablas exóticas pueden sufrir"
+      ]
+    },
+    {
+      "id": "formato.a-texto-plano",
+      "fase": "formato",
+      "nombre": "Texto plano (.txt)",
+      "icon": "file-text",
+      "level": "core",
+      "origin": "comunidad",
+      "tagline": "Todo a texto plano: lo más simple, sin estructura",
+      "pros": [
+        "Rapidísimo"
+      ],
+      "cons": [
+        "Pierdes títulos, listas y tablas"
+      ]
+    },
+    {
+      "id": "formato.tabular",
+      "fase": "formato",
+      "nombre": "Tabular a CSV/JSON",
+      "icon": "table",
+      "level": "avanzada",
+      "origin": "comunidad",
+      "tagline": "Registros, hojas de cálculo y bases a formato tabular estándar",
+      "pros": [
+        "Datos estructurados consultables"
+      ],
+      "cons": [
+        "Pide esquema previo"
+      ]
+    },
+    {
+      "id": "formato.conversor-llm",
+      "fase": "formato",
+      "nombre": "Conversión con LLM/IA",
+      "icon": "sparkles",
+      "level": "avanzada",
+      "origin": "comercial",
+      "tagline": "Documentos feos (escaneos, plantillas caóticas) → Markdown limpio con IA",
+      "pros": [
+        "Rescata lo irrecuperable"
+      ],
+      "cons": [
+        "Coste y revisión"
+      ]
+    }
+  ],
+  "grupos": [
+    {
+      "id": "grupo.llamaindex",
+      "nombre": "LlamaIndex",
+      "icon": "wrench",
+      "origin": "comunidad",
+      "faseAncla": "framework",
+      "tagline": "De los datos a la respuesta: readers, node parsers, retrievers y query engines",
+      "embeddingExterno": true,
+      "pros": [
+        "Ideal para datos",
+        "Muchos conectores"
+      ],
+      "cons": [
+        "API cambiable entre versiones"
+      ],
+      "variantes": [
+        {
+          "id": "completo",
+          "nombre": "Pipeline completo",
+          "atomos": [
+            {
+              "fase": "ingesta",
+              "propio": {
+                "nombre": "LlamaIndex · readers",
+                "desc": "Más de 100 lectores de formatos y fuentes"
+              }
+            },
+            {
+              "fase": "chunking",
+              "propio": {
+                "nombre": "LlamaIndex · node parsers",
+                "desc": "Splitters por sentencia, código, markdown o jerárquicos"
+              }
+            },
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "LlamaIndex · retrievers",
+                "desc": "Densa, sparse, híbrida y auto-merging"
+              }
+            },
+            {
+              "fase": "generacion",
+              "propio": {
+                "nombre": "LlamaIndex · query engine",
+                "desc": "Síntesis con citas a los nodos fuente"
+              }
+            }
+          ]
+        },
+        {
+          "id": "solo-recuperacion",
+          "nombre": "Solo recuperación + generación",
+          "atomos": [
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "LlamaIndex · retrievers",
+                "desc": "Sobre un índice que tú ya construyes"
+              }
+            },
+            {
+              "fase": "generacion",
+              "propio": {
+                "nombre": "LlamaIndex · query engine",
+                "desc": "Síntesis con citas"
+              }
+            }
+          ]
+        }
+      ],
+      "requisitos": [
+        {
+          "fase": "corpus",
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "fase": "embedding",
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "fase": "almacenamiento",
+          "pieza": "almacenamiento.chroma"
+        }
+      ]
+    },
+    {
+      "id": "grupo.langchain",
+      "nombre": "LangChain / LangGraph",
+      "icon": "puzzle",
+      "origin": "comunidad",
+      "faseAncla": "framework",
+      "tagline": "Orquestación de recuperación y generación; LangGraph añade grafos y agentes",
+      "embeddingExterno": true,
+      "pros": [
+        "Ecosistema enorme",
+        "LangGraph para flujos con estado"
+      ],
+      "cons": [
+        "Abstracciones cambiantes"
+      ],
+      "variantes": [
+        {
+          "id": "orquestacion",
+          "nombre": "Orquestación RAG",
+          "atomos": [
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "LangChain · retrievers",
+                "desc": "Retrievers componibles con fuse y filtros"
+              }
+            },
+            {
+              "fase": "generacion",
+              "propio": {
+                "nombre": "LangChain · chains + prompts",
+                "desc": "Cadenas de prompt → LLM con citas"
+              }
+            }
+          ]
+        },
+        {
+          "id": "agentes",
+          "nombre": "Agéntico (LangGraph)",
+          "atomos": [
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "LangGraph · tool retrieval",
+                "desc": "La recuperación como herramienta del agente"
+              }
+            },
+            {
+              "fase": "generacion",
+              "propio": {
+                "nombre": "LangGraph · agente con estado",
+                "desc": "Grafo con ciclos, memoria y decisión"
+              }
+            }
+          ]
+        }
+      ],
+      "requisitos": [
+        {
+          "fase": "corpus",
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "fase": "ingesta",
+          "pieza": "ingesta.lectores-pdf"
+        },
+        {
+          "fase": "chunking",
+          "pieza": "chunking.fijo"
+        },
+        {
+          "fase": "embedding",
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "fase": "almacenamiento",
+          "pieza": "almacenamiento.chroma"
+        }
+      ]
+    },
+    {
+      "id": "grupo.haystack",
+      "nombre": "Haystack (deepset)",
+      "icon": "wrench",
+      "origin": "comunidad",
+      "faseAncla": "framework",
+      "tagline": "Pipelines declarativos de extremo a extremo, muy apreciado en producción",
+      "embeddingExterno": true,
+      "pros": [
+        "Muy estructurado",
+        "Buen soporte híbrido"
+      ],
+      "cons": [
+        "Menos comunidad en español"
+      ],
+      "variantes": [
+        {
+          "id": "completo",
+          "nombre": "Pipeline completo",
+          "atomos": [
+            {
+              "fase": "ingesta",
+              "propio": {
+                "nombre": "Haystack · converters",
+                "desc": "Conversores de documentos"
+              }
+            },
+            {
+              "fase": "chunking",
+              "propio": {
+                "nombre": "Haystack · splitters",
+                "desc": "Splitters por documento"
+              }
+            },
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "Haystack · hybrid retriever",
+                "desc": "Híbrida con fusión"
+              }
+            },
+            {
+              "fase": "generacion",
+              "propio": {
+                "nombre": "Haystack · answer builder",
+                "desc": "Respuestas con fuentes"
+              }
+            }
+          ]
+        }
+      ],
+      "requisitos": [
+        {
+          "fase": "corpus",
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "fase": "embedding",
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "fase": "almacenamiento",
+          "pieza": "almacenamiento.chroma"
+        }
+      ]
+    },
+    {
+      "id": "grupo.azure-ai-search",
+      "nombre": "Azure AI Search",
+      "icon": "database",
+      "origin": "comercial",
+      "proveedor": "Microsoft",
+      "faseAncla": "almacenamiento",
+      "tagline": "Indexa, trocea, embebe y busca en un solo servicio gestionado",
+      "embeddingExterno": false,
+      "modeloDatos": true,
+      "pros": [
+        "Pipeline completo gestionado",
+        "Seguridad empresarial"
+      ],
+      "cons": [
+        "Lock-in",
+        "Coste por operación",
+        "Control fino del chunking limitado"
+      ],
+      "variantes": [
+        {
+          "id": "pipeline-gestionado",
+          "nombre": "Pipeline gestionado",
+          "atomos": [
+            {
+              "fase": "chunking",
+              "propio": {
+                "nombre": "Azure · skillset chunking",
+                "desc": "Troceado durante la indexación"
+              }
+            },
+            {
+              "fase": "embedding",
+              "propio": {
+                "nombre": "Azure · integrated embedding",
+                "desc": "Vectorización integrada en el servicio"
+              }
+            },
+            {
+              "fase": "almacenamiento",
+              "propio": {
+                "nombre": "Azure · índice",
+                "desc": "Índice con campos filtrables"
+              }
+            },
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "Azure · búsqueda híbrida",
+                "desc": "BM25 + vectorial + semantic ranker"
+              }
+            }
+          ]
+        }
+      ],
+      "requisitos": [
+        {
+          "fase": "corpus",
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "fase": "ingesta",
+          "pieza": "ingesta.lectores-pdf"
+        },
+        {
+          "fase": "framework",
+          "pieza": "framework.custom"
+        },
+        {
+          "fase": "generacion",
+          "pieza": "generacion.plantilla-citas"
+        }
+      ]
+    },
+    {
+      "id": "grupo.elasticsearch",
+      "nombre": "Elasticsearch",
+      "icon": "database",
+      "origin": "comunidad",
+      "faseAncla": "almacenamiento",
+      "tagline": "BM25 + kNN: búsqueda y almacenamiento en uno",
+      "embeddingExterno": true,
+      "modeloDatos": true,
+      "pros": [
+        "Híbrido nativo",
+        "Madurez enorme"
+      ],
+      "cons": [
+        "Operación pesada"
+      ],
+      "variantes": [
+        {
+          "id": "hibrido",
+          "nombre": "Índice híbrido",
+          "atomos": [
+            {
+              "fase": "almacenamiento",
+              "propio": {
+                "nombre": "Elastic · índice + kNN",
+                "desc": "Índice invertido y vectorial en el mismo shard"
+              }
+            },
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "Elastic · BM25 + densa",
+                "desc": "Búsqueda híbrida con RRF"
+              }
+            }
+          ]
+        }
+      ],
+      "requisitos": [
+        {
+          "fase": "corpus",
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "fase": "ingesta",
+          "pieza": "ingesta.lectores-pdf"
+        },
+        {
+          "fase": "chunking",
+          "pieza": "chunking.fijo"
+        },
+        {
+          "fase": "embedding",
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "fase": "framework",
+          "pieza": "framework.custom"
+        },
+        {
+          "fase": "generacion",
+          "pieza": "generacion.plantilla-citas"
+        }
+      ]
+    },
+    {
+      "id": "grupo.ragkit",
+      "nombre": "ragkit",
+      "icon": "chef-hat",
+      "origin": "propio",
+      "faseAncla": "framework",
+      "tagline": "Nuestro kit de cocina del corpus: de la fuente al rack validado (github.com/JavierFrauca) — pensado para multitenant",
+      "embeddingExterno": false,
+      "pros": [
+        "Curado según el método del libro",
+        "Idempotente por diseño",
+        "Open source"
+      ],
+      "cons": [
+        "Cuña propia 😄"
+      ],
+      "variantes": [
+        {
+          "id": "corpus-completo",
+          "nombre": "Corpus completo",
+          "atomos": [
+            {
+              "fase": "ingesta",
+              "propio": {
+                "nombre": "ragkit · ingesta idempotente",
+                "desc": "Manifiestos de zona Bronce: reingerir no rompe nada"
+              }
+            },
+            {
+              "fase": "limpieza",
+              "propio": {
+                "nombre": "ragkit · curado Silver",
+                "desc": "Normalización, deduplicación y calidad por dominio"
+              }
+            },
+            {
+              "fase": "estructura",
+              "propio": {
+                "nombre": "ragkit · segmentación",
+                "desc": "Clasificación por dominios y tipos documentales"
+              }
+            },
+            {
+              "fase": "transversales",
+              "propio": {
+                "nombre": "ragkit · hilado",
+                "desc": "Detección de conceptos multi-dominio"
+              }
+            }
+          ]
+        },
+        {
+          "id": "solo-curado",
+          "nombre": "Solo curado",
+          "atomos": [
+            {
+              "fase": "limpieza",
+              "propio": {
+                "nombre": "ragkit · curado Silver",
+                "desc": "Solo la parte de curado"
+              }
+            }
+          ]
+        }
+      ],
+      "requisitos": [
+        {
+          "fase": "corpus",
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "fase": "chunking",
+          "pieza": "chunking.semantico"
+        },
+        {
+          "fase": "embedding",
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "fase": "almacenamiento",
+          "pieza": "almacenamiento.chroma"
+        },
+        {
+          "fase": "recuperacion",
+          "pieza": "recuperacion.prefiltro-metadata"
+        },
+        {
+          "fase": "generacion",
+          "pieza": "generacion.plantilla-citas"
+        }
+      ],
+      "conflicts": [
+        "grupo.nucleus"
+      ]
+    },
+    {
+      "id": "grupo.nucleus",
+      "nombre": "nucleus",
+      "icon": "orbit",
+      "origin": "propio",
+      "faseAncla": "framework",
+      "tagline": "El núcleo de servicio del RAG: rack validado, búsqueda determinista y rerank (github.com/JavierFrauca)",
+      "embeddingExterno": true,
+      "pros": [
+        "Prefiltro determinista integrado",
+        "Pensado para servir con seguridad"
+      ],
+      "cons": [
+        "Cuña propia 😄"
+      ],
+      "variantes": [
+        {
+          "id": "servicio-completo",
+          "nombre": "Servicio completo",
+          "atomos": [
+            {
+              "fase": "chunking",
+              "propio": {
+                "nombre": "nucleus · chunking",
+                "desc": "Troceado orientado al rack: píldoras pensadas para el servicio"
+              }
+            },
+            {
+              "fase": "embedding",
+              "propio": {
+                "nombre": "nucleus · embedding",
+                "desc": "Embedding integrado del núcleo"
+              }
+            },
+            {
+              "fase": "almacenamiento",
+              "pieza": "almacenamiento.nucleus-rack"
+            },
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "nucleus · búsqueda determinista",
+                "desc": "Identidad → reglas → filtro antes de la semántica"
+              }
+            },
+            {
+              "fase": "reranking",
+              "propio": {
+                "nombre": "nucleus · rerank",
+                "desc": "Reordenado con boost de transversales"
+              }
+            }
+          ]
+        },
+        {
+          "id": "solo-rack",
+          "nombre": "Solo rack (almacén)",
+          "atomos": [
+            {
+              "fase": "almacenamiento",
+              "pieza": "almacenamiento.nucleus-rack"
+            }
+          ]
+        }
+      ],
+      "requisitos": [
+        {
+          "fase": "corpus",
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "fase": "ingesta",
+          "pieza": "ingesta.lectores-pdf"
+        },
+        {
+          "fase": "chunking",
+          "pieza": "chunking.semantico"
+        },
+        {
+          "fase": "embedding",
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "fase": "generacion",
+          "pieza": "generacion.plantilla-citas"
+        }
+      ],
+      "conflicts": [
+        "grupo.ragkit"
+      ]
+    }
+  ],
+  "modeloDatos": {
+    "titulo": "Diseña el modelo de datos de tu almacén",
+    "desc": "Estos campos acompañan a cada chunk y convierten la búsqueda semántica en una búsqueda gobernada. Diséñalos antes de ingestar: lo que nunca se modeló no se puede filtrar.",
+    "campos": [
+      {
+        "id": "resumen",
+        "tipo": "bool",
+        "nombre": "Campo resumen (doble campo)",
+        "desc": "SÍ: guardas un resumen del chunk y el embedding se calcula sobre él (recuperas por el resumen, respondes con el original). NO: el embedding va sobre el propio chunk.",
+        "afecta": "embedding"
+      },
+      {
+        "id": "dominio",
+        "tipo": "tag",
+        "nombre": "Dominio",
+        "desc": "El dominio del modelo de conocimiento al que pertenece el chunk.",
+        "afecta": "prefiltro"
+      },
+      {
+        "id": "etiquetas",
+        "tipo": "labels",
+        "nombre": "Etiquetas / labels",
+        "desc": "Etiquetas libres o de taxonomía para filtrar y reordenar.",
+        "afecta": "prefiltro"
+      },
+      {
+        "id": "vigencia",
+        "tipo": "bool",
+        "nombre": "Vigencia (fecha hasta)",
+        "desc": "Fecha límite de validez: los chunks caducados no compiten.",
+        "afecta": "prefiltro"
+      },
+      {
+        "id": "nivelAcceso",
+        "tipo": "enum",
+        "nombre": "Nivel de acceso",
+        "opciones": [
+          "público",
+          "interno",
+          "confidencial"
+        ],
+        "desc": "Clasificación mínima requerida para recuperar el chunk.",
+        "afecta": "seguridad"
+      },
+      {
+        "id": "tenant",
+        "tipo": "bool",
+        "nombre": "Tenant / entidad",
+        "desc": "Aislamiento por cliente o entidad: imprescindible en multiempresa.",
+        "afecta": "seguridad"
+      },
+      {
+        "id": "linaje",
+        "tipo": "bool",
+        "nombre": "Linaje (fuente, versión, página)",
+        "desc": "De dónde nace el chunk para poder citar y auditar.",
+        "afecta": "citas"
+      }
+    ]
+  },
+  "plantillas": [
+    {
+      "id": "rag-minimo",
+      "nombre": "RAG mínimo (one-shot)",
+      "arranque": true,
+      "desc": "La receta de inicio: solo fases obligatorias, pocas piezas. Ideal para una primera prueba.",
+      "fasesActivas": [
+        "corpus",
+        "ingesta",
+        "chunking",
+        "embedding",
+        "almacenamiento",
+        "framework",
+        "recuperacion",
+        "generacion"
+      ],
+      "bloques": [
+        {
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "pieza": "ingesta.lectores-pdf"
+        },
+        {
+          "pieza": "chunking.fijo"
+        },
+        {
+          "pieza": "embedding.bge-m3"
+        },
+        {
+          "pieza": "almacenamiento.chroma"
+        },
+        {
+          "pieza": "framework.custom"
+        },
+        {
+          "pieza": "recuperacion.densa"
+        },
+        {
+          "pieza": "generacion.plantilla-citas"
+        }
+      ]
+    },
+    {
+      "id": "empresarial-segura",
+      "nombre": "Empresarial con seguridad",
+      "desc": "Con modelo de conocimiento, prefiltro determinista, RBAC, medición de ruido y evaluación.",
+      "fasesActivas": [
+        "modelo",
+        "corpus",
+        "ingesta",
+        "formato",
+        "limpieza",
+        "chunking",
+        "metaetiquetado",
+        "sintesis",
+        "embedding",
+        "almacenamiento",
+        "ruido",
+        "framework",
+        "recuperacion",
+        "reranking",
+        "generacion",
+        "evaluacion"
+      ],
+      "bloques": [
+        {
+          "pieza": "modelo.dominios"
+        },
+        {
+          "pieza": "modelo.etiquetas"
+        },
+        {
+          "pieza": "corpus.wiki"
+        },
+        {
+          "pieza": "ingesta.conectores"
+        },
+        {
+          "pieza": "formato.a-markdown"
+        },
+        {
+          "pieza": "limpieza.deduplicacion"
+        },
+        {
+          "pieza": "chunking.semantico"
+        },
+        {
+          "pieza": "metaetiquetado.seguridad"
+        },
+        {
+          "pieza": "metaetiquetado.vigencia"
+        },
+        {
+          "pieza": "sintesis.resumen-llm"
+        },
+        {
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "pieza": "almacenamiento.pgvector"
+        },
+        {
+          "pieza": "ruido.colisiones"
+        },
+        {
+          "pieza": "framework.custom"
+        },
+        {
+          "pieza": "recuperacion.prefiltro-metadata"
+        },
+        {
+          "pieza": "recuperacion.rbac-abac"
+        },
+        {
+          "pieza": "reranking.cross-encoder"
+        },
+        {
+          "pieza": "generacion.plantilla-citas"
+        },
+        {
+          "pieza": "evaluacion.dataset-aureo"
+        }
+      ]
+    },
+    {
+      "id": "conjunto-ragkit",
+      "nombre": "Conjunto: ragkit ★ (multitenant)",
+      "desc": "Corpus multitenant curado con ragkit:Bronce→Silver, prefiltros por tenant y dominio.",
+      "fasesActivas": [
+        "modelo",
+        "corpus",
+        "ingesta",
+        "formato",
+        "limpieza",
+        "estructura",
+        "transversales",
+        "chunking",
+        "embedding",
+        "almacenamiento",
+        "ruido",
+        "framework",
+        "recuperacion",
+        "generacion",
+        "evaluacion"
+      ],
+      "bloques": [
+        {
+          "pieza": "modelo.dominios"
+        },
+        {
+          "pieza": "modelo.etiquetas"
+        },
+        {
+          "pieza": "corpus.wiki"
+        },
+        {
+          "pieza": "ingesta.conectores"
+        },
+        {
+          "pieza": "formato.a-markdown"
+        },
+        {
+          "grupo": "grupo.ragkit",
+          "variante": "corpus-completo"
+        },
+        {
+          "pieza": "chunking.semantico"
+        },
+        {
+          "pieza": "embedding.openai-3-small"
+        },
+        {
+          "pieza": "almacenamiento.pgvector"
+        },
+        {
+          "pieza": "ruido.colisiones"
+        },
+        {
+          "pieza": "recuperacion.prefiltro-metadata"
+        },
+        {
+          "pieza": "generacion.plantilla-citas"
+        },
+        {
+          "pieza": "evaluacion.dataset-aureo"
+        }
+      ]
+    },
+    {
+      "id": "conjunto-nucleus",
+      "nombre": "Conjunto: nucleus ★ (servicio)",
+      "desc": "Un solo tenant, servicio completo: nucleus trocea, embebe, guarda, filtra y reordera.",
+      "fasesActivas": [
+        "corpus",
+        "ingesta",
+        "chunking",
+        "embedding",
+        "almacenamiento",
+        "ruido",
+        "framework",
+        "recuperacion",
+        "reranking",
+        "generacion",
+        "evaluacion"
+      ],
+      "bloques": [
+        {
+          "pieza": "corpus.carpeta-pdf"
+        },
+        {
+          "pieza": "ingesta.lectores-pdf"
+        },
+        {
+          "grupo": "grupo.nucleus",
+          "variante": "servicio-completo"
+        },
+        {
+          "pieza": "ruido.colisiones"
+        },
+        {
+          "pieza": "generacion.plantilla-citas"
+        },
+        {
+          "pieza": "evaluacion.metricas"
+        }
+      ]
+    }
+  ],
+  "diccionario": {
+    "secciones": [
+      {
+        "id": "fundamentos",
+        "nombre": "Fundamentos del RAG",
+        "icon": "book-open",
+        "desc": "El vocabulario mínimo para entender cualquier conversación sobre RAGs.",
+        "terminos": [
+          {
+            "t": "rag",
+            "def": "RAG (Retrieval-Augmented Generation): un LLM que responde apoyándose en tus documentos, recuperados en el momento de preguntar. En lugar de fiarlo todo a la memoria del modelo, buscas la información fresca y verificable en tu corpus y se la sirves al LLM como contexto para que responda con citas."
+          },
+          {
+            "t": "corpus",
+            "def": "Conjunto de documentos que alimentan el RAG: la materia prima. Su calidad decide mucho más que el modelo: el 80% del éxito de un RAG ocurre antes del prompt, en cómo se selecciona, limpia y cura este material."
+          },
+          {
+            "t": "chunk",
+            "def": "Porción de documento troceada: la unidad mínima que se recupera. El RAG no busca \"documentos\", busca chunks; su tamaño y coherencia determinan la calidad de cada respuesta."
+          },
+          {
+            "t": "píldora de información",
+            "def": "Un chunk que se basta a sí mismo para responder algo, sin necesitar al resto de la página. Es el criterio de calidad del chunking: si al leer el chunk aislado no entiendes la respuesta, la píldora está mal troceada."
+          },
+          {
+            "t": "chunking",
+            "def": "Trocear los documentos en chunks. El tamaño no se elige: se hereda del dominio (un convenio se trocea por artículos, un manual por secciones). Estrategias habituales: fijo, semántico, por estructura y jerárquico padre-hijo."
+          },
+          {
+            "t": "normalización de formato",
+            "def": "Pasar todo el corpus a un formato común — normalmente Markdown — antes de curar. Un solo formato estructurado simplifica limpieza, chunking y trazabilidad: te pelea una sola vez con los PDFs, no cada día."
+          },
+          {
+            "t": "markdown",
+            "def": "Formato de texto con estructura ligera (títulos #, listas, tablas) que se ha convertido en el estándar de facto para corpus de RAG: conserva la estructura del documento y es trivial de trocear por secciones.",
+            "mas": "https://www.markdownguide.org/"
+          },
+          {
+            "t": "overlap",
+            "def": "Solape entre chunks consecutivos para no perder ideas en el corte. Un overlap del 10-20% evita que la frase que cae justo en la frontera desaparezca de ambos lados."
+          },
+          {
+            "t": "tokens",
+            "def": "Unidades de texto (≈¾ de palabra en español) que consumen los modelos. Limitan el tamaño de la píldora: cada modelo de embedding admite un máximo de tokens por texto de entrada."
+          },
+          {
+            "t": "contexto",
+            "def": "Número máximo de tokens que un modelo (embedding o LLM) puede procesar de una vez: la píldora debe caber. En embeddings oscila entre 512 y 32k tokens según el modelo."
+          }
+        ]
+      },
+      {
+        "id": "embeddings",
+        "nombre": "Embeddings",
+        "icon": "atom",
+        "desc": "Cómo el texto se convierte en vectores y qué modelo conviene elegir: licencia, idiomas y límite de tokens.",
+        "terminos": [
+          {
+            "t": "embedding",
+            "def": "Representar texto como vector de números para comparar significados por distancia. Dos textos parecidos acaban con vectores cercanos, aunque no compartan ni una palabra. Es el mecanismo que permite buscar por significado en vez de por palabra exacta."
+          },
+          {
+            "t": "vector",
+            "def": "Lista de números que representa el significado de un texto. La \"posición\" de cada texto en ese espacio es lo que compara la búsqueda densa."
+          },
+          {
+            "t": "dimensión",
+            "def": "Longitud del vector de embedding (384, 1024, 3072…). Más dimensiones capturan más matiz pero encarecen almacenamiento y cómputo. Algunos modelos permiten reducirlas con MRL sin reentrenar."
+          },
+          {
+            "t": "open vs propietario",
+            "def": "Open: pesos descargables (Apache, MIT…), lo ejecutas tú sin coste por token y sin dependencia externa. Propietario: API de un proveedor, pagas por uso y dependes de su disponibilidad y política. Para comparar ambos mundos, el leaderboard MTEB es la referencia.",
+            "mas": "https://huggingface.co/spaces/mteb/leaderboard"
+          },
+          {
+            "t": "openai embeddings",
+            "def": "Familia text-embedding-3 (small/large) de OpenAI: propietaria, multilingüe, 8191 tokens de contexto, 1536 o 3072 dimensiones. El default de facto del mercado: buena calidad, precio contenido y documentación enorme.",
+            "mas": "https://platform.openai.com/docs/guides/embeddings"
+          },
+          {
+            "t": "bge-m3",
+            "def": "Modelo open source de BAAI: multilingüe (100+ idiomas), 8192 tokens de contexto y 1024 dimensiones. Se ejecuta en local y es de las mejores opciones open para español; su punto fuerte es combinar densa, sparse y multi-vectorial en un solo modelo.",
+            "mas": "https://huggingface.co/BAAI/bge-m3"
+          },
+          {
+            "t": "qwen3 embedding",
+            "def": "Familia open (Apache 2.0) de Alibaba en tamaños 0.6B/4B/8B: multilingüe (100+ idiomas), 32k tokens de contexto y dimensiones ajustables vía MRL. Entre lo mejor del lado open en retrieval multilingüe; los tamaños grandes piden GPU.",
+            "mas": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B"
+          },
+          {
+            "t": "e5",
+            "def": "Familia de embeddings de Microsoft Research. multilingual-e5-large es muy buena y ligera… pero solo admite 512 tokens por texto: obliga a píldoras pequeñas. Buen recordatorio de que el modelo de embedding condiciona el chunking.",
+            "mas": "https://huggingface.co/intfloat/multilingual-e5-large"
+          },
+          {
+            "t": "cohere embed",
+            "def": "Familia de embeddings de Cohere, muy fuerte en multilingüe y con contextos larguísimos (embed v4 llega a 128k tokens). Propietaria, con API propia y buenos rerankers en la misma casa.",
+            "mas": "https://cohere.com/embed"
+          },
+          {
+            "t": "gemini embedding",
+            "def": "Modelo de embedding de Google (3072 dimensiones, 2048 tokens), integrado con Gemini API y Vertex AI. Fuerte en clasificación y retrieval multilingüe.",
+            "mas": "https://ai.google.dev/gemini-api/docs/embeddings"
+          },
+          {
+            "t": "voyage",
+            "def": "Embeddings de Voyage AI especializados en RAG y código, con contextos de hasta 32k tokens. Suele aparecer en los puestos altos de los benchmarks de retrieval; proveedor menor que OpenAI o Cohere.",
+            "mas": "https://www.voyageai.com/"
+          },
+          {
+            "t": "nomic embed",
+            "def": "Embedding open source eficiente (768d, 8192 tokens)… pero solo inglés: ojo con corpus en español. Perfecto ejemplo de que \"open y bueno\" no basta: hay que mirar idiomas.",
+            "mas": "https://huggingface.co/nomic-ai/nomic-embed-text-v1.5"
+          },
+          {
+            "t": "sentence-transformers",
+            "def": "La biblioteca de referencia para embeddings locales: eliges el modelo según idioma, tamaño y límite de tokens, y lo sirves tú. La navaja suiza del que empieza sin API externa.",
+            "mas": "https://www.sbert.net/"
+          },
+          {
+            "t": "mistral embed",
+            "def": "Modelo de embedding de Mistral AI (1024d, 8192 tokens), competitivo en precio y fuerte en idiomas europeos, incluido el español.",
+            "mas": "https://docs.mistral.ai/capabilities/embeddings/"
+          }
+        ]
+      },
+      {
+        "id": "busqueda",
+        "nombre": "Búsqueda y recuperación",
+        "icon": "search",
+        "desc": "Cómo se busca dentro del RAG y cómo se mide que lo encontrado vale.",
+        "terminos": [
+          {
+            "t": "densa",
+            "def": "Búsqueda por similitud de embeddings: encuentra significados parecidos aunque cambien las palabras. Es la búsqueda \"semántica\" por excelencia; sufre si compite contra todo el corpus sin prefiltros."
+          },
+          {
+            "t": "sparse",
+            "def": "Búsqueda léxica (BM25): el vector es enorme y casi vacío, con pesos por palabra. Encuentra términos exactos (referencias, códigos, nombres propios) que la densa a veces difumina."
+          },
+          {
+            "t": "bm25",
+            "def": "El algoritmo de búsqueda léxica clásica: puntúa documentos por coincidencia de términos con frecuencia e inversión documental. Sigue siendo insuperable para palabras exactas y es la mitad de cualquier sistema híbrido."
+          },
+          {
+            "t": "híbrida",
+            "def": "Combinar búsqueda densa y sparse y fusionar sus rankings, normalmente con RRF. Lo mejor de los dos mundos: semántica + precisión léxica."
+          },
+          {
+            "t": "rrf",
+            "def": "Reciprocal Rank Fusion: forma habitual de fusionar rankings de búsquedas distintas. A cada documento se le suma 1/(k+posición) en cada ranking; simple, sin calibrar pesos, y funciona sorprendentemente bien."
+          },
+          {
+            "t": "reranking",
+            "def": "Reordenar los resultados recuperados con un modelo más fino (cross-encoder) antes de generar. La recuperación inicial es rápida y aproximada; el rerank es lento y preciso — y suele ser la mejora con mejor relación coste/beneficio de todo el RAG."
+          },
+          {
+            "t": "prefiltro determinista",
+            "def": "Regla fija (metadatos) que reduce qué información puede competir en la búsqueda, antes de que actúe la semántica. La semántica encuentra lo parecido; el filtro decide qué tiene derecho a competir. Es también la base de la seguridad: nunca un elemento probabilístico (LLM) decide quién accede a qué."
+          },
+          {
+            "t": "recall",
+            "def": "Fracción de respuestas correctas que el sistema consigue encontrar. Si el recall es bajo, da igual lo bien que genere el LLM: no le llegó la información. Por eso el umbral típico es \"Recall ≥ 90% o cero: no-deployment\"."
+          },
+          {
+            "t": "precisión",
+            "def": "Fracción de lo recuperado que realmente era relevante. Alta precisión = poco ruido en el contexto; bajo recall con alta precisión = respuestas incompletas pero limpias."
+          }
+        ]
+      },
+      {
+        "id": "seguridad",
+        "nombre": "Seguridad y gobierno del corpus",
+        "icon": "shield",
+        "desc": "Metadatos, permisos y calidad: lo que convierte una demo en un sistema serio.",
+        "terminos": [
+          {
+            "t": "tenant",
+            "def": "Cliente o entidad aislada dentro de un sistema multiempresa. Cada chunk debe saber a qué tenant pertenece para que nadie recupere información ajena: modelarlo después de ingestar es carísimo."
+          },
+          {
+            "t": "rbac",
+            "def": "Role-Based Access Control: permisos según el rol del usuario (RRHH, jurídico, admin…). Simple de razonar, más rígido: no distingue casos dentro del mismo rol."
+          },
+          {
+            "t": "abac",
+            "def": "Attribute-Based Access Control: permisos según atributos (país, clasificación, vigencia, departamento). Más expresivo que RBAC; combinado con metadatos por chunk, es el modelo natural para RAGs empresariales."
+          },
+          {
+            "t": "dataset áureo",
+            "def": "Conjunto patrón de preguntas y respuestas correctas para medir el RAG con objetividad. La regla del proyecto: Recall ≥ 90% o cero, no-deployment. Sin él, cada cambio es un acto de fe."
+          },
+          {
+            "t": "idempotente",
+            "def": "Ejecutar dos veces no rompe nada: la reingesta deja el mismo resultado. Es la propiedad que permite refrescar el corpus sin miedo, requisito de cualquier pipeline serio de ingesta."
+          },
+          {
+            "t": "medallón",
+            "def": "Arquitectura Bronce (crudo tal cual llega) → Silver (curado y normalizado) → Gold (síntesis validada por expertos). Tomada del mundo del dato y aplicada al conocimiento no estructurado."
+          },
+          {
+            "t": "linaje",
+            "def": "Rastro del origen de cada chunk: de qué documento, versión y página nace. Sin linaje no hay citas fiables ni auditoría posible."
+          },
+          {
+            "t": "doble campo",
+            "def": "Guardas resumen y original: recuperas por el resumen (el embedding se calcula sobre él) y respondes con el texto completo. Chunks digestivos para la búsqueda, completos para la respuesta."
+          },
+          {
+            "t": "transversal",
+            "def": "Documento que hilan chunks de varios dominios para responder conceptos multi-dominio (un concepto que vive a caballo entre laboral y fiscal, por ejemplo). En el rerank pesan más que los chunks sueltos."
+          },
+          {
+            "t": "mcp",
+            "def": "Model Context Protocol: estándar abierto para exponer herramientas y datos a modelos de forma uniforme. Cada vez más orígenes de corpus se exponen como servidores MCP.",
+            "mas": "https://modelcontextprotocol.io/"
+          },
+          {
+            "t": "one-shot",
+            "def": "Prueba puntual: montas, preguntas una vez y aprendes. El RAG mínimo de este sitio es una receta one-shot pensada para validar una idea en una tarde."
+          }
+        ]
+      },
+      {
+        "id": "frameworks",
+        "nombre": "Frameworks y conjuntos de bloques",
+        "icon": "puzzle",
+        "desc": "Los frameworks más usados vistos como lo que son: varias fases del pipeline empaquetadas en un conjunto.",
+        "terminos": [
+          {
+            "t": "conjunto de bloques",
+            "def": "Nuestro nombre para un framework visto como lo que es: varias fases del pipeline empaquetadas. En el editor se ancla en su fase, se expande en sus bloques (trazabilidad total) y trae variantes según cuántas fases te interesa que cubra."
+          },
+          {
+            "t": "llamaindex",
+            "def": "Framework centrado en datos: más de cien readers de fuentes y formatos, node parsers para trocear, retrievers componibles y query engines que responden citando los nodos fuente. Ideal cuando el reto está en los datos más que en el agente.",
+            "mas": "https://docs.llamaindex.ai/"
+          },
+          {
+            "t": "langchain",
+            "def": "El framework de orquestación más adoptado: retrievers componibles, cadenas de prompt → LLM e integraciones con casi todo. Su capa LangGraph añade grafos con estado para agentes. Contrapartida conocida: abstracciones que cambian rápido entre versiones.",
+            "mas": "https://python.langchain.com/"
+          },
+          {
+            "t": "langgraph",
+            "def": "Capa de LangChain para construir agentes como grafos con ciclos, memoria y control fino del flujo. Cuando el RAG deja de ser \"busca y responde\" y necesita decidir pasos, LangGraph es el paso siguiente natural.",
+            "mas": "https://langchain-ai.github.io/langgraph/"
+          },
+          {
+            "t": "haystack",
+            "def": "Framework de deepset con pipelines declarativos de extremo a extremo (converters → splitters → retrievers → generators). Muy apreciado en producción por su estructura explícita; algo menos comunidad en español.",
+            "mas": "https://haystack.deepset.ai/"
+          },
+          {
+            "t": "ragkit",
+            "def": "Kit open source de Javier Frauca para cocinar el corpus según el método del libro: ingesta idempotente con manifiestos (Bronce), curado Silver por dominios, segmentación documental e hilado de transversales. Cubre la mitad del pipeline que los frameworks de mercado suelen ignorar: la que ocurre antes del prompt.",
+            "mas": "https://github.com/JavierFrauca"
+          },
+          {
+            "t": "nucleus",
+            "def": "Núcleo de servicio del RAG de Javier Frauca: el rack validado (almacén con metadatos de dominio, seguridad y vigencia), búsqueda determinista con prefiltro identidad → reglas → filtro, y rerank con boost de transversales. Lo contrario de \"un prompt y a correr\": servir con seguridad.",
+            "mas": "https://github.com/JavierFrauca"
+          }
+        ]
+      },
+      {
+        "id": "almacenes",
+        "nombre": "Bases de datos y almacenes",
+        "icon": "database",
+        "desc": "Dónde viven los vectores y los metadatos que los gobiernan.",
+        "terminos": [
+          {
+            "t": "chroma",
+            "def": "Base de datos vectorial ligera y open source, ideal para prototipos y RAGs pequeños. Cero fricción para empezar; escala limitada cuando el corpus crece de verdad.",
+            "mas": "https://www.trychroma.com/"
+          },
+          {
+            "t": "qdrant",
+            "def": "BD vectorial open source escrita en Rust, muy rápida filtrando por payload (metadatos) antes de la búsqueda semántica: exactamente el patrón prefiltro determinista que preconiza este sitio.",
+            "mas": "https://qdrant.tech/"
+          },
+          {
+            "t": "weaviate",
+            "def": "BD vectorial open source con módulos vectorizer: puede calcular el embedding ella misma en la ingesta. Buen punto medio entre flexibilidad y operación propia.",
+            "mas": "https://weaviate.io/"
+          },
+          {
+            "t": "pinecone",
+            "def": "Vector DB totalmente gestionada (serverless) con inferencia de embeddings integrada. Cero operaciones a cambio de coste por uso y lock-in.",
+            "mas": "https://www.pinecone.io/"
+          },
+          {
+            "t": "pgvector",
+            "def": "Extensión de PostgreSQL para vectores: SQL y similitud semántica en la misma base. El prefiltro determinista más potente del mercado (el WHERE va antes de la distancia) y sin añadir otra pieza a operar.",
+            "mas": "https://github.com/pgvector/pgvector"
+          },
+          {
+            "t": "milvus",
+            "def": "BD vectorial open source distribuida para escala masiva. Cuando hablamos de cientos de millones de vectores, Milvus está en la conversación; la operación es su precio.",
+            "mas": "https://milvus.io/"
+          },
+          {
+            "t": "mongodb atlas vector search",
+            "def": "Búsqueda vectorial integrada en MongoDB Atlas: si tu aplicación ya vive en Mongo, tus vectores viven con tus documentos sin añadir otra base.",
+            "mas": "https://www.mongodb.com/products/platform/atlas-vector-search"
+          },
+          {
+            "t": "faiss",
+            "def": "Librería de Facebook AI Research para índices vectoriales rapidísimos. No es una base de datos: no trae metadatos ni persistencia de serie; tú montas el resto alrededor.",
+            "mas": "https://github.com/facebookresearch/faiss"
+          },
+          {
+            "t": "elasticsearch",
+            "def": "Motor de búsqueda con BM25 y kNN vectorial en el mismo índice: híbrido nativo sin pegar dos sistemas. Madurez enorme; operación no trivial.",
+            "mas": "https://www.elastic.co/elasticsearch"
+          },
+          {
+            "t": "azure ai search",
+            "def": "Servicio de búsqueda gestionado de Microsoft que trocea, embebe, indexa y busca en un solo pipeline (con skillsets e integrated embedding). Poderosísimo para entrar rápido; a cambio, lock-in y control fino limitado del chunking.",
+            "mas": "https://learn.microsoft.com/azure/search/"
+          }
+        ]
+      }
+    ]
+  }
+}
