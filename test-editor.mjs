@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 const noop = () => {};
 const elemento = () => ({
   innerHTML: '', value: '', textContent: '', hidden: false, style: {}, dataset: {},
+  offsetTop: 10, offsetHeight: 42,
   classList: { add: noop, remove: noop, toggle: noop, contains: () => false },
   addEventListener: noop, appendChild: noop, focus: noop, select: noop, click: noop,
   closest: () => null, scrollIntoView: noop, files: [],
@@ -88,15 +89,22 @@ check($('#lista-val').innerHTML.includes('desactivada'), 'el panel también list
 await toggleFase('corpus'); // reactivar
 check(!$('#lista-val').innerHTML.includes('desactivada'), 'reactivar la fase limpia el error');
 
-// carriles plegables
-const plegar = (id) => Promise.all((listeners['click'] || []).map((f) => f({
-  target: { closest: (sel) => (sel === '[data-plegar]' ? { dataset: { plegar: id } } : null), classList: { contains: () => false } },
+// el framework es un bloque a la derecha con conectores por fase cubierta
+const rail = (porId['#marcas-rail'] || {}).innerHTML || '';
+check(rail.includes('marca-grupo') && rail.includes('mg-conn'), 'bloque de framework con conectores triangulares por fase');
+
+// píldora ↔ embedding: el aviso aparece con píldora enorme y SE VA al rectificar
+await soltar('pieza:chunking.fijo', 'chunking');
+await soltar('pieza:embedding.bge-m3', 'embedding');
+const idPildora = ($('#canvas').innerHTML.match(/data-pildora="(b-\d+)"/) || [])[1];
+check(!!idPildora, 'pieza de chunking con campo píldora');
+const cambiarPildora = (valor) => Promise.all((listeners['change'] || []).map((f) => f({
+  target: { matches: (s) => s === '[data-pildora]', dataset: { pildora: idPildora }, value: String(valor), type: 'number' },
 })));
-await plegar('embedding');
-check($('#canvas').innerHTML.includes('colapsada'), 'clic en la cabecera de la fase la pliega');
-check($('#canvas').innerHTML.includes('chevron-right'), 'plegada muestra el chevron hacia la derecha');
-await plegar('embedding');
-check(!$('#canvas').innerHTML.includes('colapsada'), 'otro clic la despliega');
+await cambiarPildora(90000);
+check($('#lista-val').innerHTML.includes('no cabe') && $('#canvas').innerHTML.includes('no cabe'), 'píldora 90000: error visible en panel Y en el carril');
+await cambiarPildora(120);
+check(!$('#lista-val').innerHTML.includes('no cabe') && !$('#canvas').innerHTML.includes('no cabe'), 'rectificar la píldora borra el aviso (panel y carril)');
 
 // incompatibilidad ragkit ↔ nucleus: no pueden convivir
 await soltar('grupo:grupo.ragkit', 'limpieza');

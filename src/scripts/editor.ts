@@ -50,7 +50,6 @@ const grupoDe = (b: Bloque): Grupo | undefined => (b.grupoId ? grupoById(b.grupo
 
 const AVISOS: Record<string, string> = {
   formato: 'Sin formato común: convierte todo a Markdown (u otro estándar) antes de curar — o te pelearás con cada PDF en cada fase.',
-  framework: 'Sin orquestador a la vista: un conjunto que orqueste (LlamaIndex, LangChain…) o tu propio código. Si ya lo tienes resuelto, ignora este aviso.',
   modelo: 'Sin modelo de conocimiento (dominios y etiquetas) tendrás que re-catalogar después de ingestar: caro.',
   limpieza: 'Sin limpieza, el corpus crudo contamina los embeddings.',
   metaetiquetado: 'Sin metadatos no hay prefiltro: la semántica competirá contra todo el corpus.',
@@ -248,17 +247,23 @@ function renderMarcasGrupos() {
   const marcas: string[] = [];
   for (const gid of ids) {
     const g = grupoById(gid); if (!g) continue;
-    const fases = [...new Set([g.faseAncla, ...receta.bloques.filter((b) => b.grupoId === gid).map((b) => b.fase)])];
+    const fases = [...new Set(receta.bloques.filter((b) => b.grupoId === gid).map((b) => b.fase))];
     const els = fases.map((f) => document.querySelector(`.carril[data-fase="${f}"]`)).filter(Boolean) as HTMLElement[];
     if (!els.length) continue;
     const top = Math.min(...els.map((el) => el.offsetTop));
     const bottom = Math.max(...els.map((el) => el.offsetTop + el.offsetHeight));
     if (!isFinite(top) || !isFinite(bottom) || bottom <= top) continue;
-    marcas.push(`<button class="marca-grupo" data-expandir="${gid}" style="--c:${colorDeGrupo(gid)};top:${top}px;height:${bottom - top}px" title="${esc(g.nombre)} · cubre ${fases.map((f) => faseById(f)?.nombre || f).join(', ')} — clic para expandir/colapsar">
-      <span class="etiqueta">${esc(g.nombre)}</span><span class="linea"></span>
-    </button>`);
+    // conector triangular por cada fase cubierta: el bloque toca y enchufa la franja
+    const conectores = els.map((el) => {
+      const cy = el.offsetTop + el.offsetHeight / 2 - top;
+      return `<span class="mg-conn" style="top:${cy - 7}px"></span>`;
+    }).join('');
+    marcas.push(`<div class="marca-grupo" data-grupo="${gid}" style="--c:${colorDeGrupo(gid)};top:${top}px;height:${bottom - top}px" title="${esc(g.nombre)} · cubre ${fases.map((f) => faseById(f)?.nombre || f).join(', ')} — clic: expandir/colapsar · doble clic: ficha">
+      ${conectores}<span class="mg-cuerpo">${icono(g.icon)}<span class="mg-nombre">${esc(g.nombre)}</span></span>
+    </div>`);
   }
   rail.innerHTML = marcas.join('');
+  initIconos();
 }
 
 function renderSelector() {
@@ -284,7 +289,7 @@ function renderPaleta() {
         return `<div class="fase-grupo">
           <div class="fase-cab">${icono(f.icon)} ${f.nombre}</div>
           <div class="cuerpo">
-            ${piezas.map((p) => `<span class="pieza-chip" draggable="true" data-pieza="${p.id}" title="${esc(p.tagline)}">${icono(p.icon)} ${p.nombre}${p.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}${p.integrates ? ' 🔌' : ''}</span>`).join('')}
+            ${piezas.map((p) => `<span class="pieza-chip pieza-bloque" draggable="true" data-pieza="${p.id}" title="${esc(p.tagline)}" style="--c-fase:${est.color};--c-texto:${textoSobre(est.color)}">${icono(p.icon)} ${p.nombre}${p.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}${p.integrates ? ' 🔌' : ''}</span>`).join('')}
             <button class="pieza-chip custom" data-custom="${f.id}">${icono('plus')} custom</button>
           </div>
         </div>`;
@@ -322,19 +327,17 @@ function renderLienzo() {
 function carrilHTML(f: Fase) {
   const cub = cubierta(f.id);
   const bloques = receta.bloques.filter((b) => b.fase === f.id);
-  const gruposPresentes = [...new Set(receta.bloques.filter((b) => b.grupoId).map((b) => b.grupoId!))];
   // avisos de validación visibles EN el carril que los genera
   const avisos = itemsValidacion.filter((i) => i.fase === f.id && i.sev !== 'ok');
   const banners = avisos.map((i) => `<div class="aviso-carril ${i.sev}"><span class="marca">${i.sev === 'error' ? '⛔' : i.sev === 'aviso' ? '▲' : 'ℹ'}</span><span>${i.msg}</span></div>`).join('');
+  const tocaConjunto = receta.bloques.some((b) => b.grupoId && b.fase === f.id);
   const clsCarril = [
     avisos.some((i) => i.sev === 'error') ? 'con-error' : avisos.length ? 'con-aviso' : '',
+    tocaConjunto ? 'cubierta-grupo' : '',
     !cub && f.nivel === 'obligatoria' ? 'falta' : '',
   ].join(' ');
-  // tarjetas de grupo ancladas en esta fase
-  const gruposAqui = gruposPresentes
-    .map((gid) => grupoById(gid)!)
-    .filter((g) => g.faseAncla === f.id || (!receta.fasesActivas.includes(g.faseAncla) && g.variantes.some((v) => v.id === receta.bloques.find((b) => b.grupoId === g.id)?.variante && v.atomos.some((a) => a.fase === f.id))));
-  let html = banners + gruposAqui.map((g) => grupoCardHTML(g)).join('');
+  // el conjunto NO es una tarjeta en el carril: su entidad es la llave derecha que abraza las fases
+  let html = banners;
   for (const b of bloques) {
     const g = grupoDe(b);
     if (g) {
@@ -343,14 +346,15 @@ function carrilHTML(f: Fase) {
     } else html += bloqueHTML(b);
   }
   const faltan = !cub && f.nivel === 'obligatoria';
-  if (!bloques.length && !gruposAqui.length && !banners.length) html += `<div class="vacio">— vacía —${faltan ? '<span class="sugerido">⚠ fase obligatoria sin cubrir</span>' : ''}</div>`;
-  const colapsada = receta.fasesColapsadas.includes(f.id);
-  const resumenBloques = bloques.length ? `${bloques.length} bloque${bloques.length > 1 ? 's' : ''}` : (gruposAqui.length ? 'conjunto' : 'vacía');
-  return `<div class="carril ${clsCarril} ${colapsada ? 'colapsada' : ''}" data-fase="${f.id}">
-    <div class="lateral" data-plegar="${f.id}" title="Clic para ${colapsada ? 'desplegar' : 'plegar'} esta fase" role="button" tabindex="0">
-      <div class="titulo">${icono(colapsada ? 'chevron-right' : 'chevron-down')} ${icono(f.icon)} ${f.nombre}</div>
+  if (!bloques.length && !banners.length) html += cub
+    ? `<div class="vacio cubierta-vacia">✓ cubierta por el conjunto · ${esc(cub.join(', '))}</div>`
+    : `<div class="vacio">— vacía —${faltan ? '<span class="sugerido">⚠ fase obligatoria sin cubrir</span>' : ''}</div>`;
+  const estColor = (estacionById(f.est) || {}).color || '#2B2620';
+  return `<div class="carril ${clsCarril}" data-fase="${f.id}" style="--est:${estColor};--est-texto:${textoSobre(estColor)}">
+    <div class="lateral" title="${esc(f.desc)}">
+      <div class="titulo">${icono(f.icon)} ${f.nombre}</div>
       <div class="desc">${f.desc}</div>
-      <div class="estado"><span class="chip nivel-${NIVEL_CLS[f.nivel]}">${NIVEL_LABEL[f.nivel]}</span>${avisos.length ? `<span class="chip" style="border-color:${avisos.some((i) => i.sev === 'error') ? 'var(--err);color:var(--err)' : 'var(--warn);color:#96700F'}">${avisos.length} aviso${avisos.length > 1 ? 's' : ''}</span>` : ''}${colapsada ? `<span class="chip">${resumenBloques}</span>` : ''}</div>
+      <div class="estado"><span class="chip nivel-${NIVEL_CLS[f.nivel]}">${NIVEL_LABEL[f.nivel]}</span>${avisos.length ? `<span class="chip" style="border-color:${avisos.some((i) => i.sev === 'error') ? 'var(--err);color:var(--err)' : 'var(--warn);color:#96700F'}">${avisos.length} aviso${avisos.length > 1 ? 's' : ''}</span>` : ''}${cub && !bloques.length ? `<span class="cubierto-por">✓ ${esc(cub.join(', '))}</span>` : ''}</div>
     </div>
     <div class="zona" data-drop-fase="${f.id}">${html}</div>
   </div>`;
@@ -358,29 +362,17 @@ function carrilHTML(f: Fase) {
 
 function bloqueNombre(b: Bloque) { return piezaDe(b)?.nombre || grupoDe(b)?.nombre || 'Custom'; }
 
-function grupoCardHTML(g: Grupo) {
-  const bloqueGrupo = receta.bloques.find((b) => b.grupoId === g.id);
-  const variante = bloqueGrupo?.variante || g.variantes[0].id;
-  const expandido = receta.expandidos.includes(g.id);
-  const numAtomos = receta.bloques.filter((b) => b.grupoId === g.id).length;
-  return `<div class="bloque grupo" data-grupo-card="${g.id}">
-    <div class="acciones"><button class="borrar" data-quitar-grupo="${g.id}" title="Quitar conjunto">${icono('x')}</button></div>
-    <div class="fila">${icono(g.icon)} <span class="nombre">${g.nombre}${g.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}</span>
-      <span class="grupo-acciones">
-        <select data-variante="${g.id}" title="Variante del conjunto">
-          ${g.variantes.map((v) => `<option value="${v.id}" ${v.id === variante ? 'selected' : ''}>${v.nombre}</option>`).join('')}
-        </select>
-        <button data-expandir="${g.id}" title="${expandido ? 'Colapsar' : 'Expandir'}">${expandido ? icono('chevrons-up-down') + ' colapsar' : icono('chevrons-down-up') + ` ${numAtomos} bloques`}</button>
-        ${g.modeloDatos ? `<button data-modelo-grupo="${g.id}">${icono('table-2')} modelo</button>` : ''}
-      </span>
-    </div>
-    <div class="tagline">${esc(g.tagline)}</div>
-  </div>`;
-}
+/* texto legible sobre color pleno (luminancia relativa) */
+const textoSobre = (hex: string) => {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+  return lum > 0.62 ? '#3A2E10' : '#FFFFFF';
+};
+
 
 function bloqueHTML(b: Bloque, g?: Grupo) {
   const p = piezaDe(b);
-  const color = g ? 'var(--ciruela)' : (estacionById(faseById(b.fase)!.est)?.color || 'var(--tinta-2)');
+  const color = g ? colorDeGrupo(g.id) : (estacionById(faseById(b.fase)!.est)?.color || 'var(--tinta-2)');
   const clases = ['bloque', g ? 'miembro' : '', !p ? 'custom' : ''].join(' ');
   const deGrupo = g ? `<span class="de-grupo">${icono('bot')} ${esc(g.nombre)}</span>` : '';
   let cuerpo = '';
@@ -393,7 +385,7 @@ function bloqueHTML(b: Bloque, g?: Grupo) {
       <span class="chip" title="máximo de tokens por píldora">📏 ${p.maxTokens} tokens</span>
       <span class="chip" title="dimensiones del vector">${p.dimensiones}d</span></div>`;
     if (p.pildora) cuerpo += `<div class="config-fila">píldora: <input class="pildora-input" type="number" min="50" step="50" value="${b.config?.pildora || ''}" placeholder="tokens" data-pildora="${b.id}"> tokens</div>`;
-    if (p.modeloDatos) {
+    if (p.modeloDatos || (g?.modeloDatos && b.fase === 'almacenamiento')) {
       const md = b.config?.modeloDatos || {};
       const activos = Object.entries(md).filter(([k, v]) => MODELO_DATOS.campos.some((c) => c.id === k) && (v === true || (typeof v === 'string' && v)));
       cuerpo += `<div class="config-fila">${icono('table-2')} <button class="btn mini" data-modelo="${b.id}">diseñar modelo</button>
@@ -401,7 +393,7 @@ function bloqueHTML(b: Bloque, g?: Grupo) {
         ${md.resumen === true ? '<span class="chip" style="border-color:var(--azafran)">embedding sobre el resumen</span>' : ''}</div>`;
     }
   }
-  return `<div class="${clases}" draggable="true" data-bid="${b.id}" style="border-left-color:${color}">
+  return `<div class="${clases}" draggable="true" data-bid="${b.id}" style="--c-fase:${color};--c-texto:${textoSobre(color)}" title="${esc(p?.tagline || b.custom || '')} — doble clic: ficha">
     <div class="acciones">
       <button data-nota="${b.id}" title="Comentario">${icono('message-circle')}</button>
       ${!g ? `<button class="borrar" data-borrar="${b.id}" title="Quitar">${icono('x')}</button>` : ''}
@@ -448,9 +440,9 @@ document.addEventListener('click', (e) => {
   const t = e.target as HTMLElement;
   const c = (sel: string) => t.closest(sel) as HTMLElement | null;
   let el: HTMLElement | null;
-  if (el = c('[data-plegar]')) {
-    const id = el.dataset.plegar!;
-    receta.fasesColapsadas = receta.fasesColapsadas.includes(id) ? receta.fasesColapsadas.filter((x) => x !== id) : [...receta.fasesColapsadas, id];
+  if (el = c('.marca-grupo')) {
+    const gid = el.dataset.grupo!;
+    receta.expandidos = receta.expandidos.includes(gid) ? receta.expandidos.filter((x) => x !== gid) : [...receta.expandidos, gid];
     return trasCambio();
   }
   if (el = c('[data-toggle-fase]')) {
@@ -501,7 +493,13 @@ document.addEventListener('click', (e) => {
     return construirDesdeGrupo(gid, select?.value || grupoById(gid)!.variantes[0].id);
   }
   if (c('[data-nueva-custom]')) { cerrarModales(); cargarPlantilla('rag-minimo'); return toast('Lienzo custom: las fases obligatorias y tú'); }
-  if (el = c('[data-usar-grupo]')) { cerrarModales(); colocarGrupo(el.dataset.usarGrupo!, el.dataset.variante || ''); return trasCambio(); }
+  if (el = c('[data-usar-grupo]')) {
+    const gid = el.dataset.usarGrupo!, vid = el.dataset.variante || '';
+    cerrarModales();
+    if (receta.bloques.some((b) => b.grupoId === gid)) { cambiarVariante(gid, vid); return toast('Variante aplicada'); }
+    colocarGrupo(gid, vid);
+    return trasCambio();
+  }
   if (c('.cerrar') || t.classList.contains('modal-fondo')) return cerrarModales();
 });
 
@@ -516,7 +514,7 @@ document.addEventListener('change', (e) => {
   }
   if (t.matches('[data-pildora]')) {
     const b = receta.bloques.find((x) => x.id === t.dataset.pildora);
-    if (b) { b.config = { ...(b.config || {}), pildora: Number(t.value) || undefined }; renderPanel(); guardar(); }
+    if (b) { b.config = { ...(b.config || {}), pildora: Number(t.value) || undefined }; trasCambio(); }
     return;
   }
   if (t.matches('[data-md-campo]')) {
@@ -527,14 +525,15 @@ document.addEventListener('change', (e) => {
       if (t.type === 'checkbox') md[id] = t.checked;
       else md[id] = t.value;
       b.config = { ...(b.config || {}), modeloDatos: md };
+      trasCambio();
     }
     return;
   }
 });
 
 document.addEventListener('dblclick', (e) => {
-  const card = (e.target as HTMLElement).closest('[data-grupo-card]') as HTMLElement | null;
-  if (card) return abrirFichaGrupo(card.dataset.grupoCard!);
+  const marca = (e.target as HTMLElement).closest('.marca-grupo') as HTMLElement | null;
+  if (marca) return abrirFichaGrupo(marca.dataset.grupo!);
   const bl = (e.target as HTMLElement).closest('[data-bid]') as HTMLElement | null;
   if (!bl) return;
   const b = receta.bloques.find((x) => x.id === bl.dataset.bid);
@@ -636,11 +635,15 @@ function abrirFicha(b: Bloque) {
     ${g ? `<h3>Variantes</h3>${g.variantes.map((v) => `
       <div class="aviso-caja hierba" style="align-items:center">
         ${icono('chef-hat')}
-        <div style="flex:1"><span class="titulo-caja">${esc(v.nombre)}</span>
+        <div style="flex:1"><span class="titulo-caja">${esc(v.nombre)}${receta.bloques.some((x) => x.grupoId === g.id && x.variante === v.id) ? ' ✓ en uso' : ''}</span>
           <div class="atomos-lista">${v.atomos.map((a) => `<div class="atomo-fila"><span class="a-fase">${faseById(a.fase)?.nombre || a.fase}</span> ${esc(a.propio?.nombre || piezaById(a.pieza || '')?.nombre || '')}</div>`).join('')}</div>
         </div>
-        <button class="btn primario mini" data-usar-grupo="${g.id}" data-variante="${v.id}">Usar</button>
-      </div>`).join('')}` : ''}
+        <button class="btn primario mini" data-usar-grupo="${g.id}" data-variante="${v.id}">${receta.bloques.some((x) => x.grupoId === g.id) ? 'Cambiar a esta' : 'Usar'}</button>
+      </div>`).join('')}
+      ${receta.bloques.some((x) => x.grupoId === g.id) ? `<div class="fila-botones">
+        <button class="btn" data-expandir="${g.id}" onclick="document.getElementById('modal-fondo').classList.remove('abierto')">${receta.expandidos.includes(g.id) ? icono('chevrons-up-down') + ' colapsar en el lienzo' : icono('chevrons-down-up') + ' expandir en el lienzo'}</button>
+        <button class="btn" data-quitar-grupo="${g.id}" onclick="document.getElementById('modal-fondo').classList.remove('abierto')">${icono('trash-2')} quitar conjunto</button>
+      </div>` : ''}` : ''}
     <div class="proscons">
       <div class="pros"><h4>Pros</h4><ul>${(p?.pros || g?.pros || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
       <div class="cons"><h4>Contras</h4><ul>${(p?.cons || g?.cons || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>

@@ -649,3 +649,555 @@ code, .mono { font-family: var(--mono); font-size: .88em; background: var(--pape
 }
 *::-webkit-scrollbar-thumb:hover { background-color: var(--tinta-2); }
 *::-webkit-scrollbar-thumb:active { background-color: var(--tinta); }
+
+/* ============================================================
+   NIVEL 1 — piel de bloques puzzle (estilo programación por bloques)
+   Muesca arriba (hembra) y tetón abajo (machete) coloreados con el
+   color de la estación: los bloques de una fase se "enchufan" en pila.
+   Solo piel: el motor (DnD, validación, grupos) queda intacto.
+   ============================================================ */
+.carril { --hueco: var(--carta); }
+.carril.cubierto { --hueco: #E6EDDB; }
+.carril .zona { gap: 15px; }
+.aviso-carril { margin-bottom: 3px; }
+
+.bloque::before {
+  /* muesca hembra: hueco del color del carril que "recibe" el tetón del bloque de arriba */
+  content: ''; position: absolute; top: -1.5px; left: 26px; width: 36px; height: 9px;
+  background: var(--hueco); border-radius: 0 0 9px 9px; z-index: 2;
+}
+.bloque::after {
+  /* tetón machete: clavija del color de la estación que encaja en la muesca del bloque de abajo */
+  content: ''; position: absolute; bottom: -13px; left: 26px; width: 36px; height: 13px;
+  background: var(--c-fase, var(--tinta-2)); border-radius: 0 0 9px 9px;
+  z-index: 2; box-shadow: inset 0 -2px 0 rgba(0,0,0,.08);
+}
+.bloque.grupo::after { background: var(--azafran); }
+.bloque.dragging::before, .bloque.dragging::after { opacity: .4; }
+
+/* primera pieza de la pila: su muesca queda "a la espera" (como Scratch) */
+.zona > .bloque:first-child::before { background: var(--hueco); }
+
+/* ============================================================
+   NIVEL 1.5 — bloques de color pleno (look de programación por bloques)
+   El bloque entero viste el color de su estación, texto blanco
+   (u oscuro sobre azafrán por luminancia), clavija integrada.
+   ============================================================ */
+.bloque {
+  background: var(--c-fase, var(--tinta-2));
+  border: 1.5px solid rgba(0, 0, 0, .28);
+  border-left: 6px solid rgba(0, 0, 0, .28);
+  box-shadow: var(--shadow), inset 0 2px 0 rgba(255, 255, 255, .18);
+  color: var(--c-texto, #fff);
+}
+.bloque:hover { filter: brightness(1.07); }
+.bloque .nombre { color: var(--c-texto, #fff); }
+.bloque .tagline { color: color-mix(in srgb, var(--c-texto, #fff) 86%, transparent); }
+.bloque .fila > svg { color: var(--c-texto, #fff); opacity: .92; }
+.bloque .estrella { color: var(--azafran); text-shadow: 0 1px 1px rgba(0,0,0,.25); }
+.bloque .de-grupo { color: color-mix(in srgb, var(--c-texto, #fff) 85%, transparent); }
+.bloque .chip, .bloque .props .chip {
+  background: rgba(255, 255, 255, .17);
+  border-color: rgba(255, 255, 255, .3);
+  color: var(--c-texto, #fff);
+}
+.bloque .config-fila { color: color-mix(in srgb, var(--c-texto, #fff) 88%, transparent); }
+.bloque .comentario {
+  color: var(--c-texto, #fff); background: rgba(255, 255, 255, .14);
+  border-radius: 7px; padding: 4px 9px; margin: 7px 2px 0 16px;
+}
+.bloque .comentario svg { color: var(--c-texto, #fff); }
+.bloque textarea.comentario-input {
+  background: #FFFDF7; color: var(--sal); border: 1.5px solid var(--sal);
+}
+.bloque .acciones button { background: rgba(255, 255, 255, .92); border-color: rgba(0, 0, 0, .12); color: var(--tinta); }
+.bloque .pildora-input { background: #FFFDF7; color: var(--tinta); border-color: rgba(0, 0, 0, .25); }
+.bloque .btn.mini { background: #FFFDF7; color: var(--tinta); border-color: rgba(0, 0, 0, .18); }
+
+/* los custom siguen siendo "papel" punteado: no son del catálogo */
+.bloque.custom {
+  background: var(--papel); border: 2px dashed var(--tinta-2); border-left: 6px dashed var(--tinta-2);
+  box-shadow: var(--shadow); color: var(--tinta);
+}
+.bloque.custom .nombre { color: var(--tinta); }
+.bloque.custom .tagline { color: var(--tinta-2); }
+.bloque.custom .fila > svg { color: var(--tinta-2); }
+.bloque.custom .chip { background: var(--papel-2); border-color: var(--linea-2); color: var(--tinta-2); }
+
+/* el conjunto conserva su cuerpo oscuro, pero con la clavija azafrán ya definida */
+.bloque.grupo { border-left-color: rgba(0, 0, 0, .35); }
+.bloque.grupo .nombre, .bloque.grupo .fila > svg { color: var(--papel); }
+.bloque.grupo .tagline { color: #CFC2B8; }
+
+/* la muesca "enchufa" con el fondo del carril; el tetón es del color del bloque */
+.bloque::before { background: var(--hueco); }
+.bloque::after { background: var(--c-fase, var(--tinta-2)); }
+.bloque.grupo::after { background: var(--azafran); }
+
+/* ============================================================
+   NIVEL 2 — encaje fino: tetón INSERTADO en muesca (socket real)
+   Gap mínimo entre bloques, tetón que penetra en la boca de la
+   muesca del bloque siguiente, paredes del socket visibles.
+   ============================================================ */
+.carril .zona { gap: 4px; }
+.aviso-carril { margin-bottom: 4px; }
+.zona > .vacio { margin-top: 7px; }
+
+.bloque::before {
+  /* muesca: boca del socket, con paredes laterales; tapa el borde superior propio */
+  top: -1.5px; left: 26px; width: 34px; height: 7px;
+  background: var(--hueco);
+  border-left: 1.5px solid rgba(0, 0, 0, .28);
+  border-right: 1.5px solid rgba(0, 0, 0, .28);
+  border-radius: 0 0 9px 9px;
+  z-index: 2;
+}
+.bloque::after {
+  /* tetón: penetra 3px dentro de la boca de la muesca del bloque siguiente */
+  bottom: -6px; left: 28px; width: 30px; height: 8px;
+  border-radius: 0 0 9px 9px;
+  z-index: 3;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .1);
+}
+.bloque.grupo::after { box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18); }
+
+/* rotundidad de bloque */
+.bloque .nombre { font-weight: 700; font-size: 14px; }
+
+/* ============================================================
+   NIVEL 2.1 — coherencia total: paleta como mini-bloques,
+   cabeceras de carril con acento de estación, banners compactos
+   ============================================================ */
+.paleta .fase-grupo .cuerpo { gap: 8px 5px; }
+.pieza-chip.pieza-bloque {
+  position: relative; padding: 5px 10px; border-radius: 8px;
+  color: var(--c-texto, #fff);
+  background: var(--c-fase, var(--carta));
+  border: 1.5px solid rgba(0, 0, 0, .25);
+  border-left: 4px solid rgba(0, 0, 0, .25);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .18);
+  font-weight: 600;
+}
+.pieza-chip.pieza-bloque svg { color: var(--c-texto, #fff); opacity: .92; }
+.pieza-chip.pieza-bloque::after {
+  content: ''; position: absolute; bottom: -4px; left: 10px; width: 14px; height: 4px;
+  background: var(--c-fase); border-radius: 0 0 5px 5px; opacity: .9;
+}
+.pieza-chip.pieza-bloque:hover { filter: brightness(1.07); }
+.pieza-chip.pieza-bloque .estrella { color: var(--azafran); text-shadow: 0 1px 1px rgba(0,0,0,.25); }
+
+/* cabecera de carril con acento de la estación */
+.carril .lateral { border-left: 6px solid var(--est, var(--linea-2)); }
+.carril .lateral .titulo svg { color: var(--est, var(--tinta-2)); }
+.carril.colapsada .lateral { border-left-color: var(--est, var(--linea-2)); }
+
+/* banners de validación compactos, pegados a la pila */
+.aviso-carril {
+  padding: 6px 10px; font-size: 12px; border-radius: 8px;
+  border-left-width: 5px; margin-bottom: 4px;
+}
+
+/* ============================================================
+   NIVEL 2.2 — las fases son bloques sombrero y los conjuntos
+   visten el color de su llave lateral: TODO es pieza
+   ============================================================ */
+
+/* el lateral de fase = bloque sombrero del color de su estación */
+.carril .lateral {
+  background: var(--est, var(--papel-2));
+  color: var(--est-texto, var(--tinta));
+  border-left: 6px solid rgba(0, 0, 0, .25);
+  border-right: 1.5px dashed var(--linea-2);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .18);
+}
+.carril .lateral .titulo { color: var(--est-texto, var(--tinta)); font-size: 15px; }
+.carril .lateral .titulo svg { color: var(--est-texto, var(--tinta)); opacity: .95; }
+.carril .lateral .desc { color: color-mix(in srgb, var(--est-texto, var(--tinta)) 80%, transparent); }
+.carril .lateral .chip,
+.carril .lateral .chip.nivel-ob, .carril .lateral .chip.nivel-rec, .carril .lateral .chip.nivel-opc {
+  background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .32);
+  color: var(--est-texto, var(--tinta));
+}
+.carril .lateral .cubierto-por { color: var(--est-texto, var(--tinta)); opacity: .85; }
+.carril.colapsada .lateral { background: var(--est); border-left-color: rgba(0, 0, 0, .25); }
+.carril.colapsada .lateral:hover { filter: brightness(1.08); }
+.carril { border-color: color-mix(in srgb, var(--est, var(--linea-2)) 45%, var(--linea-2)); }
+
+/* el conjunto (framework) es un bloque más: color de su llave lateral */
+.bloque.grupo { background: var(--c-fase, var(--tinta)); border-left-color: rgba(0, 0, 0, .3); }
+.bloque.grupo .tagline { color: color-mix(in srgb, var(--c-texto, #fff) 86%, transparent); }
+.bloque.grupo .estrella { color: var(--azafran); text-shadow: 0 1px 1px rgba(0,0,0,.3); }
+
+/* ============================================================
+   NIVEL 3 — TODO encajado y tocándose:
+   la fase es un bloque sombrero horizontal que enchufa su primera
+   pieza; las piezas apilan con gap 0, pila continua sin aire.
+   ============================================================ */
+.carril { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+
+.carril .lateral {
+  flex-direction: row; align-items: center; gap: 10px;
+  padding: 9px 14px; position: relative;
+  border-right: none; border-bottom: none;
+}
+.carril .lateral .titulo { display: flex; align-items: center; gap: 8px; font-size: 14.5px; flex: none; }
+.carril .lateral .desc {
+  flex: 1; min-width: 0; margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px;
+}
+.carril .lateral .estado { margin: 0 0 0 auto; flex-wrap: nowrap; }
+
+/* clavija del sombrero: el bloque-fase enchufa su primera pieza */
+.carril .lateral::after {
+  content: ''; position: absolute; bottom: -6px; left: 28px; width: 30px; height: 8px;
+  background: var(--est); border-radius: 0 0 9px 9px; z-index: 3;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .1);
+}
+.carril:has(.zona > .vacio:first-child):not(.colapsada) .lateral::after { display: none; }
+.carril.colapsada .lateral::after { display: none; }
+
+/* pila sin aire: las piezas se tocan y las clavijas penetran 6px */
+.carril .zona { gap: 0; padding-top: 0; }
+.aviso-carril { margin: 0 0 0 0; }
+.zona > .vacio { margin-top: 0; }
+.bloque::after { bottom: -7px; height: 9px; }
+
+/* ============================================================
+   NIVEL 3.1 — cadena entre fases y clavija derecha del conjunto
+   El tetón del último bloque de una fase ENTRA en la muesca
+   superior de la cabecera de la fase siguiente; el conjunto
+   conecta por su derecha con la llave lateral que lo abraza.
+   ============================================================ */
+.carril { margin-bottom: 0; overflow: visible; }
+.carril .zona { padding-bottom: 2px; padding-left: 12px; padding-right: 12px; }
+.carril .lateral { border-bottom: none; border-radius: 10.5px 10.5px 0 0; }
+
+/* muesca superior de la cabecera: recibe el tetón de la fase anterior */
+.carril .lateral::before {
+  content: ''; position: absolute; top: -1.5px; left: 26px; width: 34px; height: 7px;
+  background: var(--hueco, var(--papel));
+  border-left: 1.5px solid rgba(0, 0, 0, .28);
+  border-right: 1.5px solid rgba(0, 0, 0, .28);
+  border-radius: 0 0 9px 9px; z-index: 3;
+}
+/* la primera fase de cada estación es sombrero de verdad: sin muesca arriba */
+.banda-estacion + .carril .lateral::before { display: none; }
+
+/* el tetón del último bloque debe cruzar el borde del carril hacia la muesca siguiente */
+.bloque::after { bottom: -8px; height: 9px; }
+
+/* plegada o vacía: la cabecera redondea abajo (no hay pila a la que unirse) */
+.carril.colapsada .lateral { border-radius: 10.5px; }
+.carril:has(.zona > .vacio:first-child) .lateral { border-radius: 10.5px; }
+
+/* clavija derecha del conjunto: conexión visual hacia su llave lateral */
+.bloque.grupo { position: relative; }
+.clavija-der {
+  position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 20px;
+  background: var(--c-fase, var(--tinta));
+  border-radius: 0 8px 8px 0;
+  box-shadow: inset -2px 0 0 rgba(0, 0, 0, .12);
+  z-index: 3;
+}
+/* el tetón se ve DENTRO de la boca de la muesca receptora (también entre carriles) */
+.bloque::after { z-index: 4; }
+
+/* ============================================================
+   NIVEL 4 — la fase es un BRACKET que contiene sus piezas:
+   sombrero arriba + brazo izquierdo + barra de cierre abajo,
+   todo del color de la estación. Las fases se tocan y encadenan.
+   El conjunto (framework) ya no es tarjeta: SOLO la llave derecha,
+   reforzada, abrazando las fases que afecta. Sus bloques miembro
+   visten el color de la llave.
+   ============================================================ */
+.carril { border: none; }
+.carril .lateral { border-radius: 11px 11px 0 0; border-bottom: none; }
+.carril .zona {
+  background: var(--carta);
+  border-left: 7px solid var(--est);
+  border-right: 1.5px solid color-mix(in srgb, var(--est, var(--tinta-2)) 35%, var(--linea-2));
+  border-bottom: 6px solid var(--est);
+  border-radius: 0 0 11px 11px;
+  padding: 10px 12px 8px;
+}
+.carril.colapsada .zona { display: none; }
+.carril.colapsada .lateral { border-radius: 11px; }
+.carril:has(.zona > .vacio:first-child) .lateral,
+.carril:has(.zona > .vacio.cubierta-vacia:first-child) .lateral { border-radius: 11px 11px 0 0; }
+
+/* tetón del bracket-fase: enchufa con la fase siguiente */
+.carril::after {
+  content: ''; position: absolute; bottom: -9px; left: 28px; width: 30px; height: 10px;
+  background: var(--est); border-radius: 0 0 9px 9px; z-index: 4;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .1);
+}
+.carril.colapsada::after { bottom: -9px; }
+
+/* hueco interior sutil del bracket */
+.carril .zona { box-shadow: inset 3px 0 6px -3px color-mix(in srgb, var(--est) 45%, transparent); }
+
+/* llave del conjunto con más entidad: barra gruesa, nombre rotado,
+   brillo propio; abraza las fases que afecta */
+.marca-grupo { width: 52px; }
+.marca-grupo .linea {
+  width: 9px; border-radius: 5px;
+  box-shadow: -2px 0 8px rgba(43, 38, 32, .22), inset -2px 0 0 rgba(0, 0, 0, .12);
+}
+.marca-grupo .linea::before, .marca-grupo .linea::after { width: 14px; height: 4px; left: -13px; }
+.marca-grupo .etiqueta { font-size: 11px; font-weight: 700; letter-spacing: .07em; }
+.marca-grupo:hover .linea { box-shadow: -2px 0 12px var(--c); }
+
+/* vacía pero cubierta por un conjunto */
+.vacio.cubierta-vacia { border-style: solid; border-color: color-mix(in srgb, var(--est) 45%, var(--linea-2)); color: var(--tinta-2); opacity: .8; }
+
+/* ============================================================
+   FIX hover — transform/filter crean stacking context y "tragan"
+   las clavijas (el tetón z-4 deja de cruzar al vecino al hacer
+   hover y parpadean). Hover sin contexto: aro + resplandor.
+   ============================================================ */
+.bloque:hover {
+  transform: none;
+  filter: none;
+  box-shadow: var(--shadow), 0 0 0 2.5px rgba(255, 255, 255, .5), 0 6px 16px rgba(43, 38, 32, .25);
+  transition: box-shadow .12s ease;
+}
+
+/* ============================================================
+   NIVEL 5 — layout de la maqueta: fase = FRANJA HORIZONTAL con
+   sus piezas encajadas de izquierda a derecha; franjas de fase
+   TOTALMENTE PEGADAS (pared continua, línea divisoria fina).
+   El nombre de la fase vive en el bloque de la izquierda.
+   ============================================================ */
+.carril {
+  grid-template-columns: 172px 1fr;
+  grid-template-rows: auto;
+  margin-bottom: 0;
+  border-radius: 0;
+  border-bottom: 1.5px solid rgba(0, 0, 0, .16);
+}
+.carril::after { display: none; }   /* sin tetón vertical entre fases: pared */
+
+.carril .lateral {
+  flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 10px 12px; border-radius: 0; position: relative;
+}
+.carril .lateral::before { display: none; }  /* sin muesca superior */
+.carril .lateral .titulo { font-size: 13.5px; line-height: 1.25; }
+.carril .lateral .desc { display: none; }
+.carril .lateral .estado { margin: auto 0 0 0; flex-wrap: wrap; gap: 4px; justify-content: flex-start; }
+.carril .lateral .cubierto-por { font-size: 10px; }
+
+/* la barra-fase enchufa su primera pieza por la derecha */
+.carril .lateral::after {
+  content: ''; position: absolute; right: -6px; top: calc(50% - 15px);
+  width: 8px; height: 30px; background: var(--est);
+  border-radius: 0 8px 8px 0; z-index: 4;
+  box-shadow: inset -2px 0 0 rgba(0, 0, 0, .1);
+}
+
+.carril .zona {
+  display: flex; flex-direction: row; flex-wrap: wrap;
+  align-items: stretch; column-gap: 0; row-gap: 7px;
+  padding: 9px 12px; border: none; border-radius: 0;
+  background: var(--carta); box-shadow: none;
+}
+.carril:not(:last-child) .zona { box-shadow: inset 0 -1.5px 0 rgba(0, 0, 0, .07); }
+
+/* piezas compactas en horizontal, encaje lateral */
+.bloque { width: auto; max-width: 430px; border-radius: 9px; }
+.bloque .tagline { display: none; }
+.bloque .props { display: none; }
+.bloque .comentario { display: none; }
+.bloque .fila { gap: 7px; }
+.bloque .nombre { font-size: 13px; white-space: nowrap; }
+.bloque .config-fila { margin: 5px 0 0 18px; flex-wrap: wrap; }
+
+/* encaje horizontal: tetón derecha / muesca izquierda */
+.bloque::after {
+  bottom: auto; left: auto; right: -6px; top: calc(50% - 15px);
+  width: 8px; height: 30px; border-radius: 0 8px 8px 0;
+  box-shadow: inset -2px 0 0 rgba(0, 0, 0, .1);
+}
+.bloque::before {
+  left: -1.5px; top: calc(50% - 17px); width: 7px; height: 34px;
+  border-left: none; border-right: none;
+  border-top: 1.5px solid rgba(0, 0, 0, .28);
+  border-bottom: 1.5px solid rgba(0, 0, 0, .28);
+  border-radius: 8px 0 0 8px;
+}
+
+/* elementos de fila compactos */
+.zona > .vacio { align-self: center; }
+.zona > .vacio.cubierta-vacia { align-self: center; }
+.aviso-carril { align-self: center; max-width: 460px; }
+.zona > .por-grupo { align-self: center; }
+
+/* plegada: barra fina horizontal (una sola columna) */
+.carril.colapsada { grid-template-columns: 1fr; }
+.carril.colapsada .lateral { flex-direction: row; padding: 7px 12px; }
+.carril.colapsada .lateral::after { display: none; }
+/* una única línea divisoria entre franjas (sin duplicar con sombra) */
+.carril:not(:last-child) .zona { box-shadow: none; }
+.carril { border-bottom: 1px solid rgba(0, 0, 0, .14); }
+
+/* ============================================================
+   NIVEL 6 — la maqueta DE VERDAD: pared de puzzle compacta.
+   Piezas de UNA línea (icono+nombre), rótulo de fase pequeño,
+   franjas finas pegadas. Todo lo demás vive en tooltip y ficha.
+   ============================================================ */
+
+/* rótulo de fase: pequeño, dos líneas de nombre como máximo */
+.carril { grid-template-columns: 132px 1fr; }
+.carril .lateral { padding: 8px 9px; gap: 4px; justify-content: center; }
+.carril .lateral .titulo { font-size: 12px; line-height: 1.2; display: block; }
+.carril .lateral .estado { margin-top: 2px; gap: 3px; }
+.carril .lateral .estado .chip { font-size: 8.5px; padding: 1px 6px; }
+.carril .lateral .cubierto-por { font-size: 8.5px; }
+
+/* piezas de una línea */
+.carril .zona { padding: 7px 10px; row-gap: 6px; align-items: center; }
+.bloque { padding: 6px 10px; border-radius: 8px; border-left-width: 5px; }
+.bloque .fila { white-space: nowrap; }
+.bloque .fila .nombre { font-size: 12px; }
+.bloque .fila > svg { width: 13px; height: 13px; }
+.bloque .de-grupo { font-size: 9px; }
+.bloque .estrella { font-size: 11px; }
+.bloque .acciones button { width: 20px; height: 20px; }
+.bloque .acciones { top: 4px; right: 5px; }
+.bloque .acciones svg { width: 11px; height: 11px; }
+textarea.comentario-input { display: none !important; }
+
+/* config en línea y mini: píldora y modelo caben en la misma línea */
+.bloque .config-fila {
+  margin: 0 0 0 0; font-size: 0; gap: 5px; display: flex; align-items: center;
+  position: static; margin-left: 0;
+}
+.bloque .config-fila > svg { width: 12px; height: 12px; }
+.pildora-input { width: 58px; font-size: 10px; padding: 1px 4px; }
+.bloque .config-fila .btn.mini { padding: 2px 6px; font-size: 9.5px; }
+.bloque .config-fila .chip { font-size: 8.5px; padding: 1px 5px; }
+
+/* fila única: los flex items centrados, sin estirar */
+.zona > .vacio, .zona > .vacio.cubierta-vacia { font-size: 11px; padding: 5px 10px; white-space: nowrap; }
+.por-grupo { font-size: 11px; padding: 4px 9px; }
+.aviso-carril { font-size: 11px; padding: 5px 9px; max-width: 430px; }
+
+/* banda de estación fina */
+.banda-estacion { padding: 5px 12px; margin: 14px 0 0 0; }
+.banda-estacion .nombre { font-size: 11px; }
+.banda-estacion .sub { font-size: 10.5px; }
+
+/* encaje lateral más fino, a la altura de la pieza compacta */
+.bloque::after { top: calc(50% - 11px); height: 22px; width: 7px; right: -5px; }
+.bloque::before { top: calc(50% - 13px); height: 26px; width: 6px; }
+.carril .lateral::after { top: calc(50% - 11px); height: 22px; width: 7px; right: -5px; }
+
+/* ============================================================
+   NIVEL 7 — cero pegamento y TRIÁNGULOS:
+   sin plegado, espacio 0 entre fases, conexiones punta/hueco
+   de triángulo, y el framework como BLOQUE del mismo grosor
+   que las fases, tocándolas con un triángulo por fase cubierta.
+   ============================================================ */
+.carril { border-bottom: none; }                    /* 0px entre fases */
+.carril .zona { padding: 7px 0 7px 0; }             /* piezas flush con rótulo y bloque */
+#canvas { padding-right: 52px; }
+.marcas-rail { width: 52px; }
+
+/* conexiones triangulares: punta a la derecha, hueco a la izquierda */
+.bloque::after {
+  content: ''; position: absolute; right: -9px; top: calc(50% - 7px);
+  width: 12px; height: 14px; background: var(--c-fase, var(--tinta-2));
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  border-radius: 0; box-shadow: none; z-index: 4;
+}
+.bloque::before {
+  content: ''; position: absolute; left: 0; top: calc(50% - 7px);
+  width: 11px; height: 14px; background: var(--hueco, var(--carta));
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  border: none; border-radius: 0; z-index: 2;
+}
+.carril .lateral::after {
+  right: -9px; top: calc(50% - 7px); width: 12px; height: 14px;
+  background: var(--est); clip-path: polygon(0 0, 100% 50%, 0 100%);
+  border-radius: 0; box-shadow: none;
+}
+
+/* el framework es un BLOQUE (mismo grosor que las fases) pegado a ellas */
+.marca-grupo {
+  position: absolute; right: 0; width: 52px; cursor: pointer; pointer-events: auto;
+  background: none; border: none; padding: 0;
+}
+.marca-grupo .mg-cuerpo {
+  position: absolute; inset: 0;
+  background: var(--c, var(--ciruela));
+  border-left: 2px solid rgba(0, 0, 0, .25);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  box-shadow: inset 2px 0 0 rgba(255, 255, 255, .15);
+}
+.marca-grupo .mg-cuerpo > svg { width: 15px; height: 15px; color: rgba(255, 255, 255, .92); flex: none; }
+.marca-grupo .mg-nombre {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font: 700 11px var(--sans); letter-spacing: .06em; color: rgba(255, 255, 255, .95);
+  max-height: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.marca-grupo:hover .mg-cuerpo { filter: brightness(1.12); }
+/* conector triangular por fase cubierta: el bloque toca la franja */
+.marca-grupo .mg-conn {
+  position: absolute; left: -10px; width: 11px; height: 14px;
+  background: var(--c, var(--ciruela));
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  z-index: 4;
+}
+
+/* ============================================================
+   NIVEL 8 — REMATE DE CALIDAD
+   Una línea por pieza con altura uniforme; sin triángulos
+   huérfanos; vacías dignas; sombras y espaciados unificados.
+   ============================================================ */
+
+/* pieza: UNA sola línea, altura uniforme, centrado perfecto */
+.bloque {
+  display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap;
+  min-height: 38px; padding: 6px 12px 6px 10px; gap: 9px;
+  border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(43, 38, 32, .18);
+}
+.bloque .fila { flex: none; margin: 0; }
+.bloque .config-fila { margin: 0 !important; font-size: 10px; flex: none; }
+.bloque .config-fila .btn.mini { padding: 2px 7px; }
+.bloque .comentario { display: none; }
+
+/* sin triángulos huérfanos: la última pieza solo muestra punta si toca el bloque de un conjunto */
+.zona > .bloque:last-child::after,
+.zona > .por-grupo:last-child::after { display: none; }
+.carril.cubierta-grupo .zona > .bloque:last-child::after { display: block; }
+
+/* vacías dignas: sin caja dashed */
+.zona > .vacio {
+  border: none; background: none; padding: 6px 10px; opacity: .55;
+  font: italic 500 12px var(--serif); color: var(--tinta-2);
+}
+.zona > .vacio .sugerido { font-family: var(--sans); font-style: normal; font-size: 10.5px; }
+.zona > .vacio.cubierta-vacia { opacity: .8; }
+
+/* rótulo de fase: tipografía digna y chips ordenados */
+.carril .lateral { padding: 8px 10px; gap: 5px; }
+.carril .lateral .titulo { font-size: 12.5px; font-weight: 700; }
+.carril .lateral .estado { gap: 4px; }
+.carril .lateral .estado .chip { font-size: 9px; padding: 1.5px 7px; letter-spacing: .02em; }
+
+/* bandas de estación: espaciado consistente y limpio */
+.banda-estacion { margin: 16px 0 0 0; padding: 5px 12px; border-radius: 0; }
+#canvas > .banda-estacion:first-of-type { margin-top: 4px; }
+
+/* bloque framework: centrado perfecto y triángulos alineados */
+.marca-grupo .mg-cuerpo { gap: 5px; }
+.marca-grupo .mg-cuerpo > svg { margin-right: -2px; }
+.marca-grupo .mg-nombre { font-size: 11px; }
+
+/* sombra única y borde consistente en toda la pared */
+.carril .lateral { box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .16); }
+/* remate final: jerarquía y legibilidad */
+.carril .lateral .titulo { font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, .12); }
+.marca-grupo .mg-nombre { font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, .18); }
