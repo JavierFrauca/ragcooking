@@ -106,6 +106,23 @@ check($('#lista-val').innerHTML.includes('no cabe') && $('#canvas').innerHTML.in
 await cambiarPildora(120);
 check(!$('#lista-val').innerHTML.includes('no cabe') && !$('#canvas').innerHTML.includes('no cabe'), 'rectificar la píldora borra el aviso (panel y carril)');
 
+// paleta: fases plegables que se autoexpanden al buscar
+const plegarPaleta = (id) => Promise.all((listeners['click'] || []).map((f) => f({
+  target: { closest: (sel) => (sel === '[data-plegar-paleta]' ? { dataset: { plegarPaleta: id } } : null), classList: { contains: () => false } },
+})));
+await plegarPaleta('corpus');
+check(($('#paleta') || {}).innerHTML.includes('fase-grupo plegada'), 'clic en la cabecera de la paleta pliega el grupo de fase');
+const buscar = async (valor) => {
+  porId['#buscador'] = porId['#buscador'] || { value: '' };
+  porId['#buscador'].value = valor;
+  await Promise.all((listeners['change'] || []).map((f) => f({ target: { id: 'buscador', matches: () => false, value: valor } })));
+};
+await buscar('chroma');
+const paletaBusq = ($('#paleta') || {}).innerHTML;
+check(paletaBusq.includes('Chroma') && !paletaBusq.includes('fase-grupo plegada'), 'al buscar se autoexpanden los grupos y solo quedan las coincidencias');
+await buscar('');
+check(($('#paleta') || {}).innerHTML.includes('fase-grupo plegada'), 'al limpiar la búsqueda se restaura el plegado memorizado');
+
 // incompatibilidad ragkit ↔ nucleus: no pueden convivir
 await soltar('grupo:grupo.ragkit', 'limpieza');
 check($('#canvas').innerHTML.includes('ragkit'), 'ragkit se coloca sin conflicto');

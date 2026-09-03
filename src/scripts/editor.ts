@@ -275,36 +275,44 @@ function renderSelector() {
   }).join('');
 }
 
+/* paleta: fases plegables (memoria propia; al buscar se autoexpanden y se ocultan los grupos sin coincidencias) */
+let paletaColapsadas: string[] = (() => { try { return JSON.parse(localStorage.getItem('ragcooking-paleta') || '[]'); } catch { return []; } })();
+function guardarPaleta() { try { localStorage.setItem('ragcooking-paleta', JSON.stringify(paletaColapsadas)); } catch { /* noop */ } }
+
 function renderPaleta() {
   const q = (($('#buscador') as HTMLInputElement)?.value || '').toLowerCase();
+  const buscando = !!q;
   const match = (s: string) => !q || s.toLowerCase().includes(q);
+  const clsPlegada = (id: string) => (!buscando && paletaColapsadas.includes(id) ? 'plegada' : '');
   const grupos = GRUPOS.filter((g) => match(g.nombre) || match(g.tagline));
   const estaciones = ESTACIONES.map((est) => {
-    const fases = FASES.filter((f) => f.est === est.id && receta.fasesActivas.includes(f.id));
-    if (!fases.length) return '';
+    const fasesHtml = FASES.filter((f) => f.est === est.id && receta.fasesActivas.includes(f.id)).map((f) => {
+      const piezas = PIEZAS.filter((p) => p.fase === f.id && (match(p.nombre) || match(p.tagline)));
+      if (buscando && !piezas.length) return '';
+      return `<div class="fase-grupo ${clsPlegada(f.id)}">
+        <div class="fase-cab" data-plegar-paleta="${f.id}">${icono('chevron-down')} ${icono(f.icon)} ${f.nombre} <span class="chip nivel-${NIVEL_CLS[f.nivel]}" style="margin-left:auto">${NIVEL_LABEL[f.nivel]}</span></div>
+        <div class="cuerpo">
+          ${piezas.map((p) => `<span class="pieza-chip pieza-bloque" draggable="true" data-pieza="${p.id}" title="${esc(p.tagline)}" style="--c-fase:${est.color};--c-texto:${textoSobre(est.color)}">${icono(p.icon)} ${p.nombre}${p.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}${p.integrates ? ' 🔌' : ''}</span>`).join('')}
+          ${buscando ? '' : `<button class="pieza-chip custom" data-custom="${f.id}">${icono('plus')} custom</button>`}
+        </div>
+      </div>`;
+    }).join('');
+    if (buscando && !fasesHtml) return '';
     return `<div class="grupo-estacion">
       <div class="cab"><span class="punto" style="background:${est.color}"></span>${est.nombre}</div>
-      ${fases.map((f) => {
-        const piezas = PIEZAS.filter((p) => p.fase === f.id && (match(p.nombre) || match(p.tagline)));
-        return `<div class="fase-grupo">
-          <div class="fase-cab">${icono(f.icon)} ${f.nombre}</div>
-          <div class="cuerpo">
-            ${piezas.map((p) => `<span class="pieza-chip pieza-bloque" draggable="true" data-pieza="${p.id}" title="${esc(p.tagline)}" style="--c-fase:${est.color};--c-texto:${textoSobre(est.color)}">${icono(p.icon)} ${p.nombre}${p.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}${p.integrates ? ' 🔌' : ''}</span>`).join('')}
-            <button class="pieza-chip custom" data-custom="${f.id}">${icono('plus')} custom</button>
-          </div>
-        </div>`;
-      }).join('')}
+      ${fasesHtml}
     </div>`;
   }).join('');
-  $('#paleta')!.innerHTML = `
-    <div class="grupo-estacion">
-      <div class="cab"><span class="punto" style="background:var(--ciruela)"></span>Conjuntos (frameworks)</div>
+  const conjuntosHtml = !buscando || grupos.length ? `
+    <div class="grupo-estacion ${clsPlegada('conjuntos')}">
+      <div class="cab" style="cursor:pointer" data-plegar-paleta="conjuntos">${icono('chevron-down')} <span class="punto" style="background:var(--ciruela)"></span>Conjuntos (frameworks)</div>
       <div class="fase-grupo"><div class="cuerpo">
         ${grupos.map((g) => `<span class="pieza-chip mega" draggable="true" data-grupo="${g.id}" title="${esc(g.tagline)}">${icono(g.icon)} ${g.nombre}${g.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}</span>`).join('')}
       </div></div>
       <p style="font:italic 400 11.5px var(--serif);color:var(--tinta-2);margin:2px 4px">Un conjunto = varias fases empaquetadas. Se expande para no perder trazabilidad.</p>
-    </div>
-    ${estaciones}`;
+    </div>` : '';
+  $('#paleta')!.innerHTML = conjuntosHtml + estaciones;
+  initIconos();
 }
 
 function renderLienzo() {
@@ -444,6 +452,12 @@ document.addEventListener('click', (e) => {
     const gid = el.dataset.grupo!;
     receta.expandidos = receta.expandidos.includes(gid) ? receta.expandidos.filter((x) => x !== gid) : [...receta.expandidos, gid];
     return trasCambio();
+  }
+  if (el = c('[data-plegar-paleta]')) {
+    const id = el.dataset.plegarPaleta!;
+    paletaColapsadas = paletaColapsadas.includes(id) ? paletaColapsadas.filter((x) => x !== id) : [...paletaColapsadas, id];
+    guardarPaleta(); renderPaleta();
+    return;
   }
   if (el = c('[data-toggle-fase]')) {
     const id = el.dataset.toggleFase!;

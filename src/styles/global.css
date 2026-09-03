@@ -1201,3 +1201,13 @@ textarea.comentario-input { display: none !important; }
 /* remate final: jerarquía y legibilidad */
 .carril .lateral .titulo { font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, .12); }
 .marca-grupo .mg-nombre { font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, .18); }
+
+/* paleta: grupos de fase plegables para buscar más fácil */
+.paleta .fase-grupo .fase-cab { cursor: pointer; user-select: none; }
+.paleta .fase-grupo .fase-cab > svg:first-child,
+.paleta .grupo-estacion > .cab > svg:first-child { transition: transform .15s; color: var(--tinta-2); }
+.paleta .fase-grupo.plegada .cuerpo { display: none; }
+.paleta .fase-grupo.plegada .fase-cab > svg:first-child { transform: rotate(-90deg); }
+.paleta .grupo-estacion.plegada .fase-grupo,
+.paleta .grupo-estacion.plegada > p { display: none; }
+.paleta .grupo-estacion.plegada > .cab > svg:first-child { transform: rotate(-90deg); }
