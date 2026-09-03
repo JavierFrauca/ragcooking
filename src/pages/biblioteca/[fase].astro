@@ -11,12 +11,13 @@ const estacion = ESTACIONES.find((e) => e.id === fase.est)!;
 const piezas = PIEZAS.filter((p) => p.fase === fase.id);
 const gruposQueCubren = GRUPOS.filter((g) => g.variantes.some((v) => v.atomos.some((a) => a.fase === fase.id)));
 const nivelCls = { obligatoria: 'nivel-ob', recomendada: 'nivel-rec', opcional: 'nivel-opc' }[fase.nivel];
+const B = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout titulo={`${fase.nombre} · ragcooking.info`}>
   <main class="pagina">
     <div class="migas">
-      <a href="/biblioteca">Biblioteca</a> › <a href="/biblioteca">{estacion.nombre}</a> ›
+      <a href={`${B}biblioteca`}>Biblioteca</a> › <a href={`${B}biblioteca`}>{estacion.nombre}</a> ›
       <b>{fase.nombre}</b>
     </div>
 
@@ -144,12 +145,12 @@ const nivelCls = { obligatoria: 'nivel-ob', recomendada: 'nivel-rec', opcional: 
           .slice(0, 4)
           .map((t) => <span class="chip" title={TERMINOS[t]}>{t}</span>)
       }
-      <a class="chip" href="/diccionario">ver diccionario completo →</a>
+      <a class="chip" href={`${B}diccionario`}>ver diccionario completo →</a>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:34px;flex-wrap:wrap">
-      <a class="btn primario" href="/constructor"><i data-lucide="chef-hat"></i> Usar esta fase en mi receta</a>
-      <a class="btn" href="/biblioteca"><i data-lucide="arrow-left"></i> Volver a la biblioteca</a>
+      <a class="btn primario" href={`${B}constructor`}><i data-lucide="chef-hat"></i> Usar esta fase en mi receta</a>
+      <a class="btn" href={`${B}biblioteca`}><i data-lucide="arrow-left"></i> Volver a la biblioteca</a>
     </div>
   </main>
 </BaseLayout>

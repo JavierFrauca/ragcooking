@@ -15,11 +15,12 @@ const conflictos = (g.conflicts || []).map((x) => GRUPOS.find((o) => o.id === x)
 const templateVinculado = TEMPLATES.find((t) => t.bloques.some((b) => b.grupo === g.id));
 const LANG_LABEL: Record<string, string> = { py: 'Python', dotnet: 'C# · .NET' };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+const B = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout titulo={`${g.nombre} · ragcooking.info`}>
   <main class="pagina">
-    <div class="migas"><a href="/biblioteca">Biblioteca</a> › <a href="/biblioteca#conjuntos">Conjuntos (frameworks)</a> › <b>{g.nombre}</b></div>
+    <div class="migas"><a href={`${B}biblioteca`}>Biblioteca</a> › <a href="/biblioteca#conjuntos">Conjuntos (frameworks)</a> › <b>{g.nombre}</b></div>
 
     <div class="hero-fase">
       <div class="icono-grande" style={`background:${color}`}><i data-lucide={g.icon}></i></div>
@@ -120,7 +121,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
       <a class="btn primario" href={templateVinculado ? `/constructor?template=${templateVinculado.id}` : '/constructor'}>
         <i data-lucide="chef-hat"></i> Cocinar con {g.nombre}
       </a>
-      <a class="btn" href="/biblioteca"><i data-lucide="arrow-left"></i> Volver a la biblioteca</a>
+      <a class="btn" href={`${B}biblioteca`}><i data-lucide="arrow-left"></i> Volver a la biblioteca</a>
     </div>
   </main>
 </BaseLayout>

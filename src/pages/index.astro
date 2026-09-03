@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { ESTACIONES, FASES } from '../data/catalogo';
+const B = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout>
@@ -12,9 +13,9 @@ import { ESTACIONES, FASES } from '../data/catalogo';
       arquitectura apilando piezas — con validación, guardado en tu navegador y exportación a JSON.
     </p>
     <div class="home-ctas">
-      <a class="btn primario" href="/constructor"><i data-lucide="chef-hat"></i> Cocina tu RAG</a>
-      <a class="btn secundario" href="/biblioteca"><i data-lucide="book-open"></i> Explora la biblioteca</a>
-      <a class="btn" href="/diccionario"><i data-lucide="book-a"></i> Diccionario</a>
+      <a class="btn primario" href={`${B}constructor`}><i data-lucide="chef-hat"></i> Cocina tu RAG</a>
+      <a class="btn secundario" href={`${B}biblioteca`}><i data-lucide="book-open"></i> Explora la biblioteca</a>
+      <a class="btn" href={`${B}diccionario`}><i data-lucide="book-a"></i> Diccionario</a>
     </div>
   </section>
 
@@ -69,7 +70,7 @@ import { ESTACIONES, FASES } from '../data/catalogo';
 
   <section style="max-width:1060px;margin:0 auto;padding:0 26px 80px">
     <div class="cartones">
-      <a class="carton" href="/biblioteca">
+      <a class="carton" href={`${B}biblioteca`}>
         <div class="icono-carton" style="background:#6B8E4E"><i data-lucide="book-open"></i></div>
         <h3>La biblioteca</h3>
         <p>
@@ -77,7 +78,7 @@ import { ESTACIONES, FASES } from '../data/catalogo';
           de «cómo elegir».
         </p>
       </a>
-      <a class="carton" href="/constructor">
+      <a class="carton" href={`${B}constructor`}>
         <div class="icono-carton" style="background:#C14B2E"><i data-lucide="chef-hat"></i></div>
         <h3>El constructor</h3>
         <p>
@@ -85,7 +86,7 @@ import { ESTACIONES, FASES } from '../data/catalogo';
           navegador. Exporta a JSON.
         </p>
       </a>
-      <a class="carton" href="/diccionario">
+      <a class="carton" href={`${B}diccionario`}>
         <div class="icono-carton" style="background:#D9A02B"><i data-lucide="book-a"></i></div>
         <h3>El diccionario</h3>
         <p>
