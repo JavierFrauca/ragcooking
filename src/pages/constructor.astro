@@ -17,6 +17,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <div class="editor columna-b">
       <aside class="paleta">
+        <div class="paleta-titulo">${'fases de tu receta'}</div>
+        <div id="selector-fases" class="selector-fases"></div>
+        <div class="paleta-titulo" style="margin-top:10px">piezas y conjuntos</div>
         <div class="buscador">
           <input id="buscador" type="search" placeholder="Buscar pieza o conjunto… (pgvector, rerank, ragkit)" />
         </div>
@@ -24,7 +27,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </aside>
 
       <main class="canvas-wrap">
-        <div id="selector-fases" class="selector-fases"></div>
         <div id="canvas"></div>
       </main>
 
@@ -35,7 +37,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div id="mapa-fases" class="mapa-fases"></div>
         <div id="lista-val" class="lista-val"></div>
         <div class="leyenda">
-          <div class="fila-leyenda">Clic en una fase arriba para activarla/desactivarla</div>
+          <div class="fila-leyenda">Clic en una fase (columna izquierda) para activarla/desactivarla</div>
           <div class="fila-leyenda"><span class="chip nivel-ob">Obligat.</span> error si falta o está desactivada</div>
           <div class="fila-leyenda"><span class="chip nivel-rec">Recom.</span> aviso si está activa y vacía</div>
           <div class="fila-leyenda"><span class="chip mega">conjunto</span> framework = varios bloques expandibles</div>

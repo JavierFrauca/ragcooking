@@ -15,6 +15,18 @@ import type { Pieza, Grupo, Fase, Bloque, Receta } from './tipos';
 
 /* ---------- runtime mínimo (iconos, toast, tooltip diccionario) ---------- */
 const icono = (n: string) => `<i data-lucide="${n}"></i>`;
+
+/* lenguajes nativos: los conjuntos declaran; el camino libre (piezas sueltas) es Python */
+const LANG_LABEL: Record<string, string> = { py: 'Python', dotnet: 'C# · .NET' };
+const langBadge = (l: string) => l === 'py' ? '🐍 PY' : l === 'dotnet' ? '⚙️ .NET' : l;
+const langsDeGrupo = (g: Grupo | undefined) => (g?.langs || []).map((l) => langBadge(l));
+function lenguajesReceta(): string[] {
+  const conGrupos = receta.bloques.some((b) => b.grupoId);
+  const sueltas = receta.bloques.some((b) => !b.grupoId);
+  const deGrupos = [...new Set(receta.bloques.filter((b) => b.grupoId).map((b) => grupoById(b.grupoId!)).filter((g): g is Grupo => !!g).flatMap((g) => g.langs || []))];
+  if (!conGrupos) return receta.bloques.length ? ['py'] : [];
+  return [...new Set([...deGrupos, ...(sueltas ? ['py'] : [])])].map((l) => langBadge(l));
+}
 function initIconos() { (window as any).lucide?.createIcons(); }
 let toastTimer: any;
 function toast(msg: string, err = false) {
@@ -259,7 +271,7 @@ function renderMarcasGrupos() {
       return `<span class="mg-conn" style="top:${cy - 7}px"></span>`;
     }).join('');
     marcas.push(`<div class="marca-grupo" data-grupo="${gid}" style="--c:${colorDeGrupo(gid)};top:${top}px;height:${bottom - top}px" title="${esc(g.nombre)} · cubre ${fases.map((f) => faseById(f)?.nombre || f).join(', ')} — clic: expandir/colapsar · doble clic: ficha">
-      ${conectores}<span class="mg-cuerpo">${icono(g.icon)}<span class="mg-nombre">${esc(g.nombre)}</span></span>
+      ${conectores}<span class="mg-cuerpo">${icono(g.icon)}<span class="mg-nombre">${esc(g.nombre)}</span>${langsDeGrupo(g).length ? `<span class="mg-lang">${langsDeGrupo(g).join(' · ')}</span>` : ''}</span>
     </div>`);
   }
   rail.innerHTML = marcas.join('');
@@ -307,7 +319,7 @@ function renderPaleta() {
     <div class="grupo-estacion ${clsPlegada('conjuntos')}">
       <div class="cab estacion-cab" data-plegar-paleta="conjuntos" style="--c:var(--ciruela);--ct:#FFFFFF">${icono('chevron-down')} Conjuntos (frameworks)</div>
       <div class="fase-grupo"><div class="cuerpo">
-        ${grupos.map((g) => `<span class="pieza-chip mega" draggable="true" data-grupo="${g.id}" title="${esc(g.tagline)}">${icono(g.icon)} ${g.nombre}${g.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}</span>`).join('')}
+        ${grupos.map((g) => `<span class="pieza-chip mega" draggable="true" data-grupo="${g.id}" title="${esc(g.tagline)}">${icono(g.icon)} ${g.nombre}${g.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}${langsDeGrupo(g).length ? ` <span class="lang-mini">${langsDeGrupo(g).join(' · ')}</span>` : ''}</span>`).join('')}
       </div></div>
       <p style="font:italic 400 11.5px var(--serif);color:var(--tinta-2);margin:2px 4px">Un conjunto = varias fases empaquetadas. Se expande para no perder trazabilidad.</p>
     </div>` : '';
@@ -321,9 +333,10 @@ function renderLienzo() {
     <div class="receta-cabecera">
       <input class="receta-input" id="nombre-receta" value="${esc(receta.name)}" aria-label="Nombre de la receta">
       <span class="plantilla">${plantilla}</span>
+      ${lenguajesReceta().length ? `<span class="chip lang-receta" title="Lenguaje(s) de la receta: los conjuntos declaran el suyo; el camino libre es Python">${lenguajesReceta().join(' + ')}</span>` : ''}
       <span class="chip">${receta.fasesActivas.length}/${FASES.length} fases activas</span>
     </div>
-    <p class="receta-nota">Clic en las fases de arriba para activarlas/desactivarlas · arrastra piezas a su carril · suelta un <b>conjunto</b> donde quieras: activa las fases que necesita, completa lo mínimo por arriba y por abajo, y se expande para no perder trazabilidad. Doble-click = ficha.</p>
+    <p class="receta-nota">Activa fases en la columna izquierda y arrastra piezas a su franja · suelta un <b>conjunto</b> donde quieras: activa las fases que necesita, completa lo mínimo por arriba y por abajo, y se expande para no perder trazabilidad. Doble-click = ficha.</p>
     ${ESTACIONES.filter((est) => FASES.some((f) => f.est === est.id && receta.fasesActivas.includes(f.id))).map((est) => `
       <div class="banda-estacion" style="background:${est.color}">${icono(est.icon)} <span class="nombre">${est.nombre}</span> <span class="sub">· ${est.sub}</span> <span class="num">${FASES.filter((f) => f.est === est.id && receta.fasesActivas.includes(f.id)).length} fases</span></div>
       ${FASES.filter((f) => f.est === est.id && receta.fasesActivas.includes(f.id)).map((f) => carrilHTML(f)).join('')}
@@ -639,7 +652,9 @@ function abrirFicha(b: Bloque) {
     <h2>${p ? p.nombre : g!.nombre} ${p?.origin === 'propio' || g?.origin === 'propio' ? '★' : ''}</h2>
     <p class="tagline">${esc(p?.tagline || g!.tagline)}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      ${g ? `<span class="chip mega">conjunto de bloques</span><span class="chip">${icono((faseById(g.faseAncla) || { icon: 'circle' }).icon || 'circle')} ancla: ${g.faseAncla}</span>` : `<span class="chip">${icono(f.icon)} fase: ${f.nombre}</span>`}
+      ${g
+        ? `<span class="chip mega">conjunto de bloques</span><span class="chip">${icono((faseById(g.faseAncla) || { icon: 'circle' }).icon || 'circle')} ancla: ${g.faseAncla}</span>${(g.langs || []).length ? `<span class="chip">🗣 ${g.langs!.map((l) => LANG_LABEL[l]).join(' · ')} nativo</span>` : ''}`
+        : `<span class="chip">${icono(f.icon)} fase: ${f.nombre} · 🐍 Python</span>`}
       ${p?.origin === 'comercial' || g?.origin === 'comercial' ? `<span class="chip">comercial${p?.proveedor || g?.proveedor ? ' · ' + esc(p?.proveedor || g!.proveedor!) : ''}</span>` : ''}
       ${p?.origin === 'propio' || g?.origin === 'propio' ? '<span class="chip propio">★ propio · github.com/JavierFrauca</span>' : ''}
       ${p?.licencia ? `<span class="chip">${p.licencia === 'open' ? '🟢 open' : '🔒 propietario'}</span><span class="chip">🌐 ${esc(p.idiomas || '')}</span><span class="chip">📏 ${p.maxTokens} tokens</span><span class="chip">${p.dimensiones}d</span>` : ''}

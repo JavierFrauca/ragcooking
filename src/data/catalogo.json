@@ -1400,6 +1400,9 @@
           "fase": "almacenamiento",
           "pieza": "almacenamiento.chroma"
         }
+      ],
+      "langs": [
+        "py"
       ]
     },
     {
@@ -1480,6 +1483,9 @@
           "fase": "almacenamiento",
           "pieza": "almacenamiento.chroma"
         }
+      ],
+      "langs": [
+        "py"
       ]
     },
     {
@@ -1546,6 +1552,9 @@
           "fase": "almacenamiento",
           "pieza": "almacenamiento.chroma"
         }
+      ],
+      "langs": [
+        "py"
       ]
     },
     {
@@ -1616,6 +1625,10 @@
           "fase": "generacion",
           "pieza": "generacion.plantilla-citas"
         }
+      ],
+      "langs": [
+        "py",
+        "dotnet"
       ]
     },
     {
@@ -1677,6 +1690,9 @@
           "fase": "generacion",
           "pieza": "generacion.plantilla-citas"
         }
+      ],
+      "langs": [
+        "py"
       ]
     },
     {
@@ -1804,6 +1820,9 @@
       ],
       "conflicts": [
         "grupo.nucleus"
+      ],
+      "langs": [
+        "dotnet"
       ]
     },
     {

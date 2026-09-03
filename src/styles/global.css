@@ -1224,3 +1224,33 @@ textarea.comentario-input { display: none !important; }
 }
 .paleta .grupo-estacion > .cab.estacion-cab > svg { color: var(--ct, #fff); }
 .paleta .grupo-estacion:first-child > .cab.estacion-cab { margin-top: 2px; }
+
+/* lenguajes nativos visibles */
+.lang-receta { background: var(--tinta); border-color: var(--tinta); color: var(--papel); font-family: var(--mono); font-size: 11px; }
+.lang-mini {
+  font: 700 9px var(--mono); letter-spacing: .03em;
+  background: rgba(217, 160, 43, .25); border: 1px solid rgba(217, 160, 43, .5);
+  color: var(--azafran); border-radius: 5px; padding: 0 4px; margin-left: 2px;
+}
+.marca-grupo .mg-lang {
+  position: absolute; bottom: 4px; left: 0; right: 0;
+  font: 700 8.5px var(--mono); letter-spacing: .04em; color: rgba(255, 255, 255, .85);
+  text-align: center; writing-mode: horizontal-tb;
+}
+
+/* ============================================================
+   SELECTOR DE FASES en la columna izquierda (partido en 2):
+   arriba eliges fases, abajo piezas; la cabecera del lienzo
+   queda solo para la receta.
+   ============================================================ */
+.paleta-titulo {
+  font: 700 10px var(--sans); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--tinta-2); padding: 10px 4px 4px;
+}
+.selector-fases {
+  position: static; display: flex; flex-wrap: wrap; gap: 4px;
+  background: none; padding: 4px 0 6px; margin: 0; max-height: 30vh; overflow-y: auto;
+}
+.fase-chip { font-size: 10.5px; padding: 3px 8px; border-radius: 999px; }
+.fase-chip svg { width: 10px; height: 10px; }
+.paleta .buscador { position: static; padding: 6px 0 8px; background: none; }

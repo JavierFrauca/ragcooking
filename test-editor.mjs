@@ -93,6 +93,12 @@ check(!$('#lista-val').innerHTML.includes('desactivada'), 'reactivar la fase lim
 const rail = (porId['#marcas-rail'] || {}).innerHTML || '';
 check(rail.includes('marca-grupo') && rail.includes('mg-conn'), 'bloque de framework con conectores triangulares por fase');
 
+// lenguajes nativos: ragkit declara .NET; el camino libre es Python
+check(($('#paleta') || {}).innerHTML.includes('.NET'), 'la paleta muestra el lenguaje nativo de ragkit (.NET)');
+check(($('#canvas') || {}).innerHTML.includes('lang-receta'), 'la cabecera de la receta muestra su lenguaje');
+await soltar('grupo:grupo.ragkit', 'limpieza');
+check(($('#canvas') || {}).innerHTML.includes('⚙️ .NET'), 'receta con ragkit → chip de lenguaje .NET en cabecera');
+
 // píldora ↔ embedding: el aviso aparece con píldora enorme y SE VA al rectificar
 await soltar('pieza:chunking.fijo', 'chunking');
 await soltar('pieza:embedding.bge-m3', 'embedding');

@@ -34,6 +34,8 @@ export interface Grupo {
   requisitos?: { fase: string; pieza: string }[];
   /** conjuntos incompatibles con este (objetivos distintos); el editor impide combinarlos */
   conflicts?: string[];
+  /** lenguajes nativos del conjunto ('py' Python · 'dotnet' C#/.NET); las piezas sueltas (camino libre) son Python por defecto */
+  langs?: ('py' | 'dotnet')[];
   pros: string[]; cons: string[];
   variantes: Variante[];
 }
