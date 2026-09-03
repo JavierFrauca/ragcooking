@@ -6,11 +6,12 @@ compatibility_date = "2024-12-01"
 # y poner el id aquí
 [[kv_namespaces]]
 binding = "RATE_KV"
-id = "TU_KV_ID_AQUÍ"
+id = "3874d7d7267242c3a9dcec8bf5da7a96"
 
 [vars]
 # La clave NO vive aquí — se inyecta con: wrangler secret put GLM_KEY
 UPSTREAM = "https://open.bigmodel.cn/api/paas/v4"
 ALLOWED_ORIGIN = "https://ragcooking.info"
+ALLOWED_ORIGIN_WWW = "https://www.ragcooking.info"
 ALLOWED_ORIGIN_DEV = "http://localhost:4321"
 MAX_REQUESTS_PER_HOUR = 20

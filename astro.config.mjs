@@ -12,7 +12,7 @@ export default defineConfig({
     server: {
       proxy: {
         '/api/cook': {
-          target: 'https://ragcooking-proxy.tu-subdominio.workers.dev',
+          target: 'https://ragcooking-proxy.ragcooking.workers.dev',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/cook/, '/v1/chat/completions'),
         },

@@ -31,7 +31,7 @@ export default {
 
     // CORS: solo nuestros orígenes
     const origin = request.headers.get("Origin") || "";
-    if (origin !== env.ALLOWED_ORIGIN && origin !== env.ALLOWED_ORIGIN_DEV) {
+    if (origin !== env.ALLOWED_ORIGIN && origin !== env.ALLOWED_ORIGIN_WWW && origin !== env.ALLOWED_ORIGIN_DEV) {
       return json({ error: "origin not allowed" }, 403, env);
     }
 
