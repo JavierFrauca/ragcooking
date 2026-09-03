@@ -4,8 +4,7 @@ import mdx from '@astrojs/mdx';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://ragcooking.info',
-  base: '/ragcooking/',  // GitHub Pages subpath (quitar cuando ragcooking.info sirva en raíz)
+  site: 'https://www.ragcooking.info',
   integrations: [react(), mdx()],
   devToolbar: { enabled: false },
   // proxy del cocinador IA en dev: /api/cook → worker de Cloudflare
