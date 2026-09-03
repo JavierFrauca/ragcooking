@@ -8,8 +8,15 @@ node_modules/
 # env
 .env
 .env.*
+*.local
+
+# cloudflare worker (estado local de wrangler — puede contener secretos)
+.wrangler/
+.dev.vars
+
+# logs
+*.log
 
 # os/editor
 .DS_Store
 Thumbs.db
-*.local
