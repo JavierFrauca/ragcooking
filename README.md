@@ -2,7 +2,7 @@
 
 Sitio web en español donde cualquier persona que quiera construir un RAG puede:
 
-1. **Aprender** cada pieza del pipeline en la [biblioteca](src/pages/biblioteca.astro) — 19 fases, piezas con pros/contras, conjuntos (frameworks) explicados, y un [diccionario](src/data/catalogo.json) donde nada se queda fuera por vocabulario.
+1. **Aprender** cada pieza del pipeline en la [biblioteca](src/pages/biblioteca.astro) — 18 fases, piezas con pros/contras, conjuntos (frameworks) explicados, y un [diccionario](src/data/catalogo.json) donde nada se queda fuera por vocabulario.
 2. **Cocinar su RAG** en el [constructor](src/pages/constructor.astro): eliges fases, sueltas piezas, y los frameworks funcionan como **conjuntos de bloques** — se anclan, completan lo que necesitan por arriba y por abajo, y se expanden para no perder trazabilidad. Validación en vivo, guardado en el navegador y export/import en JSON.
 
 > El 80% del éxito de un RAG ocurre antes del prompt.

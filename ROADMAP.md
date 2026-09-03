@@ -33,7 +33,7 @@ Dos corazones enlazados en ambos sentidos:
 | Piezas custom | Sí: solo descripción libre, sin validación. |
 | Plantillas | Arranque = RAG mínimo (one-shot, solo fases obligatorias); galería por objetivo. |
 | JSON | `ragcooking.architecture` **v2**: fasesActivas + bloques (pieza/custom/grupo+variante, comment, config con píldora y modeloDatos). Import tolerante. |
-| Catálogo | **catalogo.json** como fuente única (58 piezas, 7 grupos, 10 embeddings, 19 fases, 3 plantillas, ~60 términos). |
+| Catálogo | **catalogo.json** como fuente única (58 piezas, 7 grupos, 10 embeddings, 18 fases, 3 plantillas, ~60 términos). |
 | Stack | Astro 7 + TypeScript (vanilla en el editor: DnD nativo), CSS artesanal "recetario técnico" aprobado. Deploy GitHub Pages (CI listo). |
 | Dominio | ragcooking.info → GitHub Pages. |
 

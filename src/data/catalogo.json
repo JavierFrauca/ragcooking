@@ -146,14 +146,6 @@
       "desc": "Detectar chunks que se tropiezan con búsquedas de dominios no alineados."
     },
     {
-      "id": "framework",
-      "est": "servicio",
-      "nivel": "recomendada",
-      "icon": "wrench",
-      "nombre": "Framework",
-      "desc": "Orquestación: un conjunto que ya orquesta (LlamaIndex, LangChain…) o tu propio código. No es obligatoria: si tu arquitectura se sostiene sola, déjala."
-    },
-    {
       "id": "recuperacion",
       "est": "servicio",
       "nivel": "obligatoria",
@@ -1066,21 +1058,6 @@
       ]
     },
     {
-      "id": "framework.custom",
-      "fase": "framework",
-      "nombre": "Custom (a medida)",
-      "icon": "wrench",
-      "level": "core",
-      "origin": "comunidad",
-      "tagline": "Tu propio pipeline: control total, todo el mantenimiento",
-      "pros": [
-        "Control absoluto"
-      ],
-      "cons": [
-        "Todo el mantenimiento es tuyo"
-      ]
-    },
-    {
       "id": "recuperacion.densa",
       "fase": "recuperacion",
       "nombre": "Búsqueda densa",
@@ -1344,7 +1321,7 @@
       "nombre": "LlamaIndex",
       "icon": "wrench",
       "origin": "comunidad",
-      "faseAncla": "framework",
+      "faseAncla": "ingesta",
       "tagline": "De los datos a la respuesta: readers, node parsers, retrievers y query engines",
       "embeddingExterno": true,
       "pros": [
@@ -1430,7 +1407,7 @@
       "nombre": "LangChain / LangGraph",
       "icon": "puzzle",
       "origin": "comunidad",
-      "faseAncla": "framework",
+      "faseAncla": "recuperacion",
       "tagline": "Orquestación de recuperación y generación; LangGraph añade grafos y agentes",
       "embeddingExterno": true,
       "pros": [
@@ -1510,7 +1487,7 @@
       "nombre": "Haystack (deepset)",
       "icon": "wrench",
       "origin": "comunidad",
-      "faseAncla": "framework",
+      "faseAncla": "ingesta",
       "tagline": "Pipelines declarativos de extremo a extremo, muy apreciado en producción",
       "embeddingExterno": true,
       "pros": [
@@ -1577,7 +1554,7 @@
       "icon": "database",
       "origin": "comercial",
       "proveedor": "Microsoft",
-      "faseAncla": "almacenamiento",
+      "faseAncla": "chunking",
       "tagline": "Indexa, trocea, embebe y busca en un solo servicio gestionado",
       "embeddingExterno": false,
       "modeloDatos": true,
@@ -1634,10 +1611,6 @@
         {
           "fase": "ingesta",
           "pieza": "ingesta.lectores-pdf"
-        },
-        {
-          "fase": "framework",
-          "pieza": "framework.custom"
         },
         {
           "fase": "generacion",
@@ -1701,10 +1674,6 @@
           "pieza": "embedding.openai-3-small"
         },
         {
-          "fase": "framework",
-          "pieza": "framework.custom"
-        },
-        {
           "fase": "generacion",
           "pieza": "generacion.plantilla-citas"
         }
@@ -1715,61 +1684,113 @@
       "nombre": "ragkit",
       "icon": "chef-hat",
       "origin": "propio",
-      "faseAncla": "framework",
-      "tagline": "Nuestro kit de cocina del corpus: de la fuente al rack validado (github.com/JavierFrauca) — pensado para multitenant",
+      "faseAncla": "ingesta",
+      "tagline": "RAG agéntico llave en mano para .NET (MIT): ingesta idempotente, híbrido BM25+densa con RRF, guardarails y agente con 13 herramientas (github.com/JavierFrauca/Ragkit)",
       "embeddingExterno": false,
       "pros": [
-        "Curado según el método del libro",
-        "Idempotente por diseño",
-        "Open source"
+        "De la carpeta a la respuesta: cubre ingesta, chunking, embeddings, store, híbrida, rerank y generación",
+        "Idempotente por hash: reingestar no rompe nada",
+        "Embedders ONNX locales u OpenAI-compatible, sin setup",
+        "Stores reales: Qdrant, pgvector, SQL Server 2025, InMemory"
       ],
       "cons": [
-        "Cuña propia 😄"
+        "Cuña propia 😄",
+        "No cura texto (sin normalización previa)",
+        "Ecosistema .NET"
       ],
       "variantes": [
         {
-          "id": "corpus-completo",
-          "nombre": "Corpus completo",
+          "id": "pipeline-agéntico",
+          "nombre": "Pipeline completo (agéntico)",
           "atomos": [
             {
               "fase": "ingesta",
               "propio": {
                 "nombre": "ragkit · ingesta idempotente",
-                "desc": "Manifiestos de zona Bronce: reingerir no rompe nada"
-              }
-            },
-            {
-              "fase": "limpieza",
-              "propio": {
-                "nombre": "ragkit · curado Silver",
-                "desc": "Normalización, deduplicación y calidad por dominio"
+                "desc": "Extractores PDF/DOCX, carpetas recursivas e ingesta por hash: Ingested/Unchanged/Rejected"
               }
             },
             {
               "fase": "estructura",
               "propio": {
-                "nombre": "ragkit · segmentación",
-                "desc": "Clasificación por dominios y tipos documentales"
+                "nombre": "ragkit · clasificación por dominios",
+                "desc": "El LLM tier-2 clasifica cada documento en dominio (confianza ≥ 0.8) o lo rechaza"
               }
             },
             {
-              "fase": "transversales",
+              "fase": "metaetiquetado",
               "propio": {
-                "nombre": "ragkit · hilado",
-                "desc": "Detección de conceptos multi-dominio"
+                "nombre": "ragkit · dominio + etiquetas auto",
+                "desc": "Dominio y etiquetas asignados en ingesta, o manuales"
+              }
+            },
+            {
+              "fase": "chunking",
+              "propio": {
+                "nombre": "ragkit · chunking por frontera",
+                "desc": "Trocea en límites naturales; ChunkIndex posicional para pedir vecinos o el documento entero"
+              }
+            },
+            {
+              "fase": "embedding",
+              "propio": {
+                "nombre": "ragkit · embedders ONNX",
+                "desc": "BGE-M3, multilingual-e5 o MiniLM en local; o cualquier API OpenAI-compatible (Ollama)"
+              }
+            },
+            {
+              "fase": "almacenamiento",
+              "propio": {
+                "nombre": "ragkit · vector store",
+                "desc": "InMemory, Qdrant, PostgreSQL+pgvector o SQL Server 2025 (VECTOR)"
+              }
+            },
+            {
+              "fase": "recuperacion",
+              "propio": {
+                "nombre": "ragkit · híbrida BM25+densa",
+                "desc": "Fusión RRF de vector denso + BM25, acotada por dominio y etiquetas, TopK configurable"
+              }
+            },
+            {
+              "fase": "reranking",
+              "propio": {
+                "nombre": "ragkit · rerank",
+                "desc": "Cross-encoder ONNX local o rerank con LLM (multilingüe)"
+              }
+            },
+            {
+              "fase": "generacion",
+              "propio": {
+                "nombre": "ragkit · generación con citas",
+                "desc": "One-shot con citas, chat con memoria o modo agéntico (13 herramientas) en streaming; guardarrailes de entrada/salida"
               }
             }
           ]
         },
         {
-          "id": "solo-curado",
-          "nombre": "Solo curado",
+          "id": "solo-ingesta-clasificada",
+          "nombre": "Solo ingesta + clasificación",
           "atomos": [
             {
-              "fase": "limpieza",
+              "fase": "ingesta",
               "propio": {
-                "nombre": "ragkit · curado Silver",
-                "desc": "Solo la parte de curado"
+                "nombre": "ragkit · ingesta idempotente",
+                "desc": "Extractores PDF/DOCX e ingesta por hash"
+              }
+            },
+            {
+              "fase": "estructura",
+              "propio": {
+                "nombre": "ragkit · clasificación por dominios",
+                "desc": "Clasificación automática por dominio con umbral de confianza"
+              }
+            },
+            {
+              "fase": "metaetiquetado",
+              "propio": {
+                "nombre": "ragkit · dominio + etiquetas auto",
+                "desc": "Etiquetas asignadas en ingesta"
               }
             }
           ]
@@ -1779,26 +1800,6 @@
         {
           "fase": "corpus",
           "pieza": "corpus.carpeta-pdf"
-        },
-        {
-          "fase": "chunking",
-          "pieza": "chunking.semantico"
-        },
-        {
-          "fase": "embedding",
-          "pieza": "embedding.openai-3-small"
-        },
-        {
-          "fase": "almacenamiento",
-          "pieza": "almacenamiento.chroma"
-        },
-        {
-          "fase": "recuperacion",
-          "pieza": "recuperacion.prefiltro-metadata"
-        },
-        {
-          "fase": "generacion",
-          "pieza": "generacion.plantilla-citas"
         }
       ],
       "conflicts": [
@@ -1810,7 +1811,7 @@
       "nombre": "nucleus",
       "icon": "orbit",
       "origin": "propio",
-      "faseAncla": "framework",
+      "faseAncla": "chunking",
       "tagline": "El núcleo de servicio del RAG: rack validado, búsqueda determinista y rerank (github.com/JavierFrauca)",
       "embeddingExterno": true,
       "pros": [
@@ -1969,7 +1970,6 @@
         "chunking",
         "embedding",
         "almacenamiento",
-        "framework",
         "recuperacion",
         "generacion"
       ],
@@ -1988,9 +1988,6 @@
         },
         {
           "pieza": "almacenamiento.chroma"
-        },
-        {
-          "pieza": "framework.custom"
         },
         {
           "pieza": "recuperacion.densa"
@@ -2016,7 +2013,6 @@
         "embedding",
         "almacenamiento",
         "ruido",
-        "framework",
         "recuperacion",
         "reranking",
         "generacion",
@@ -2063,9 +2059,6 @@
           "pieza": "ruido.colisiones"
         },
         {
-          "pieza": "framework.custom"
-        },
-        {
           "pieza": "recuperacion.prefiltro-metadata"
         },
         {
@@ -2084,22 +2077,21 @@
     },
     {
       "id": "conjunto-ragkit",
-      "nombre": "Conjunto: ragkit ★ (multitenant)",
-      "desc": "Corpus multitenant curado con ragkit:Bronce→Silver, prefiltros por tenant y dominio.",
+      "nombre": "Conjunto: ragkit ★ (pipeline agéntico)",
+      "desc": "De la carpeta a la respuesta con ragkit: ingesta idempotente, clasificación por dominios, híbrida BM25+densa con RRF y agente con citas.",
       "fasesActivas": [
         "modelo",
         "corpus",
         "ingesta",
         "formato",
-        "limpieza",
         "estructura",
-        "transversales",
+        "metaetiquetado",
         "chunking",
         "embedding",
         "almacenamiento",
         "ruido",
-        "framework",
         "recuperacion",
+        "reranking",
         "generacion",
         "evaluacion"
       ],
@@ -2108,38 +2100,17 @@
           "pieza": "modelo.dominios"
         },
         {
-          "pieza": "modelo.etiquetas"
-        },
-        {
-          "pieza": "corpus.wiki"
-        },
-        {
-          "pieza": "ingesta.conectores"
+          "pieza": "corpus.carpeta-pdf"
         },
         {
           "pieza": "formato.a-markdown"
         },
         {
           "grupo": "grupo.ragkit",
-          "variante": "corpus-completo"
-        },
-        {
-          "pieza": "chunking.semantico"
-        },
-        {
-          "pieza": "embedding.openai-3-small"
-        },
-        {
-          "pieza": "almacenamiento.pgvector"
+          "variante": "pipeline-agéntico"
         },
         {
           "pieza": "ruido.colisiones"
-        },
-        {
-          "pieza": "recuperacion.prefiltro-metadata"
-        },
-        {
-          "pieza": "generacion.plantilla-citas"
         },
         {
           "pieza": "evaluacion.dataset-aureo"
@@ -2157,7 +2128,6 @@
         "embedding",
         "almacenamiento",
         "ruido",
-        "framework",
         "recuperacion",
         "reranking",
         "generacion",
@@ -2441,8 +2411,8 @@
           },
           {
             "t": "ragkit",
-            "def": "Kit open source de Javier Frauca para cocinar el corpus según el método del libro: ingesta idempotente con manifiestos (Bronce), curado Silver por dominios, segmentación documental e hilado de transversales. Cubre la mitad del pipeline que los frameworks de mercado suelen ignorar: la que ocurre antes del prompt.",
-            "mas": "https://github.com/JavierFrauca"
+            "def": "RAG agéntico llave en mano para .NET (MIT, paquetes NuGet) de Javier Frauca: ingesta idempotente por hash con extractores PDF/DOCX, clasificación automática por dominios (tier-2 con umbral de confianza), chunking por frontera, embedders ONNX locales (BGE-M3, E5, MiniLM) o API OpenAI-compatible, vector stores InMemory/Qdrant/pgvector/SQL Server 2025, recuperación híbrida densa+BM25 con RRF acotada por dominio y etiquetas, rerank (cross-encoder o LLM), guardarrailes y modo agéntico con 13 herramientas, MCP y streaming. Cubre de la ingesta a la generación; no hace curado de texto.",
+            "mas": "https://github.com/JavierFrauca/Ragkit"
           },
           {
             "t": "nucleus",
