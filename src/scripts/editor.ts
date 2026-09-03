@@ -12,7 +12,7 @@ import {
   faseById, piezaById, grupoById, estacionById, NIVEL_LABEL, NIVEL_CLS, colorDeGrupo,
 } from '../data/catalogo';
 import { TEMPLATES } from '../data/templates';
-import { lenguajesDisponibles, generarCodigo, crearZip, nombreZip } from './codegen';
+import { lenguajesDisponibles, generarCodigo, crearZip, nombreZip, piezasSinFicha, setCocinado } from './codegen';
 import type { Pieza, Grupo, Fase, Bloque, Receta } from './tipos';
 
 /* ---------- runtime mínimo (iconos, toast, tooltip diccionario) ---------- */
@@ -508,7 +508,8 @@ document.addEventListener('click', (e) => {
   }
   if (c('#btn-templates')) return abrirTemplates();
   if (c('#btn-nueva')) return abrirNueva();
-  if (c('#btn-exportar')) return abrirExport();
+  if (c('#btn-exportar')) { abrirExport(); pintarIA(); return; }
+  if (c('#btn-cocinar')) return cocinarTODOs();
   if (c('#btn-importar')) return abrirImport();
   if (c('#btn-descargar-json')) return descargarJSON();
   if (el = c('[data-code-lang]')) return descargarCodigo(el.dataset.codeLang!);
@@ -534,6 +535,15 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('change', (e) => {
   const t = e.target as HTMLInputElement;
+  if (t.id === 'ia-preset') {
+    const p = IA_PRESETS[t.value] || { base: '', model: '' };
+    const base = document.getElementById('ia-base') as HTMLInputElement | null;
+    const model = document.getElementById('ia-model') as HTMLInputElement | null;
+    if (base) base.value = p.base;
+    if (model) model.value = p.model;
+    guardarIA();
+    return;
+  }
   if (t.id === 'buscador') return renderPaleta();
   if (t.matches('[data-variante]')) return cambiarVariante(t.dataset.variante!, t.value);
   if (t.matches('textarea[data-comentario]')) {
@@ -633,6 +643,70 @@ document.addEventListener('drop', (e) => {
     trasCambio();
   }
 });
+
+/* ---------- cocinador IA: la clave vive SOLO en localStorage; llamada directa del navegador al endpoint ---------- */
+const IA_KEY_STORE = 'ragcooking-llm';
+const IA_PRESETS: Record<string, { base: string; model: string }> = {
+  ollama: { base: 'http://localhost:11434/v1', model: 'qwen2.5-coder:7b' },
+  glm: { base: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4.7-flash' },
+  openai: { base: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+  custom: { base: '', model: '' },
+};
+function cargarIA(): { base?: string; model?: string; key?: string } {
+  try { return JSON.parse(localStorage.getItem(IA_KEY_STORE) || 'null') || {}; } catch { return {}; }
+}
+function guardarIA() {
+  const base = document.getElementById('ia-base') as HTMLInputElement | null;
+  const model = document.getElementById('ia-model') as HTMLInputElement | null;
+  const key = document.getElementById('ia-key') as HTMLInputElement | null;
+  if (!base || !model) return;
+  try { localStorage.setItem(IA_KEY_STORE, JSON.stringify({ base: base.value.trim(), model: model.value.trim(), key: key?.value.trim() || '' })); } catch { /* noop */ }
+}
+function pintarIA() {
+  const cfg = cargarIA();
+  const sel = document.getElementById('ia-preset') as HTMLSelectElement | null;
+  const base = document.getElementById('ia-base') as HTMLInputElement | null;
+  const model = document.getElementById('ia-model') as HTMLInputElement | null;
+  const key = document.getElementById('ia-key') as HTMLInputElement | null;
+  if (!sel || !base || !model || !key) return;
+  const preset = Object.entries(IA_PRESETS).find(([, p]) => p.base && p.base === cfg.base)?.[0] || 'custom';
+  sel.value = preset; base.value = cfg.base || ''; model.value = cfg.model || ''; key.value = cfg.key || '';
+}
+async function cocinarTODOs() {
+  guardarIA();
+  const cfg = cargarIA();
+  if (!cfg.base || !cfg.model) return toast('Configura base URL y modelo del endpoint', true);
+  const faltan = piezasSinFicha(receta);
+  if (!faltan.length) return toast('No hay TODO que cocinar: todas las piezas tienen ficha 🎉');
+  const piezas = faltan.map((f) => `- id: ${f.id} | pieza: ${f.nombre} | fase: ${f.fase}\n  qué debe hacer: ${f.tagline}${f.pros.length ? `\n  pros: ${f.pros.join('; ')}` : ''}${f.cons.length ? `\n  contras: ${f.cons.join('; ')}` : ''}`).join('\n');
+  const systema = 'Eres un ingeniero Python senior. Generas SECCIONES de código para un pipeline RAG por fases (esqueleto de ragcooking.info). Devuelve EXCLUSIVAMENTE un JSON válido {"piezas": {"<id>": {"codigo": "<sección python, \\n como saltos>"}}}. Código: funciones breves (10-25 líneas) con imports, comentarios en español, sin main().';
+  const user = `Pipeline: ${receta.name}. Fases: ${receta.fasesActivas.join(', ')}. Rellena estas secciones:\n${piezas}\nConvenciones existentes: embeber(textos)->vectores; recuperar(pregunta)->[{texto,meta}]; trocear(texto)->chunks; guardar(chunks,vectores,metadatos).`;
+  toast(`Cocinando ${faltan.length} sección(es) con ${cfg.model}…`);
+  try {
+    const rsp = await fetch(cfg.base.replace(/\/$/, '') + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(cfg.key ? { Authorization: 'Bearer ' + cfg.key } : {}) },
+      body: JSON.stringify({ model: cfg.model, temperature: 0.2, messages: [{ role: 'system', content: systema }, { role: 'user', content: user }] }),
+    });
+    if (!rsp.ok) throw new Error('HTTP ' + rsp.status);
+    const data = await rsp.json();
+    const contenido: string = data.choices?.[0]?.message?.content || '';
+    const m = contenido.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('la respuesta no contiene JSON');
+    const parsed = JSON.parse(m[0]);
+    const entradas = parsed.piezas || parsed;
+    const mapa: Record<string, string> = {};
+    for (const [id, v] of Object.entries(entradas as Record<string, unknown>)) mapa[id] = typeof v === 'string' ? v : String((v as { codigo?: string }).codigo || '');
+    const utiles = Object.entries(mapa).filter(([, c]) => c && c.trim());
+    if (!utiles.length) throw new Error('respuesta vacía');
+    setCocinado(Object.fromEntries(utiles));
+    const prev = document.getElementById('cocinado-preview');
+    if (prev) prev.innerHTML = utiles.map(([id, c]) => `<details style="margin:6px 0"><summary style="cursor:pointer;font:600 12px var(--sans)">🍳 ${esc(id)} — cocinado (revisa)</summary><pre style="font:400 11px var(--mono);background:var(--carta);border:1.5px solid var(--linea-2);border-radius:8px;padding:10px;overflow:auto;max-height:220px">${esc(c.slice(0, 1500))}</pre></details>`).join('') + `<p class="tagline">Secciones cocinadas: ${utiles.length}. Descarga de nuevo el ZIP 🐍 — las secciones 🍳 son borrador IA: revísalas antes de usar.</p>`;
+    toast(`🍳 ${utiles.length} sección(es) cocinadas — descarga el ZIP de nuevo`);
+  } catch (e: any) {
+    toast('No se pudo cocinar: ' + e.message + ' (¿CORS? Ollama necesita OLLAMA_ORIGINS=*)', true);
+  }
+}
 
 /* ---------- modales ---------- */
 function abrirModal(html: string) {
@@ -801,7 +875,22 @@ function abrirExport() {
     <p class="tagline">Tu receta convertida en proyecto inicial. Python para el camino libre; C# · .NET vía ragkit. Las piezas sin ficha generan secciones TODO honestas.</p>
     <div class="fila-botones">
       ${lenguajesDisponibles(receta).map((l) => `<button class="btn" data-code-lang="${l.lang}" title="${l.nota}">${l.icono} ${l.label} · ${l.pct}% cubierto</button>`).join('') || '<span class="tagline">Añade piezas a la receta para generar código.</span>'}
-    </div>`);
+    </div>
+    <h3 style="margin-top:16px">🍳 Cocinar los TODO con IA (opcional)</h3>
+    <p class="tagline">Las piezas sin ficha se rellenan con tu LLM en una sola petición. Tu clave vive SOLO en este navegador (localStorage) y la llamada va directa al endpoint — nada pasa por ragcooking. GLM-4.7-Flash (gratis, con rates), Ollama local o cualquier API OpenAI-compatible.</p>
+    <div class="fila-botones" style="align-items:center;flex-wrap:wrap">
+      <select id="ia-preset" style="font:500 12px var(--sans);border:1.5px solid var(--linea-2);border-radius:8px;padding:5px 8px">
+        <option value="ollama">Ollama local</option>
+        <option value="glm">GLM (bigmodel)</option>
+        <option value="openai">OpenAI</option>
+        <option value="custom">Personalizado</option>
+      </select>
+      <input id="ia-base" placeholder="base URL (…/v1)" style="font:500 12px var(--mono);border:1.5px solid var(--linea-2);border-radius:8px;padding:5px 8px;width:220px">
+      <input id="ia-model" placeholder="modelo (glm-4.7-flash…)" style="font:500 12px var(--mono);border:1.5px solid var(--linea-2);border-radius:8px;padding:5px 8px;width:160px">
+      <input id="ia-key" type="password" placeholder="API key (solo localStorage)" style="font:500 12px var(--mono);border:1.5px solid var(--linea-2);border-radius:8px;padding:5px 8px;width:180px">
+      <button class="btn" id="btn-cocinar">${icono('chef-hat')} Cocinar los TODO</button>
+    </div>
+    <div id="cocinado-preview" style="margin-top:10px"></div>`);
 }
 function descargarCodigo(lang: string) {
   const files = generarCodigo(receta, lang);

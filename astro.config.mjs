@@ -6,4 +6,5 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
   site: 'https://ragcooking.info',
   integrations: [react(), mdx()],
+  devToolbar: { enabled: false },
 });

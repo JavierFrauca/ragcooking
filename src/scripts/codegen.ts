@@ -79,6 +79,24 @@ if (Console.ReadLine() is { Length: > 0 } pregunta)
 `,
 };
 
+
+/* ---------- cocinado IA: secciones generadas por el usuario con su LLM ---------- */
+const COCINADO: Record<string, string> = {};
+export const setCocinado = (m: Record<string, string>) => { for (const k of Object.keys(COCINADO)) delete COCINADO[k]; Object.assign(COCINADO, m); };
+export const hayCocinado = () => Object.keys(COCINADO).length > 0;
+
+export interface PiezaACocinar { id: string; nombre: string; fase: string; tagline: string; pros: string[]; cons: string[]; }
+export function piezasSinFicha(receta: Receta): PiezaACocinar[] {
+  return receta.bloques
+    .filter((b) => !b.grupoId && !(b.pieza && FICHAS_PY[b.pieza]))
+    .map((b) => {
+      const p = b.pieza ? piezaById(b.pieza) : undefined;
+      const f = faseById(b.fase);
+      return { id: b.id, nombre: p ? p.nombre : 'custom', fase: f ? f.nombre : b.fase,
+               tagline: p ? p.tagline : (b.custom || ''), pros: p ? p.pros || [] : [], cons: p ? p.cons || [] : [] };
+    });
+}
+
 /* ---------- utilidades ---------- */
 const slug = (s: string) => (s || 'mi-rag').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
@@ -118,7 +136,11 @@ function generarPython(receta: Receta): { name: string; content: string }[] {
     secciones.push(`\n# ═══ ${fase ? fase.nombre.toUpperCase() : faseId} ═════════════════════════════`);
     for (const b of bloques) {
       const nombre = b.pieza ? (piezaById(b.pieza)?.nombre || b.pieza) : (b.custom || 'custom').split(' — ')[0];
-      if (b.pieza && FICHAS_PY[b.pieza]) {
+      if (COCINADO[b.id]) {
+        secciones.push(`
+# [${nombre}] 🍳 cocinado con IA — revisa antes de usar`);
+        secciones.push(COCINADO[b.id]);
+      } else if (b.pieza && FICHAS_PY[b.pieza]) {
         const f = FICHAS_PY[b.pieza];
         f.deps.forEach((d) => deps.add(d));
         f.env.forEach((e) => envs.add(e));
