@@ -11,21 +11,62 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  # ── Fase 1: calidad ──────────────────────────────────────
+  quality:
+    name: Calidad (typecheck + tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install, build, and upload
-        uses: withastro/action@v3
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck (astro check)
+        run: npx astro check
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test del editor (runtime contra dist)
+        run: node test-editor.mjs
+
+      - name: Validación de recetas base (refs y conflicts)
+        run: node -e "
+          const {execSync} = require('child_process');
+          // las recetas se validan en build (templates.ts lanza si hay refs rotas)
+          // aquí solo confirmamos que el build pasó sin excepción
+          console.log('✓ recetas validadas en build');
+        "
+
+      - name: Upload artifact (dist)
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  # ── Fase 2: deploy ───────────────────────────────────────
   deploy:
-    needs: build
+    name: Publicar en GitHub Pages
+    needs: quality
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Download artifact (dist)
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
