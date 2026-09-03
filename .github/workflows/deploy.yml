@@ -12,51 +12,37 @@ permissions:
 
 jobs:
   quality:
-    name: Calidad (typecheck + tests + build)
+    name: Tests y typecheck
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
-      - name: Install dependencies
+      - name: Install
         run: npm ci
-
       - name: Typecheck
         run: npx astro check
-
       - name: Build
         run: npm run build
-
-      - name: Smoke test del editor
+      - name: Smoke test
         run: node test-editor.mjs
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages
-          path: dist/
-          retention-days: 1
-
   deploy:
-    name: Publicar en GitHub Pages
+    name: Build y deploy
     needs: quality
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: dist/
-
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build con Astro
+        uses: withastro/action@v3
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
