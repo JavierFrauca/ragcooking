@@ -1066,7 +1066,6 @@ code, .mono { font-family: var(--mono); font-size: .88em; background: var(--pape
 .bloque .acciones button { width: 20px; height: 20px; }
 .bloque .acciones { top: 4px; right: 5px; }
 .bloque .acciones svg { width: 11px; height: 11px; }
-textarea.comentario-input { display: none !important; }
 
 /* config en línea y mini: píldora y modelo caben en la misma línea */
 .bloque .config-fila {
@@ -1254,3 +1253,65 @@ textarea.comentario-input { display: none !important; }
 .fase-chip { font-size: 10.5px; padding: 3px 8px; border-radius: 999px; }
 .fase-chip svg { width: 10px; height: 10px; }
 .paleta .buscador { position: static; padding: 6px 0 8px; background: none; }
+
+/* ============================================================
+   NIVEL 9 — suavizado final (pase estético pre-coder):
+   sin triángulos entre piezas (solo el framework conserva los
+   suyos, con colchón para no pisar la última pieza), piezas
+   redondeadas y franjas con redondez exterior.
+   ============================================================ */
+.bloque::before, .bloque::after { display: none; }
+.carril .lateral::after { display: none; }
+
+.bloque { border-radius: 14px; }
+.carril .zona { gap: 8px; row-gap: 8px; padding: 8px 12px; }
+
+.carril .lateral { border-radius: 12px 0 0 12px; }
+.carril .zona { border-radius: 0 12px 12px 0; }
+
+/* el triángulo del framework aterriza en su colchón, sin pisar la pieza */
+.carril.cubierta-grupo .zona { padding-right: 18px; }
+
+/* ============================================================
+   NIVEL 9.1 — redondez que se LEA:
+   rótulos y zonas a 14px, sin tetón residual en la paleta,
+   y el bloque del framework redondeado (4 esquinas).
+   ============================================================ */
+.carril .lateral { border-radius: 14px 0 0 14px; }
+.carril .zona { border-radius: 0 14px 14px 0; }
+.bloque { border-radius: 14px; }
+
+/* paleta: piezas rectangulares redondeadas, sin tetón */
+.pieza-chip.pieza-bloque::after { display: none; }
+.pieza-chip.pieza-bloque { border-radius: 10px; }
+
+/* framework: bloque redondeado (las 4 esquinas) */
+.marca-grupo .mg-cuerpo { border-radius: 12px; }
+
+/* bandas de estación del lienzo: redondeadas y con margen (capítulos, no muro) */
+.banda-estacion {
+  position: static;
+  margin: 14px 10px 6px 10px;
+  padding: 6px 14px;
+  border-radius: 11px;
+  box-shadow: var(--shadow);
+}
+#canvas > .banda-estacion:first-of-type { margin-top: 4px; }
+/* banda alineada al borde izquierdo del lienzo (sin escalón raro) */
+.banda-estacion { margin: 14px 10px 6px 0; }
+#canvas > .banda-estacion:first-of-type { margin-top: 4px; }
+/* banda de estación flotando: sombra con presencia, como las fases */
+.banda-estacion { box-shadow: 0 2px 4px rgba(43, 38, 32, .16), 0 6px 18px rgba(43, 38, 32, .22); }
+
+/* notas de bloque: campo inline compacto e indicador de que existe nota */
+.bloque textarea.comentario-input:not([hidden]) {
+  height: 30px; min-height: 30px; width: 160px; flex: none; margin: 0;
+  font-size: 11px; padding: 4px 8px; border-radius: 8px;
+}
+.bloque .acciones button.con-nota { background: var(--sal); border-color: var(--sal); color: #fff; }
+/* bandas de estación con el mismo remarque izquierdo que los rótulos de fase */
+.banda-estacion {
+  border-left: 6px solid rgba(0, 0, 0, .25);
+  box-shadow: var(--shadow);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .16), 0 1px 3px rgba(43, 38, 32, .18);
+}

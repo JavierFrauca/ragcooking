@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { GRUPOS, FASES, PIEZAS, colorDeGrupo } from '../../../data/catalogo';
+import type { Grupo } from '../../../data/catalogo';
+import { TEMPLATES } from '../../../data/templates';
+
+export function getStaticPaths() {
+  return GRUPOS.map((g) => ({ params: { id: g.id } }));
+}
+
+const g: Grupo = GRUPOS.find((x) => x.id === Astro.params.id) || GRUPOS[0];
+const color = colorDeGrupo(g.id);
+const fasesQueCubre = [...new Set(g.variantes.flatMap((v) => v.atomos.map((a) => a.fase)))];
+const conflictos = (g.conflicts || []).map((x) => GRUPOS.find((o) => o.id === x)).filter(Boolean);
+const templateVinculado = TEMPLATES.find((t) => t.bloques.some((b) => b.grupo === g.id));
+const LANG_LABEL: Record<string, string> = { py: 'Python', dotnet: 'C# · .NET' };
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+---
+
+<BaseLayout titulo={`${g.nombre} · ragcooking.info`}>
+  <main class="pagina">
+    <div class="migas"><a href="/biblioteca">Biblioteca</a> › <a href="/biblioteca#conjuntos">Conjuntos (frameworks)</a> › <b>{g.nombre}</b></div>
+
+    <div class="hero-fase">
+      <div class="icono-grande" style={`background:${color}`}><i data-lucide={g.icon}></i></div>
+      <div>
+        <h1>{g.nombre}{g.origin === 'propio' ? ' ★' : ''}</h1>
+        <div class="meta">
+          <span class="chip mega">conjunto de bloques</span>
+          {g.origin === 'comercial' && <span class="chip">comercial{g.proveedor ? ' · ' + g.proveedor : ''}</span>}
+          {g.origin === 'propio' && <span class="chip propio">★ propio · github.com/JavierFrauca</span>}
+          {g.origin === 'comunidad' && <span class="chip">open source</span>}
+          {(g.langs || []).map((l) => <span class="chip">🗣 {LANG_LABEL[l]} nativo</span>)}
+          {g.embeddingExterno && <span class="chip">requiere embedding externo</span>}
+          {conflictos.map((r) => <span class="chip" style="border-color:var(--err);color:var(--err)">🚫 incompatible con {r!.nombre} (objetivos distintos)</span>)}
+        </div>
+        <p style="margin:6px 0 0;max-width:680px">{g.tagline}</p>
+      </div>
+    </div>
+
+    {
+      g.historia && (
+        <div class="aviso-caja oro" style="margin-top:24px">
+          <i data-lucide="history" />
+          <div>
+            <span class="titulo-caja">Historia: quién, evolución y momento</span>
+            <p style="margin:4px 0 0;font-size:13.5px;color:var(--tinta)">{g.historia}</p>
+          </div>
+        </div>
+      )
+    }
+
+    {
+      g.capacidades && (
+        <div class="aviso-caja hierba" style="margin-top:14px">
+          <i data-lucide="list-checks" />
+          <div>
+            <span class="titulo-caja">Capacidades</span>
+            <p style="margin:4px 0 0;font-size:13.5px;color:var(--tinta)">{g.capacidades}</p>
+          </div>
+        </div>
+      )
+    }
+
+    <h2 style="margin-top:30px">Variantes: elige cuántas fases te cubre</h2>
+    {
+      g.variantes.map((v) => (
+        <div class="aviso-caja hierba" style="align-items:center">
+          <i data-lucide="chef-hat" />
+          <div style="flex:1">
+            <span class="titulo-caja">{v.nombre}</span>
+            <div class="atomos-lista">
+              {v.atomos.map((a) => (
+                <div class="atomo-fila" style={`border-left-color:${color}`}>
+                  <span class="a-fase">{FASES.find((f) => f.id === a.fase)?.nombre || a.fase}</span>
+                  {a.propio ? `${a.propio.nombre} — ${a.propio.desc}` : PIEZAS.find((p) => p.id === a.pieza)?.nombre || ''}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))
+    }
+
+    {
+      (g.requisitos || []).length > 0 && (
+        <div class="aviso-caja oro">
+          <i data-lucide="arrow-up-down" />
+          <div>
+            <span class="titulo-caja">Lo completa por arriba y por abajo</span>
+            <p style="margin:4px 0 0;font-size:13.5px">
+              Al soltarlo en el lienzo, además activa y rellena con las piezas por defecto del mercado:
+              {(g.requisitos || []).map((r) => FASES.find((f) => f.id === r.fase)?.nombre).join(', ')}.
+            </p>
+          </div>
+        </div>
+      )
+    }
+
+    <h2 style="margin-top:28px">Fases que puede cubrir</h2>
+    <div class="covers-visual">
+      {fasesQueCubre.map((f) => {
+        const fase = FASES.find((x) => x.id === f)!;
+        return <span class="cover-chip" style={`background:${color}`}><i data-lucide={fase.icon}></i> {fase.nombre}</span>;
+      })}
+    </div>
+
+    <h2 style="margin-top:28px">Pros y contras</h2>
+    <table class="tabla-comparativa">
+      <thead><tr><th>Pros</th><th>Contras</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><ul class="ok">{(g.pros || []).map((x) => <li>{x}</li>)}</ul></td>
+          <td><ul class="ko">{(g.cons || []).map((x) => <li>{x}</li>)}</ul></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display:flex;gap:10px;margin-top:34px;flex-wrap:wrap">
+      <a class="btn primario" href={templateVinculado ? `/constructor?template=${templateVinculado.id}` : '/constructor'}>
+        <i data-lucide="chef-hat"></i> Cocinar con {g.nombre}
+      </a>
+      <a class="btn" href="/biblioteca"><i data-lucide="arrow-left"></i> Volver a la biblioteca</a>
+    </div>
+  </main>
+</BaseLayout>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { ESTACIONES, FASES, PIEZAS } from '../data/catalogo';
+import { ESTACIONES, FASES, PIEZAS, GRUPOS, colorDeGrupo } from '../data/catalogo';
+const LANG_MINI: Record<string, string> = { py: 'PY', dotnet: '.NET' };
 ---
 
 <BaseLayout titulo="Biblioteca · ragcooking.info">
@@ -10,9 +11,37 @@ import { ESTACIONES, FASES, PIEZAS } from '../data/catalogo';
     >
     <h1 style="margin:8px 0 6px">Cada fase, una página. Cada pieza, una ficha.</h1>
     <p style="max-width:720px">
-      El pipeline completo del RAG en {FASES.length} fases y {PIEZAS.length} piezas. Navega por
-      estación, entra en cada fase y compara sus piezas antes de llevarlas al lienzo.
+      El pipeline completo del RAG en {FASES.length} fases, {PIEZAS.length} piezas y {GRUPOS.length}
+      conjuntos (frameworks). Navega por estación, entra en cada fase y compara antes de llevarlo al lienzo.
     </p>
+
+    <div id="conjuntos" class="banda-estacion" style="background:var(--ciruela);position:static;margin-top:26px">
+      <i data-lucide="bot" />
+      <span class="nombre">Conjuntos (frameworks)</span>
+      <span class="sub">· el instrumento que orquesta fases</span>
+      <span class="num">{GRUPOS.length} conjuntos</span>
+    </div>
+    <div class="cartones">
+      {
+        GRUPOS.map((g) => {
+          const fasesCubiertas = [...new Set(g.variantes.flatMap((v) => v.atomos.map((a) => a.fase)))];
+          return (
+            <a class="carton" href={`/biblioteca/conjunto/${g.id}/`}>
+              <div class="icono-carton" style={`background:${colorDeGrupo(g.id)}`}>
+                <i data-lucide={g.icon} />
+              </div>
+              <h3>{g.nombre}{g.origin === 'propio' ? ' ★' : ''}</h3>
+              <p>{g.tagline}</p>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">
+                <span class="chip mega">{g.variantes.length} variantes · {fasesCubiertas.length} fases</span>
+                {(g.langs || []).map((l) => <span class="chip">{LANG_MINI[l]}</span>)}
+                {g.origin === 'propio' && <span class="chip propio">★ propio</span>}
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
 
     {
       ESTACIONES.map((est) => (

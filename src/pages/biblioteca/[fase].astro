@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { ESTACIONES, FASES, PIEZAS, GRUPOS, TERMINOS } from '../../data/catalogo';
+import { ESTACIONES, FASES, PIEZAS, GRUPOS, TERMINOS, MODELO_DATOS } from '../../data/catalogo';
 
 export function getStaticPaths() {
   return FASES.map((fase) => ({ params: { fase: fase.id } }));
@@ -89,7 +89,17 @@ const nivelCls = { obligatoria: 'nivel-ob', recomendada: 'nivel-rec', opcional: 
                     <span class="chip">{p.dimensiones}d</span>
                   </div>
                 )}
-                {p.modeloDatos && <span class="chip" style="margin-top:6px">🧊 incluye diseñador de modelo de datos</span>}
+                {p.modeloDefecto && Object.keys(p.modeloDefecto).length > 0 && (
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">
+                    <span class="chip">🧊 modelo por defecto:</span>
+                    {Object.keys(p.modeloDefecto).map((k) => (
+                      <span class="chip">{MODELO_DATOS.campos.find((c) => c.id === k)?.nombre || k}</span>
+                    ))}
+                  </div>
+                )}
+                {p.modeloDatos && Object.keys(p.modeloDefecto || {}).length === 0 && (
+                  <span class="chip" style="margin-top:6px">🧊 sin metadatos de serie: diseño tú el modelo</span>
+                )}
               </td>
               <td>
                 <ul class="ok">{(p.pros || []).map((x) => <li>{x}</li>)}</ul>
@@ -115,10 +125,10 @@ const nivelCls = { obligatoria: 'nivel-ob', recomendada: 'nivel-rec', opcional: 
             </p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
               {gruposQueCubren.map((g) => (
-                <span class="chip mega">
+                <a class="chip mega" href={`/biblioteca/conjunto/${g.id}/`}>
                   {g.nombre} · {g.variantes[0].atomos.length}+ fases
                   {g.origin === 'propio' ? ' ★' : ''}
-                </span>
+                </a>
               ))}
             </div>
           </div>

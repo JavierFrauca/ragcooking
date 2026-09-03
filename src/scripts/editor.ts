@@ -8,9 +8,10 @@
    Todo renderiza desde catalogo.json (fuente única de verdad).
    ============================================================ */
 import {
-  FASES, PIEZAS, GRUPOS, PLANTILLAS, MODELO_DATOS, TERMINOS, ESTACIONES,
-  faseById, piezaById, grupoById, estacionById, NIVEL_LABEL, NIVEL_CLS,
+  FASES, PIEZAS, GRUPOS, MODELO_DATOS, TERMINOS, ESTACIONES,
+  faseById, piezaById, grupoById, estacionById, NIVEL_LABEL, NIVEL_CLS, colorDeGrupo,
 } from '../data/catalogo';
+import { TEMPLATES } from '../data/templates';
 import type { Pieza, Grupo, Fase, Bloque, Receta } from './tipos';
 
 /* ---------- runtime mínimo (iconos, toast, tooltip diccionario) ---------- */
@@ -98,21 +99,21 @@ function normalizar(data: any): Receta {
 }
 function cargar() {
   const qs = new URLSearchParams(location.search).get('template');
-  if (qs && PLANTILLAS.some((p) => p.id === qs)) return cargarPlantilla(qs, true);
+  if (qs && TEMPLATES.some((p) => p.id === qs)) return cargarTemplate(qs, true);
   let s: any = null;
   try { s = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch { /* noop */ }
   if (s && Array.isArray(s.bloques) && s.bloques.length) { receta = normalizar(s); renderTodo(); toast('Receta restaurada del navegador'); return; }
-  cargarPlantilla('rag-minimo', true);
+  cargarTemplate('rag-minimo', true);
 }
-function cargarPlantilla(id: string, inicial = false) {
-  const t = PLANTILLAS.find((p) => p.id === id); if (!t) return;
+function cargarTemplate(id: string, inicial = false) {
+  const t = TEMPLATES.find((p) => p.id === id); if (!t) return;
   receta = { name: t.arranque ? 'Mi RAG (nueva receta)' : t.nombre, template: t.id, fasesActivas: [...t.fasesActivas], bloques: [], expandidos: [], fasesColapsadas: [] };
   for (const b of t.bloques) {
     if (b.pieza && piezaById(b.pieza)) receta.bloques.push({ id: nuevoId(), fase: piezaById(b.pieza)!.fase, pieza: b.pieza, comment: '', config: {} });
     else if (b.grupo && grupoById(b.grupo)) colocarGrupo(b.grupo, b.variante || grupoById(b.grupo)!.variantes[0].id, true);
   }
   renderTodo(); guardar();
-  if (!inicial) toast('Plantilla cargada: ' + t.nombre);
+  if (!inicial) toast('Receta cargada: ' + t.nombre);
 }
 
 /* ---------- grupos (conjuntos de bloques) ---------- */
@@ -139,21 +140,22 @@ function colocarGrupo(grupoId: string, varianteId: string, silencioso = false): 
   if (!receta.fasesActivas.includes(g.faseAncla)) receta.fasesActivas.push(g.faseAncla);
   for (const a of v.atomos) if (!receta.fasesActivas.includes(a.fase)) receta.fasesActivas.push(a.fase);
   for (const r of g.requisitos || []) if (!receta.fasesActivas.includes(r.fase)) receta.fasesActivas.push(r.fase);
-  // coloca sus átomos como bloques reales (trazabilidad)
+  // coloca sus átomos como bloques reales (trazabilidad); el modelo por defecto del conjunto cae en su almacén
   for (const a of v.atomos) {
     receta.bloques.push({
       id: nuevoId(), fase: a.fase,
       pieza: a.pieza && piezaById(a.pieza) ? a.pieza : undefined,
       custom: a.propio ? a.propio.nombre + (a.propio.desc ? ' — ' + a.propio.desc : '') : undefined,
-      grupoId: g.id, variante: v.id, comment: '', config: {},
+      grupoId: g.id, variante: v.id, comment: '',
+      config: a.fase === 'almacenamiento' && g.modeloDefecto ? { modeloDatos: { ...g.modeloDefecto } } : {},
     });
   }
-  // y completa lo mínimo que aún no está cubierto, con las piezas por defecto del mercado
+  // y completa lo mínimo que aún no está cubierto, con las piezas por defecto del mercado (y su modelo por defecto)
   const rellenados: string[] = [];
   for (const r of g.requisitos || []) {
     if (cubierta(r.fase)) continue;
-    if (!piezaById(r.pieza)) continue;
-    receta.bloques.push({ id: nuevoId(), fase: r.fase, pieza: r.pieza, comment: '', config: {} });
+    const rp = piezaById(r.pieza); if (!rp) continue;
+    receta.bloques.push({ id: nuevoId(), fase: r.fase, pieza: r.pieza, comment: '', config: rp.modeloDefecto ? { modeloDatos: { ...rp.modeloDefecto } } : {} });
     rellenados.push(faseById(r.fase)!.nombre);
   }
   if (!silencioso && rellenados.length) toast(`${g.nombre}: completadas por ti → ${rellenados.join(', ')}`);
@@ -250,8 +252,6 @@ function renderTodo() {
 }
 
 /* marcas laterales: cada conjunto abraza con una llave las fases que cubre */
-const COLORES_GRUPO = ['#8A5A83', '#4A6FA5', '#5F7F4C', '#D9A02B', '#C14B2E', '#2B2620'];
-const colorDeGrupo = (gid: string) => COLORES_GRUPO[Math.max(0, GRUPOS.findIndex((g) => g.id === gid)) % COLORES_GRUPO.length];
 function renderMarcasGrupos() {
   const rail = document.querySelector('#marcas-rail') as HTMLElement | null;
   if (!rail) return;
@@ -328,7 +328,7 @@ function renderPaleta() {
 }
 
 function renderLienzo() {
-  const plantilla = receta.template ? 'plantilla: ' + esc((PLANTILLAS.find((t) => t.id === receta.template) || { nombre: '' }).nombre) : '';
+  const plantilla = receta.template ? 'receta base: ' + esc((TEMPLATES.find((t) => t.id === receta.template) || { nombre: '' }).nombre) : '';
   $('#canvas')!.innerHTML = `
     <div class="receta-cabecera">
       <input class="receta-input" id="nombre-receta" value="${esc(receta.name)}" aria-label="Nombre de la receta">
@@ -416,7 +416,7 @@ function bloqueHTML(b: Bloque, g?: Grupo) {
   }
   return `<div class="${clases}" draggable="true" data-bid="${b.id}" style="--c-fase:${color};--c-texto:${textoSobre(color)}" title="${esc(p?.tagline || b.custom || '')} — doble clic: ficha">
     <div class="acciones">
-      <button data-nota="${b.id}" title="Comentario">${icono('message-circle')}</button>
+      <button data-nota="${b.id}" class="${b.comment ? 'con-nota' : ''}" title="${b.comment ? 'Nota: ' + esc(b.comment) : 'Comentario'}">${icono('message-circle')}</button>
       ${!g ? `<button class="borrar" data-borrar="${b.id}" title="Quitar">${icono('x')}</button>` : ''}
     </div>
     <div class="fila">${icono(p?.icon || 'pen-line')} <span class="nombre">${p ? p.nombre : 'Custom'}</span> ${p?.origin === 'propio' ? '<span class="estrella">★</span>' : ''}${deGrupo}</div>
@@ -505,21 +505,21 @@ document.addEventListener('click', (e) => {
     if (miembro) return abrirModelo(miembro.id);
     return;
   }
-  if (c('#btn-plantillas')) return abrirPlantillas();
+  if (c('#btn-templates')) return abrirTemplates();
   if (c('#btn-nueva')) return abrirNueva();
   if (c('#btn-exportar')) return abrirExport();
   if (c('#btn-importar')) return abrirImport();
   if (c('#btn-descargar-json')) return descargarJSON();
   if (c('#btn-copiar-json')) return copiarJSON();
   if (c('#btn-cargar-json')) return cargarJSON();
-  if (el = c('[data-plantilla]')) { const id = el.dataset.plantilla!; cerrarModales(); return cargarPlantilla(id); }
+  if (el = c('[data-template]')) { const id = el.dataset.template!; cerrarModales(); return cargarTemplate(id); }
   if (el = c('[data-nueva-grupo]')) {
     const gid = el.dataset.nuevaGrupo!;
     const select = document.querySelector(`select[data-nueva-variante="${gid}"]`) as HTMLSelectElement | null;
     cerrarModales();
     return construirDesdeGrupo(gid, select?.value || grupoById(gid)!.variantes[0].id);
   }
-  if (c('[data-nueva-custom]')) { cerrarModales(); cargarPlantilla('rag-minimo'); return toast('Lienzo custom: las fases obligatorias y tú'); }
+  if (c('[data-nueva-custom]')) { cerrarModales(); cargarTemplate('rag-minimo'); return toast('Lienzo custom: las fases obligatorias y tú'); }
   if (el = c('[data-usar-grupo]')) {
     const gid = el.dataset.usarGrupo!, vid = el.dataset.variante || '';
     cerrarModales();
@@ -561,6 +561,10 @@ document.addEventListener('change', (e) => {
 document.addEventListener('dblclick', (e) => {
   const marca = (e.target as HTMLElement).closest('.marca-grupo') as HTMLElement | null;
   if (marca) return abrirFichaGrupo(marca.dataset.grupo!);
+  const chipPieza = (e.target as HTMLElement).closest('[data-pieza]') as HTMLElement | null;
+  if (chipPieza) return abrirFichaPieza(chipPieza.dataset.pieza!);
+  const chipGrupo = (e.target as HTMLElement).closest('.paleta [data-grupo]') as HTMLElement | null;
+  if (chipGrupo) return abrirFichaGrupo(chipGrupo.dataset.grupo!);
   const bl = (e.target as HTMLElement).closest('[data-bid]') as HTMLElement | null;
   if (!bl) return;
   const b = receta.bloques.find((x) => x.id === bl.dataset.bid);
@@ -599,7 +603,7 @@ document.addEventListener('drop', (e) => {
   if (accion === 'pieza') {
     const p = piezaById(ref); if (!p) return;
     if (p.fase !== zona.dataset.dropFase) return toast(`Esa pieza vive en la fase «${faseById(p.fase)!.nombre}»`, true);
-    receta.bloques.push({ id: nuevoId(), fase: p.fase, pieza: p.id, comment: '', config: {} });
+    receta.bloques.push({ id: nuevoId(), fase: p.fase, pieza: p.id, comment: '', config: p.modeloDefecto ? { modeloDatos: { ...p.modeloDefecto } } : {} });
     trasCambio(); irAFase(p.fase);
   } else if (accion === 'grupo') {
     const g = grupoById(ref); if (!g) return;
@@ -661,6 +665,8 @@ function abrirFicha(b: Bloque) {
       ${g?.embeddingExterno ? '<span class="chip">requiere embedding externo</span>' : ''}
       ${g?.conflicts?.length ? `<span class="chip" style="border-color:var(--err);color:var(--err)">🚫 incompatible con ${g.conflicts.map((x) => grupoById(x)?.nombre || x).join(', ')} — objetivos distintos</span>` : ''}
     </div>
+    ${g?.historia ? `<div class="aviso-caja oro" style="margin-top:10px">${icono('history')}<div><span class="titulo-caja">Historia</span>${esc(g.historia)}</div></div>` : ''}
+    ${g?.capacidades ? `<div class="aviso-caja hierba" style="margin-top:10px">${icono('list-checks')}<div><span class="titulo-caja">Capacidades</span>${esc(g.capacidades)}</div></div>` : ''}
     ${g ? `<h3>Variantes</h3>${g.variantes.map((v) => `
       <div class="aviso-caja hierba" style="align-items:center">
         ${icono('chef-hat')}
@@ -677,12 +683,18 @@ function abrirFicha(b: Bloque) {
       <div class="pros"><h4>Pros</h4><ul>${(p?.pros || g?.pros || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
       <div class="cons"><h4>Contras</h4><ul>${(p?.cons || g?.cons || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
     </div>
-    <p style="font-size:12.5px;color:var(--tinta-2)">En el sitio completo, la ficha incluye pasos y ejemplo de código.</p>`);
+    <p style="font-size:12.5px;color:var(--tinta-2)">${g ? '' : 'Arrástrala a la franja de su fase del lienzo para usarla. '}En el sitio completo, la ficha incluye pasos y ejemplo de código.</p>`);
 }
 
 function abrirFichaGrupo(gid: string) {
-  const b = receta.bloques.find((x) => x.grupoId === gid);
-  if (b) abrirFicha(b);
+  const g = grupoById(gid); if (!g) return;
+  const existente = receta.bloques.find((x) => x.grupoId === gid);
+  const variante = existente?.variante || g.variantes[0].id;
+  abrirFicha(existente || ({ id: 'previa', fase: g.faseAncla, grupoId: gid, variante, comment: '', config: {} } as Bloque));
+}
+function abrirFichaPieza(pid: string) {
+  const p = piezaById(pid); if (!p) return;
+  abrirFicha({ id: 'previa', fase: p.fase, pieza: pid, comment: '', config: {} } as Bloque);
 }
 
 function abrirModelo(bid: string) {
@@ -740,12 +752,12 @@ function abrirNueva() {
     <p style="font:italic 400 12.5px var(--serif);color:var(--tinta-2)">Los de mercado primero; los nuestros (★) al final: se ofrecen, no se imponen.</p>`);
 }
 
-function abrirPlantillas() {
+function abrirTemplates() {
   abrirModal(`
     <button class="cerrar btn mini">${icono('x')} cerrar</button>
-    <h2>Plantillas por objetivo</h2>
+    <h2>Recetas por objetivo</h2>
     <p class="tagline">Toda receta nueva arranca del RAG mínimo; el resto se eligen aquí.</p>
-    ${PLANTILLAS.map((t) => `
+    ${TEMPLATES.map((t) => `
       <div class="aviso-caja hierba" style="align-items:center">
         ${icono('chef-hat')}
         <div style="flex:1"><span class="titulo-caja">${esc(t.nombre)}</span>${esc(t.desc)}
@@ -754,7 +766,7 @@ function abrirPlantillas() {
             ${t.bloques.map((b) => `<span class="chip">${esc(piezaById(b.pieza || '')?.nombre || grupoById(b.grupo || '')?.nombre || '?')}</span>`).join('')}
           </div>
         </div>
-        <button class="btn primario" data-plantilla="${t.id}">Usar</button>
+        <button class="btn primario" data-template="${t.id}">Usar</button>
       </div>`).join('')}`);
 }
 

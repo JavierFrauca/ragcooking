@@ -9,7 +9,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <span class="chip">los conjuntos (frameworks) se expanden: trazabilidad total</span>
       <span style="flex:1"></span>
       <span class="savestate" id="savestate">…</span>
-      <button class="btn mini" id="btn-plantillas"><i data-lucide="book-open"></i> Plantillas</button>
+      <button class="btn mini" id="btn-templates"><i data-lucide="book-open"></i> Recetas</button>
       <button class="btn mini" id="btn-nueva"><i data-lucide="plus"></i> Nueva</button>
       <button class="btn mini" id="btn-importar"><i data-lucide="file-up"></i> Importar</button>
       <button class="btn mini primario" id="btn-exportar"><i data-lucide="file-down"></i> Exportar</button>
@@ -19,7 +19,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <aside class="paleta">
         <div class="paleta-titulo">${'fases de tu receta'}</div>
         <div id="selector-fases" class="selector-fases"></div>
-        <div class="paleta-titulo" style="margin-top:10px">piezas y conjuntos</div>
+        <div class="paleta-titulo" style="margin-top:10px">piezas y conjuntos · doble clic = info</div>
         <div class="buscador">
           <input id="buscador" type="search" placeholder="Buscar pieza o conjunto… (pgvector, rerank, ragkit)" />
         </div>

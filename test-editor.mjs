@@ -89,6 +89,37 @@ check($('#lista-val').innerHTML.includes('desactivada'), 'el panel también list
 await toggleFase('corpus'); // reactivar
 check(!$('#lista-val').innerHTML.includes('desactivada'), 'reactivar la fase limpia el error');
 
+// notas de bloque: guardar nota y ver el indicador
+const idNota = ($('#canvas').innerHTML.match(/data-nota="(b-\d+)"/) || [])[1];
+const escribirNota = (valor) => Promise.all((listeners['change'] || []).map((f) => f({
+  target: { matches: (s) => s === 'textarea[data-comentario]', dataset: { comentario: idNota }, value: valor },
+})));
+await escribirNota('ojo con los convenios escaneados');
+check(($('#canvas') || {}).innerHTML.includes('con-nota'), 'guardar una nota marca el bloque (botón azul)');
+check(($('#canvas') || {}).innerHTML.includes('convenios escaneados'), 'la nota se lee en el tooltip del bloque');
+
+// modelo por defecto por base de datos: al colocar pgvector llegan sus 7 campos de serie
+await soltar('pieza:almacenamiento.pgvector', 'almacenamiento');
+const lienzoPg = ($('#canvas') || {}).innerHTML;
+check(lienzoPg.includes('Linaje') && lienzoPg.includes('Campo resumen'), 'pgvector colocado con su modelo por defecto completo (resumen, linaje…)');
+
+// doble clic en la paleta: la misma ficha que en el lienzo
+const dblclick = (sel, ds) => Promise.all((listeners['dblclick'] || []).map((f) => f({
+  target: { closest: (s) => (s === sel ? { dataset: ds } : null) },
+})));
+await dblclick('[data-pieza]', { pieza: 'embedding.bge-m3' });
+check((porId['#modal-fondo'] || {}).innerHTML.includes('BGE-M3') && (porId['#modal-fondo'] || {}).innerHTML.includes('8192'), 'doble clic en pieza de la paleta abre su ficha completa (con maxTokens)');
+await dblclick('.paleta [data-grupo]', { grupo: 'grupo.ragkit' });
+check((porId['#modal-fondo'] || {}).innerHTML.includes('ragkit') && (porId['#modal-fondo'] || {}).innerHTML.includes('Variante'), 'doble clic en conjunto de la paleta abre su ficha con variantes');
+
+// recetas base (templates): 5 disponibles desde la carpeta, incluida la de LangGraph
+await Promise.all((listeners['click'] || []).map((f) => f({
+  target: { closest: (sel) => (sel === '#btn-templates' ? {} : null), classList: { contains: () => false } },
+})));
+const modalRecetas = (porId['#modal-fondo'] || {}).innerHTML || '';
+check(modalRecetas.includes('LangGraph'), 'el recetario incluye la receta agéntica con LangGraph');
+check((modalRecetas.match(/data-template=/g) || []).length === 5, 'cinco recetas base registradas desde la carpeta');
+
 // el framework es un bloque a la derecha con conectores por fase cubierta
 const rail = (porId['#marcas-rail'] || {}).innerHTML || '';
 check(rail.includes('marca-grupo') && rail.includes('mg-conn'), 'bloque de framework con conectores triangulares por fase');

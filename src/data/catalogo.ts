@@ -20,6 +20,8 @@ export interface Pieza {
   pildora?: boolean;
   /** la pieza admite diseñador de modelo de datos (almacenes) */
   modeloDatos?: boolean;
+  /** modelo por defecto del almacén: campos que lleva de serie (id de MODELO_DATOS.campos → true | valor) */
+  modeloDefecto?: Record<string, boolean | string>;
   /** capacidades integradas opcionales (p. ej. embedding en Weaviate) */
   integrates?: string[];
 }
@@ -32,18 +34,18 @@ export interface Grupo {
   embeddingExterno?: boolean; modeloDatos?: boolean;
   /** fases mínimas que el conjunto necesita por arriba y por abajo, con pieza por defecto (tendencia de mercado) */
   requisitos?: { fase: string; pieza: string }[];
+  /** modelo de datos por defecto del conjunto (para sus almacenes) */
+  modeloDefecto?: Record<string, boolean | string>;
+  /** quién lo promueve, evolución y estado (¿cresta de la ola o mejores días?) */
+  historia?: string;
+  /** explicación de sus capacidades, más allá de los átomos de fase */
+  capacidades?: string;
   /** conjuntos incompatibles con este (objetivos distintos); el editor impide combinarlos */
   conflicts?: string[];
   /** lenguajes nativos del conjunto ('py' Python · 'dotnet' C#/.NET); las piezas sueltas (camino libre) son Python por defecto */
   langs?: ('py' | 'dotnet')[];
   pros: string[]; cons: string[];
   variantes: Variante[];
-}
-
-export interface Plantilla {
-  id: string; nombre: string; arranque?: boolean; desc: string;
-  fasesActivas: string[];
-  bloques: { pieza?: string; grupo?: string; variante?: string }[];
 }
 
 export interface CampoModelo {
@@ -58,7 +60,6 @@ export const ESTACIONES = catalogo.estaciones as Estacion[];
 export const FASES = catalogo.fases as Fase[];
 export const PIEZAS = catalogo.piezas as Pieza[];
 export const GRUPOS = catalogo.grupos as Grupo[];
-export const PLANTILLAS = catalogo.plantillas as Plantilla[];
 export const DICCIONARIO = (catalogo.diccionario as { secciones: SeccionDiccionario[] }).secciones;
 /** mapa plano término → definición, para tooltips de todo el sitio */
 export const TERMINOS = Object.fromEntries(DICCIONARIO.flatMap((s) => s.terminos.map((t) => [t.t, t.def]))) as Record<string, string>;
@@ -71,3 +72,7 @@ export const estacionById = (id: string) => ESTACIONES.find((e) => e.id === id);
 
 export const NIVEL_LABEL: Record<Nivel, string> = { obligatoria: 'Obligat.', recomendada: 'Recom.', opcional: 'Opcional' };
 export const NIVEL_CLS: Record<Nivel, string> = { obligatoria: 'ob', recomendada: 'rec', opcional: 'opc' };
+
+/** paleta de colores de los conjuntos (llave, tarjeta y bloques miembro comparten color) */
+export const GRUPO_COLORES = ['#8A5A83', '#4A6FA5', '#5F7F4C', '#D9A02B', '#C14B2E', '#2B2620'];
+export const colorDeGrupo = (gid: string) => GRUPO_COLORES[Math.max(0, GRUPOS.findIndex((g) => g.id === gid)) % GRUPO_COLORES.length];

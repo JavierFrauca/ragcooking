@@ -23,6 +23,8 @@ const activa = (prefijo: string) => (ruta === prefijo || (prefijo !== '/' && rut
 
 <script is:inline src="/vendor/lucide.min.js"></script>
 <script>
-  // inicializa iconos lucide en cada navegación
-  document.addEventListener('astro:page-load', () => (window as any).lucide?.createIcons());
+  // inicializa iconos lucide en carga normal Y en navegaciones de astro
+  const initIconosTop = () => (window as any).lucide?.createIcons();
+  document.addEventListener('DOMContentLoaded', initIconosTop);
+  document.addEventListener('astro:page-load', initIconosTop);
 </script>
