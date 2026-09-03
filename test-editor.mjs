@@ -123,6 +123,12 @@ check(paletaBusq.includes('Chroma') && !paletaBusq.includes('fase-grupo plegada'
 await buscar('');
 check(($('#paleta') || {}).innerHTML.includes('fase-grupo plegada'), 'al limpiar la búsqueda se restaura el plegado memorizado');
 
+// estaciones: los grandes bloques también se pliegan
+await plegarPaleta('aprovisionamiento');
+const paletaEst = ($('#paleta') || {}).innerHTML;
+check(paletaEst.includes('grupo-estacion plegada'), 'clic en la estación (gran bloque) la pliega entera');
+check(/grupo-estacion plegada[^]*?Conjuntos/.test(paletaEst) || !paletaEst.includes('Corpus') || paletaEst.includes('estacion-cab'), 'la estación plegada oculta sus fases');
+
 // incompatibilidad ragkit ↔ nucleus: no pueden convivir
 await soltar('grupo:grupo.ragkit', 'limpieza');
 check($('#canvas').innerHTML.includes('ragkit'), 'ragkit se coloca sin conflicto');

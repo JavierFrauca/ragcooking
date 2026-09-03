@@ -298,14 +298,14 @@ function renderPaleta() {
       </div>`;
     }).join('');
     if (buscando && !fasesHtml) return '';
-    return `<div class="grupo-estacion">
-      <div class="cab"><span class="punto" style="background:${est.color}"></span>${est.nombre}</div>
+    return `<div class="grupo-estacion ${clsPlegada(est.id)}">
+      <div class="cab estacion-cab" data-plegar-paleta="${est.id}" style="--c:${est.color};--ct:${textoSobre(est.color)}">${icono('chevron-down')} ${est.nombre}</div>
       ${fasesHtml}
     </div>`;
   }).join('');
   const conjuntosHtml = !buscando || grupos.length ? `
     <div class="grupo-estacion ${clsPlegada('conjuntos')}">
-      <div class="cab" style="cursor:pointer" data-plegar-paleta="conjuntos">${icono('chevron-down')} <span class="punto" style="background:var(--ciruela)"></span>Conjuntos (frameworks)</div>
+      <div class="cab estacion-cab" data-plegar-paleta="conjuntos" style="--c:var(--ciruela);--ct:#FFFFFF">${icono('chevron-down')} Conjuntos (frameworks)</div>
       <div class="fase-grupo"><div class="cuerpo">
         ${grupos.map((g) => `<span class="pieza-chip mega" draggable="true" data-grupo="${g.id}" title="${esc(g.tagline)}">${icono(g.icon)} ${g.nombre}${g.origin === 'propio' ? ' <span class="estrella">★</span>' : ''}</span>`).join('')}
       </div></div>
