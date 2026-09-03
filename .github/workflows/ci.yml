@@ -33,4 +33,4 @@ jobs:
         run: node test-editor.mjs
 
       - name: Tests del prototipo (regresión)
-        run: node test-prototype.js
+        run: node test-prototype.cjs

@@ -27,7 +27,7 @@ npm run dev        # http://localhost:4321
 npm run build      # genera dist/
 npm run check      # diagnóstico de tipos (astro check)
 node test-editor.mjs   # smoke test del editor contra dist (tras build)
-node test-prototype.js # tests del prototipo Hito 0 (255 checks)
+node test-prototype.cjs # tests del prototipo Hito 0 (255 checks)
 ```
 
 ## Publicación
