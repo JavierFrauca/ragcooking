@@ -72,14 +72,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </section>
 
     <section id="cocinar-ia" style="margin-top:30px;scroll-margin-top:80px">
-      <h2><i data-lucide="chef-hat"></i> Cocinar con IA (opcional)</h2>
+      <h2><i data-lucide="chef-hat"></i> Cocinar con IA</h2>
       <p>
-        El generador de código ofrece, de forma <b>opcional y explícita</b>, rellenar las secciones pendientes
-        con un modelo de IA <b>que tú configuras</b> (Ollama local, GLM, OpenAI u otro endpoint compatible).
-        Si lo usas: tu clave API se guarda <b>solo en el almacenamiento local de tu navegador</b>, la petición
-        sale <b>directamente de tu navegador al endpoint que elijas</b>, y este sitio (que no tiene backend)
-        nunca la ve ni la recibe. El código resultante es un <b>borrador marcado como generado con IA</b>:
-        revísalo antes de usarlo. En ningún caso ragcooking.info incluye claves propias en su código.
+        El generador de código puede rellenar automáticamente las secciones pendientes con un modelo de IA,
+        a través de un <b>servicio propio de ragcooking</b> (un proxy ligero en Cloudflare).
+        <b>No necesitas ninguna clave ni configuración</b>: simplemente pulsas "Cocinar" y funciona.
+        El servicio tiene <b>rate limiting</b> para evitar abusos. Este sitio no recoge ningún dato personal
+        en el proceso: la petición viaja del proxy al modelo y la respuesta vuelve a tu navegador.
+        El código generado es un <b>borrador marcado como generado con IA</b>: revísalo antes de usarlo.
       </p>
     </section>
 

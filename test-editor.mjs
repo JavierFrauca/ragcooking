@@ -150,15 +150,17 @@ try {
   check(/Program\.cs/.test(listaNet) && /RagkitStarter\.csproj/.test(listaNet), 'ZIP .NET válido con Program.cs + csproj');
 } catch (e) { check(false, 'ZIP .NET válido (' + e.message.split('\n')[0] + ')'); }
 
-// cocinador IA
+// cocinador IA (llave en mano: solo un botón, el fetch va al proxy)
 await soltar('pieza:almacenamiento.mongodb-atlas', 'almacenamiento');
-const idSinFicha = ($('#canvas').innerHTML.match(/data-bid="(b-\d+)"/g) || []).slice(-1)[0]?.match(/b-\d+/)?.[0];
-porId['#ia-base'] = porId['#ia-base'] || elemento(); porId['#ia-base'].value = 'http://stub/v1';
-porId['#ia-model'] = porId['#ia-model'] || elemento(); porId['#ia-model'].value = 'stub';
-porId['#ia-key'] = porId['#ia-key'] || elemento(); porId['#ia-key'].value = '';
-globalThis.fetch = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify({ piezas: { [idSinFicha || 'b-999']: { codigo: 'def cocinada_test():\n    pass' } } }) } }] }) });
+const idBloque = ($('#canvas').innerHTML.match(/data-bid="(b-\d+)"/g) || []).slice(-1)[0]?.match(/b-\d+/)?.[0] || 'b-001';
+globalThis.fetch = async (url, opts) => {
+  const body = JSON.parse(opts?.body || '{}');
+  const mId = (body.messages?.[1]?.content || '').match(/id: (b-\d+)/);
+  const targetId = mId ? mId[1] : idBloque;
+  return { ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify({ piezas: { [targetId]: { codigo: 'def cocinada_test():\n    pass' } } }) } }] }) };
+};
 await click('#btn-cocinar');
-await new Promise((r) => setTimeout(r, 150));
+await new Promise((r) => setTimeout(r, 100));
 await click('[data-code-lang]', { codeLang: 'py' });
 const zipTexto = new TextDecoder().decode(globalThis.__ultimoZip || new Uint8Array());
 check(zipTexto.includes('cocinado con IA'), 'las secciones cocinadas con IA entran en el ZIP marcadas');

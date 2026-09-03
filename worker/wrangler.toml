@@ -1,0 +1,16 @@
+name = "ragcooking-proxy"
+main = "worker.js"
+compatibility_date = "2024-12-01"
+
+# KV para rate limiting (crear con: wrangler kv namespace create RATE_KV)
+# y poner el id aquí
+[[kv_namespaces]]
+binding = "RATE_KV"
+id = "TU_KV_ID_AQUÍ"
+
+[vars]
+# La clave NO vive aquí — se inyecta con: wrangler secret put GLM_KEY
+UPSTREAM = "https://open.bigmodel.cn/api/paas/v4"
+ALLOWED_ORIGIN = "https://ragcooking.info"
+ALLOWED_ORIGIN_DEV = "http://localhost:4321"
+MAX_REQUESTS_PER_HOUR = 20
