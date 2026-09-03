@@ -9,176 +9,26 @@
 import type { Receta } from './tipos';
 import { piezaById, grupoById, faseById } from '../data/catalogo';
 
-/* ---------- fichas de código python por pieza ---------- */
-interface FichaPy { deps: string[]; env?: string[]; funcion: (ctx: { nombre: string; pieza: string; pildora?: number; nota?: string }) => string; }
+/* ---------- fichas de código python: un fichero .py por pieza en src/scripts/py ----------
+   Convención de cabecera: líneas '# deps:' y '# env:' opcionales; el resto es Python puro.
+   El token __PILDORA__ se sustituye por el valor de la receta (o 512). */
+interface FichaPy { deps: string[]; env: string[]; body: string; }
 
-const FICHAS_PY: Record<string, FichaPy> = {
-  'corpus.carpeta-pdf': { deps: [], env: ['CORPUS_DIR=./corpus'], funcion: ({ pildora }) => `
-# ── Corpus: carpeta de PDFs ────────────────────────────────
-CORPUS_DIR = os.getenv("CORPUS_DIR", "./corpus")
-
-def listar_corpus() -> list[Path]:
-    """Todo el corpus de entrada: PDFs de la carpeta (recursivo)."""
-    return sorted(Path(CORPUS_DIR).rglob("*.pdf"))
-` },
-  'ingesta.lectores-pdf': { deps: ['pypdf'], funcion: () => `
-# ── Ingesta: extracción de texto de los PDFs ───────────────
-from pypdf import PdfReader
-
-def extraer_texto(ruta: Path) -> str:
-    """Extrae el texto de cada página del PDF."""
-    reader = PdfReader(str(ruta))
-    return "\\n\\n".join((page.extract_text() or "") for page in reader.pages)
-` },
-  'formato.a-markdown': { deps: [], funcion: () => `
-# ── Formato: todo a Markdown ───────────────────────────────
-def a_markdown(texto: str, titulo: str) -> str:
-    """Bandeja común: estructura mínima en Markdown."""
-    return f"# {titulo}\\n\\n{texto.strip()}\\n"
-` },
-  'limpieza.deduplicacion': { deps: [], funcion: () => `
-# ── Limpieza: deduplicación por huella de contenido ────────
-import hashlib
-
-def deduplicar(textos: list[str]) -> list[str]:
-    """Elimina documentos con contenido repetido (idempotente)."""
-    vistos, salida = set(), []
-    for t in textos:
-        h = hashlib.sha256(t.encode("utf-8")).hexdigest()
-        if h not in vistos:
-            vistos.add(h)
-            salida.append(t)
-    return salida
-` },
-  'chunking.fijo': { deps: [], funcion: ({ pildora }) => `
-# ── Chunking fijo: la píldora de información ───────────────
-CHUNK_SIZE = ${pildora || 512}  # tokens aprox. (definido en la receta)
-CHUNK_OVERLAP = int(CHUNK_SIZE * 0.15)
-
-def trocear(texto: str) -> list[str]:
-    """Trocea en píldoras de tamaño fijo con solape."""
-    palabras = texto.split()
-    paso = max(1, CHUNK_SIZE - CHUNK_OVERLAP)
-    return [" ".join(palabras[i:i + CHUNK_SIZE]) for i in range(0, len(palabras), paso)]
-` },
-  'chunking.semantico': { deps: [], funcion: ({ pildora }) => `
-# ── Chunking semántico: corta donde cambia el tema ─────────
-CHUNK_SIZE = ${pildora || 512}
-
-def trocear_semantico(texto: str) -> list[str]:
-    """Aproximación por párrafos: respeta fronteras naturales."""
-    parrafos, chunk, n = texto.split("\\n\\n"), [], 0
-    for p in parrafos:
-        if n + len(p.split()) > CHUNK_SIZE and chunk:
-            yield " ".join(chunk); chunk, n = [], 0
-        chunk.append(p); n += len(p.split())
-    if chunk: yield " ".join(chunk)
-` },
-  'metaetiquetado.por-carpetas': { deps: [], funcion: () => `
-# ── Metaetiquetado por carpetas: 1er nivel = dominio ───────
-def metadatos_por_carpetas(ruta: Path) -> dict:
-    """primer nivel del árbol = dominio; el resto = etiquetas."""
-    partes = ruta.relative_to(CORPUS_DIR).parts
-    return {"dominio": partes[0] if len(partes) > 1 else "general",
-            "etiquetas": list(partes[1:-1])}
-` },
-  'embedding.bge-m3': { deps: ['sentence-transformers'], funcion: () => `
-# ── Embedding: BGE-M3 en local (open, multilingüe, 8k) ─────
-from sentence_transformers import SentenceTransformer
-
-modelo_embedding = SentenceTransformer("BAAI/bge-m3")
-
-def embeber(textos: list[str]) -> list[list[float]]:
-    return modelo_embedding.encode(textos, normalize_embeddings=True).tolist()
-` },
-  'embedding.openai-3-small': { deps: ['openai'], env: ['OPENAI_API_KEY='], funcion: () => `
-# ── Embedding: text-embedding-3-small (OpenAI) ─────────────
-from openai import OpenAI
-cliente_openai = OpenAI()  # lee OPENAI_API_KEY del entorno
-
-def embeber(textos: list[str]) -> list[list[float]]:
-    rsp = cliente_openai.embeddings.create(model="text-embedding-3-small", input=textos)
-    return [d.embedding for d in rsp.data]
-` },
-  'almacenamiento.chroma': { deps: ['chromadb'], funcion: () => `
-# ── Almacenamiento: Chroma (persistente en ./chroma) ───────
-import chromadb
-
-chroma = chromadb.PersistentClient(path="./chroma")
-coleccion = chroma.get_or_create_collection("rag")
-
-def guardar(chunks: list[str], vectores: list[list[float]], metadatos: list[dict]):
-    ids = [f"chunk-{i}" for i in range(len(chunks))]
-    coleccion.upsert(ids=ids, documents=chunks, embeddings=vectores, metadatos=metadatos)
-` },
-  'recuperacion.densa': { deps: [], funcion: () => `
-# ── Recuperación densa por similitud semántica ─────────────
-def recuperar(pregunta: str, top_k: int = 5) -> list[dict]:
-    """Los chunks más parecidos en significado."""
-    q = embeber([pregunta])[0]
-    rsp = coleccion.query(query_embeddings=[q], n_results=top_k)
-    return [{"texto": d, "meta": m} for d, m in zip(rsp["documents"][0], rsp["metadatas"][0])]
-` },
-  'recuperacion.hibrida': { deps: ['rank_bm25'], funcion: () => `
-# ── Recuperación híbrida: densa + BM25 fusionadas con RRF ──
-from rank_bm25 import BM25Okapi
-
-def recuperar_hibrida(pregunta: str, top_k: int = 5) -> list[dict]:
-    """Fusión RRF de búsqueda vectorial y léxica."""
-    todos = coleccion.get()
-    bm25 = BM25Okapi([d.split() for d in todos["documents"]])
-    k = 60
-    scores: dict[str, float] = {}
-    for rank, i in enumerate(sorted(range(len(todos["documents"])), key=lambda j: -bm25.get_scores(pregunta.split())[j])[:top_k * 2]):
-        scores[todos["ids"][i]] = scores.get(todos["ids"][i], 0) + 1 / (k + rank + 1)
-    densos = recuperar(pregunta, top_k * 2)
-    for rank, r in enumerate(densos):
-        scores[r["texto"][:40]] = scores.get(r["texto"][:40], 0) + 1 / (k + rank + 1)
-    return densos[:top_k]  # simplificado: esqueleto — une ambos rankings con RRF real
-` },
-  'reranking.cross-encoder': { deps: ['sentence-transformers'], funcion: () => `
-# ── Rerank: cross-encoder local (ms-marco MiniLM) ──────────
-from sentence_transformers import CrossEncoder
-reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-
-def rerank(pregunta: str, candidatos: list[dict], top_k: int = 3) -> list[dict]:
-    pares = [(pregunta, c["texto"]) for c in candidatos]
-    for c, s in zip(candidatos, reranker.predict(pares)):
-        c["score"] = float(s)
-    return sorted(candidatos, key=lambda c: -c["score"])[:top_k]
-` },
-  'generacion.llm-generador': { deps: ['openai'], env: ['OPENAI_API_KEY='], funcion: () => `
-# ── Generación: LLM generador (API OpenAI-compatible) ─────
-def responder(pregunta: str, contexto: list[dict]) -> str:
-    fuentes = "\\n\\n".join(f"[{i+1}] {c['texto']}" for i, c in enumerate(contexto))
-    rsp = cliente_openai.chat.completions.create(
-        model=os.getenv("LLM_MODEL", "gpt-4o-mini"),
-        messages=[{"role": "system", "content": "Responde solo con el contexto. Cita las fuentes [n]."},
-                  {"role": "user", "content": f"{fuentes}\\n\\n### Pregunta:\\n{pregunta}"}],
-    )
-    return rsp.choices[0].message.content or ""
-` },
-  'generacion.plantilla-citas': { deps: ['openai'], env: ['OPENAI_API_KEY='], funcion: () => `
-# ── Generación con plantilla y citas a la fuente ───────────
-PLANTILLA = """Responde a la pregunta usando SOLO el contexto.
-Cita cada afirmación con [n] y lista las fuentes al final.
-
-### Contexto
-{contexto}
-
-### Pregunta
-{pregunta}
-"""
-
-def responder_con_citas(pregunta: str, contexto: list[dict]) -> str:
-    cuerpo = "\\n\\n".join(f"[{i+1}] {c['texto']} (fuente: {c['meta'].get('dominio', '?')})" for i, c in enumerate(contexto))
-    rsp = cliente_openai.chat.completions.create(
-        model=os.getenv("LLM_MODEL", "gpt-4o-mini"),
-        messages=[{"role": "user", "content": PLANTILLA.format(contexto=cuerpo, pregunta=pregunta)}],
-    )
-    return rsp.choices[0].message.content or ""
-` },
-};
+const _ficherosPy = import.meta.glob('./py/*.py', { eager: true, query: '?raw', import: 'default' }) as Record<string, string>;
+const FICHAS_PY: Record<string, FichaPy> = {};
+for (const [ruta, raw] of Object.entries(_ficherosPy)) {
+  const id = ruta.split('/').pop()!.replace(/\.py$/, '');
+  const deps: string[] = []; const env: string[] = [];
+  const lineas = raw.split('\n');
+  let i = 0;
+  for (; i < lineas.length; i++) {
+    const l = lineas[i];
+    if (l.startsWith('# deps:')) l.replace('# deps:', '').trim().split(/[\s,]+/).filter(Boolean).forEach((d) => deps.push(d));
+    else if (l.startsWith('# env:')) l.replace('# env:', '').trim().split(/\s+/).filter(Boolean).forEach((e) => env.push(e));
+    else break;
+  }
+  FICHAS_PY[id] = { deps, env, body: lineas.slice(i).join('\n').trim() };
+}
 
 /* ---------- starter .NET: ragkit (API real del repo) ---------- */
 const STARTER_RAGKIT = {
@@ -271,9 +121,9 @@ function generarPython(receta: Receta): { name: string; content: string }[] {
       if (b.pieza && FICHAS_PY[b.pieza]) {
         const f = FICHAS_PY[b.pieza];
         f.deps.forEach((d) => deps.add(d));
-        (f.env || []).forEach((e) => envs.add(e));
+        f.env.forEach((e) => envs.add(e));
         secciones.push(`\n# [${nombre}]${b.comment ? `  # 📝 ${b.comment}` : ''}`);
-        secciones.push(f.funcion({ nombre, pieza: b.pieza, pildora: b.config?.pildora, nota: b.comment }));
+        secciones.push(f.body.replace(/__PILDORA__/g, String(b.config?.pildora || 512)));
       } else if (b.grupoId) {
         const g = grupoById(b.grupoId);
         secciones.push(`\n# [${nombre}] — conjunto «${g?.nombre}»: en Python se integra vía su librería (ver su documentación).`);
@@ -285,6 +135,24 @@ function generarPython(receta: Receta): { name: string; content: string }[] {
     }
   }
   const pasos = orden.filter((f) => receta.bloques.some((b) => b.fase === f)).map((f) => `- **${faseById(f)?.nombre}**: ${receta.bloques.filter((b) => b.fase === f).map((b) => (b.pieza ? piezaById(b.pieza)?.nombre : 'custom')).join(', ')}`).join('\n');
+  const tiene = (pid: string) => receta.bloques.some((b) => b.pieza === pid);
+  const mainPy: string[] = ['\n\nif __name__ == "__main__":', '    # Orquestación mínima: recorre el pipeline de tu receta (ajusta a tu caso)'];
+  if (tiene('corpus.carpeta-pdf')) mainPy.push('    rutas = listar_corpus()');
+  if (tiene('ingesta.lectores-pdf')) mainPy.push('    textos = [extraer_texto(r) for r in rutas]');
+  if (tiene('ingesta.scraper')) mainPy.push('    textos = [scrapear(u) for u in paginas_semilla()]');
+  if (tiene('limpieza.normalizacion')) mainPy.push('    textos = [normalizar(t) for t in textos]');
+  if (tiene('limpieza.deduplicacion')) mainPy.push('    textos = deduplicar(textos)');
+  if (tiene('formato.a-markdown')) mainPy.push('    docs = [a_markdown(t, r.stem) for t, r in zip(textos, rutas)]');
+  if (tiene('chunking.fijo') || tiene('chunking.semantico')) mainPy.push('    chunks = [c for d in docs for c in trocear(d)]');
+  if (tiene('metaetiquetado.por-carpetas')) mainPy.push('    metas = [metadatos_por_carpetas(r) for r in rutas]');
+  if (tiene('embedding.bge-m3') || tiene('embedding.openai-3-small')) mainPy.push('    vectores = embeber(chunks)');
+  if (tiene('almacenamiento.chroma')) mainPy.push('    guardar(chunks, vectores, metas)');
+  if (tiene('almacenamiento.pgvector')) mainPy.push('    init_pgvector(); guardar_pg(chunks, vectores, metas)');
+  if (tiene('almacenamiento.qdrant')) mainPy.push('    guardar_qdrant(chunks, vectores, metas)');
+  if (tiene('recuperacion.densa')) mainPy.push('    candidatos = recuperar(input("Pregunta: "))');
+  if (tiene('reranking.cross-encoder')) mainPy.push('    candidatos = rerank(input("Pregunta: "), candidatos)');
+  if (tiene('generacion.plantilla-citas') || tiene('generacion.llm-generador')) mainPy.push('    print(responder_con_citas(input("Pregunta: "), candidatos))');
+  const mainCuerpo = mainPy.join('\n') + '\n';
   const files: { name: string; content: string }[] = [];
   files.push({ name: 'README.md', content: `# ${receta.name}
 
@@ -315,21 +183,7 @@ catálogo; los TODO son tuyos.
 import os
 from pathlib import Path
 ${secciones.join('\n')}
-
-if __name__ == "__main__":
-    # Orquestación mínima: recorre el pipeline de tu receta
-    rutas = listar_corpus()
-    textos = [extraer_texto(r) for r in rutas]
-    textos = deduplicar(textos)
-    docs = [a_markdown(t, r.stem) for t, r in zip(textos, rutas)]
-    chunks = [c for d in docs for c in trocear(d)]
-    vectores = embeber(chunks)
-    metadatas = [{"dominio": "general", "etiquetas": []} for _ in chunks]
-    guardar(chunks, vectores, metadatas)
-    pregunta = input("Pregunta: ")
-    candidatos = recuperar(pregunta)
-    print(responder_con_citas(pregunta, candidatos))
-`,
+${mainCuerpo}`,
   });
   return files;
 }
