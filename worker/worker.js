@@ -37,7 +37,7 @@ export default {
 
     // Rate limit por IP (simple, en memoria del worker — se resetea por isolado)
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    const rateKey = `rate:${ip}:${new Date().getISOString().slice(0, 13)}`; // por hora
+    const rateKey = `rate:${ip}:${new Date().toISOString().slice(0, 13)}`; // por hora
     let count = parseInt((await env.RATE_KV?.get(rateKey)) || "0", 10);
     if (count >= parseInt(env.MAX_REQUESTS_PER_HOUR || "20", 10)) {
       return json({ error: `rate limit: máx ${env.MAX_REQUESTS_PER_HOUR} cocinadas/hora` }, 429, env);
