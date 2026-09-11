@@ -1315,3 +1315,110 @@ code, .mono { font-family: var(--mono); font-size: .88em; background: var(--pape
   box-shadow: var(--shadow);
   box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .16), 0 1px 3px rgba(43, 38, 32, .18);
 }
+
+/* ============================================================
+   RESPONSIVE MÓVIL (<768px) — el editor se apila verticalmente:
+   toolbar → selector → lienzo → paleta → validación.
+   La home y biblioteca adaptan sus grids.
+   ============================================================ */
+@media (max-width: 768px) {
+  /* ── topbar compacto ── */
+  .topbar { padding: 6px 10px; gap: 6px; flex-wrap: wrap; }
+  .topbar .sep { display: none; }
+  .marca { font-size: 17px; }
+  .marca .logo { width: 28px; height: 28px; }
+  .nav-links { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: calc(100vw - 20px); }
+  .nav-links a { font-size: 12px; padding: 4px 6px; white-space: nowrap; }
+
+  /* ── editor: una columna, scroll natural ── */
+  body.pag-editor { height: auto !important; overflow: auto !important; display: block !important; }
+  .editor-page { display: block !important; height: auto !important; min-height: 0 !important; }
+  .editor { display: flex !important; flex-direction: column !important; grid-template-columns: 1fr !important; }
+  .toolbar-editor { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 10px; gap: 6px; }
+  .toolbar-editor .btn { flex-shrink: 0; }
+  .toolbar-editor .savestate { display: none; }
+
+  /* paleta: franja horizontal compacta abajo del lienzo */
+  .paleta {
+    height: auto !important; max-height: 45vh; overflow-y: auto;
+    border-right: none; border-top: 2px solid var(--linea);
+    order: 3; padding: 8px;
+  }
+  .paleta .buscador input { font-size: 13px; }
+  .paleta-titulo { font-size: 9px; padding: 6px 2px 3px; }
+  .selector-fases { max-height: 20vh; }
+
+  /* canvas: full width, el corazón de la experiencia móvil */
+  .canvas-wrap {
+    height: auto !important; overflow: visible !important;
+    order: 2; padding: 12px 8px 20px;
+  }
+  .receta-input { font-size: 20px; width: 100%; }
+  .receta-nota { font-size: 12px; }
+
+  /* panel validación: al final, plegable visualmente */
+  .panel-val {
+    display: block !important; height: auto !important;
+    border-left: none; border-top: 2px solid var(--linea);
+    order: 4; padding: 12px 10px;
+  }
+  .mapa-fases { grid-template-columns: repeat(6, 1fr); }
+
+  /* ── franjas del lienzo en móvil ── */
+  .carril { grid-template-columns: 90px 1fr !important; }
+  .carril .lateral { padding: 6px 6px; border-radius: 10px 0 0 10px; }
+  .carril .lateral .titulo { font-size: 10px; line-height: 1.15; }
+  .carril .lateral .estado .chip { font-size: 7px; padding: 1px 4px; }
+  .carril .zona { padding: 5px 4px; gap: 5px; }
+  .bloque { max-width: 100% !important; padding: 4px 8px; min-height: 32px; }
+  .bloque .nombre { font-size: 10.5px; }
+  .bloque .fila > svg { width: 11px; height: 11px; }
+  .bloque .config-fila .btn.mini { padding: 1px 5px; font-size: 8px; }
+  .bloque .pildora-input { width: 46px; font-size: 9px; }
+  .bloque::before, .bloque::after { display: none; }
+  .carril .lateral::after { display: none; }
+  .bloque .de-grupo { display: none; }
+  .aviso-carril { font-size: 10px; padding: 4px 6px; }
+
+  /* ── bloque framework derecho ── */
+  #canvas { padding-right: 38px; }
+  .marcas-rail { width: 38px; }
+  .marca-grupo .mg-nombre { font-size: 9px; }
+  .marca-grupo .mg-cuerpo > svg { width: 12px; height: 12px; }
+  .marca-grupo .mg-conn { left: -7px; width: 8px; height: 10px; }
+
+  /* ── bandas de estación ── */
+  .banda-estacion { margin: 10px 4px 3px; padding: 4px 10px; border-radius: 8px; }
+  .banda-estacion .nombre { font-size: 10px; }
+  .banda-estacion .sub { display: none; }
+  .banda-estacion .num { display: none; }
+
+  /* ── home ── */
+  .home-hero { padding: 40px 16px 24px; }
+  .home-hero h1 { font-size: 32px; }
+  .home-ctas { flex-direction: column; align-items: stretch; }
+  .home-ctas .btn { justify-content: center; }
+  .receta-animada { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .flujo-maestro .pasos { gap: 3px; }
+  .flujo-maestro .paso-fm { font-size: 9px; padding: 5px 7px; }
+  .flujo-maestro .flecha { font-size: 10px; }
+  .cartones { grid-template-columns: 1fr; }
+
+  /* ── biblioteca ── */
+  .pagina { padding: 20px 12px 60px; }
+  .hero-fase { flex-direction: column; gap: 10px; }
+  .hero-fase .icono-grande { width: 56px; height: 56px; }
+  .tabla-comparativa { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .hub-grid { grid-template-columns: 1fr; }
+  .dicc-buscador input { font-size: 13px; }
+  .pie-legal { padding: 12px 14px; font-size: 11px; }
+  /* ── modal ── */
+  .modal { width: 94vw; padding: 16px; max-height: 85vh; }
+  .modal textarea { font-size: 11px; min-height: 120px; }
+  .fila-botones { flex-direction: column; }
+  .fila-botones .btn { justify-content: center; width: 100%; }
+  .proscons { grid-template-columns: 1fr; }
+  .covers-visual { gap: 5px; }
+  .cover-chip { font-size: 10px; padding: 4px 8px; }
+  .atomos-lista .atomo-fila { font-size: 11px; padding: 5px 8px; }
+}
