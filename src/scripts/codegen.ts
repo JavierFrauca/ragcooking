@@ -462,10 +462,10 @@ const crc32 = (buf: Uint8Array) => {
   return (c ^ 0xffffffff) >>> 0;
 };
 const enc = new TextEncoder();
-export function crearZipBytes(files: { name: string; content: string }[]): Uint8Array {
+export function crearZipBytes(files: { name: string; content: string }[]): Uint8Array<ArrayBuffer> {
   const datos = files.map((f) => ({ name: enc.encode(f.name), body: enc.encode(f.content) }));
   let total = 0; for (const d of datos) total += 30 + d.name.length + d.body.length + 46 + d.name.length;
-  const out = new Uint8Array(total + 22);
+  const out = new Uint8Array(new ArrayBuffer(total + 22));
   const dv = new DataView(out.buffer);
   let off = 0; const centrales: { name: Uint8Array; crc: number; size: number; off: number }[] = [];
   for (const d of datos) {
