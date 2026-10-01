@@ -3,10 +3,10 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { GRUPOS, FASES, PIEZAS, colorDeGrupo } from '../../../data/catalogo';
 import type { Grupo } from '../../../data/catalogo';
 import { TEMPLATES } from '../../../data/templates';
-import { LENGUAJES_ACTIVOS } from '../../../data/lenguajes';
+import { LENGUAJES_ACTIVOS, GRUPOS_OCULTOS } from '../../../data/lenguajes';
 
 export function getStaticPaths() {
-  return GRUPOS.map((g) => ({ params: { id: g.id } }));
+  return GRUPOS.filter((g) => !GRUPOS_OCULTOS.includes(g.id)).map((g) => ({ params: { id: g.id } }));
 }
 
 const g: Grupo = GRUPOS.find((x) => x.id === Astro.params.id) || GRUPOS[0];

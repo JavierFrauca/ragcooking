@@ -19,7 +19,7 @@ import type { Pieza, Grupo, Fase, Bloque, Receta } from './tipos';
 const icono = (n: string) => `<i data-lucide="${n}"></i>`;
 
 /* lenguajes nativos: los conjuntos declaran; el camino libre (piezas sueltas) es Python */
-import { LENGUAJES_ACTIVOS } from '../data/lenguajes';
+import { LENGUAJES_ACTIVOS, GRUPOS_OCULTOS } from '../data/lenguajes';
 const LANG_LABEL: Record<string, string> = { py: 'Python', dotnet: 'C# · .NET' };
 const langBadge = (l: string) => l === 'py' ? '🐍 PY' : l === 'dotnet' ? '⚙️ .NET' : l;
 const langsDeGrupo = (g: Grupo | undefined) => (g?.langs || []).filter((l) => LENGUAJES_ACTIVOS.includes(l)).map((l) => langBadge(l));
@@ -300,7 +300,7 @@ function renderPaleta() {
   const buscando = !!q;
   const match = (s: string) => !q || s.toLowerCase().includes(q);
   const clsPlegada = (id: string) => (!buscando && paletaColapsadas.includes(id) ? 'plegada' : '');
-  const grupos = GRUPOS.filter((g) => match(g.nombre) || match(g.tagline));
+  const grupos = GRUPOS.filter((g) => !GRUPOS_OCULTOS.includes(g.id) && (match(g.nombre) || match(g.tagline)));
   const estaciones = ESTACIONES.map((est) => {
     const fasesHtml = FASES.filter((f) => f.est === est.id && receta.fasesActivas.includes(f.id)).map((f) => {
       const piezas = PIEZAS.filter((p) => p.fase === f.id && (match(p.nombre) || match(p.tagline)));

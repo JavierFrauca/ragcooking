@@ -50,7 +50,7 @@ await Promise.all((globalThis.__l['DOMContentLoaded'] || []).map((f) => f()));
 
 // biblioteca básica
 check($('#paleta') && $('#paleta').innerHTML.includes('Conjuntos'), 'paleta renderiza sección de conjuntos');
-check($('#paleta').innerHTML.includes('ragkit'), 'paleta incluye ragkit ★');
+check(!$('#paleta').innerHTML.includes('data-grupo="grupo.ragkit"'), 'ragkit oculto en la paleta (de momento fuera)');
 check($('#canvas').innerHTML.includes('Aprovisionamiento'), 'lienzo renderiza estación Aprovisionamiento');
 check($('#canvas').innerHTML.includes('Búsqueda densa'), 'lienzo incluye bloque de la plantilla (recuperación densa)');
 check($('#lista-val').innerHTML.includes('ok'), 'validación con plantilla rag-minimo sin errores');
@@ -120,8 +120,8 @@ check($('#canvas').innerHTML.includes('con-nota'), 'guardar una nota marca el bl
 // doble clic paleta
 await dblclick('[data-pieza]', { pieza: 'embedding.bge-m3' });
 check((porId['#modal-fondo'] || {}).innerHTML.includes('BGE-M3'), 'doble clic en pieza de la paleta abre su ficha');
-await dblclick('.paleta [data-grupo]', { grupo: 'grupo.ragkit' });
-check((porId['#modal-fondo'] || {}).innerHTML.includes('ragkit'), 'doble clic en conjunto de la paleta abre su ficha');
+await dblclick('.paleta [data-grupo]', { grupo: 'grupo.llamaindex' });
+check((porId['#modal-fondo'] || {}).innerHTML.includes('LlamaIndex'), 'doble clic en conjunto de la paleta abre su ficha');
 
 // recetas base
 await click('#btn-templates');
@@ -135,11 +135,10 @@ check(($('#marcas-rail') || { innerHTML: '' }).innerHTML.includes('marca-grupo')
 check(!($('#paleta') || {}).innerHTML.includes('⚙️ .NET'), 'la paleta no ofrece badge de lenguajes desactivados (solo Python de momento)');
 check(($('#canvas') || {}).innerHTML.includes('lang-receta'), 'la cabecera de la receta muestra su lenguaje');
 
-// incompatibilidad
-await soltar('grupo:grupo.ragkit', 'limpieza');
-check($('#canvas').innerHTML.includes('ragkit'), 'ragkit se coloca sin conflicto');
-await soltar('grupo:grupo.nucleus', 'almacenamiento');
-check(!$('#canvas').innerHTML.includes('nucleus · chunking'), 'nucleus rechazado con ragkit presente');
+// conjuntos visibles se colocan (ragkit oculto de momento)
+await soltar('grupo:grupo.nucleus', 'limpieza');
+check($('#canvas').innerHTML.includes('nucleus'), 'nucleus se coloca sin conflicto');
+check(!$('#paleta').innerHTML.includes('data-grupo="grupo.ragkit"'), 'ragkit sigue oculto tras soltar conjuntos');
 
 // exportación: solo Python (dotnet desactivado de momento — ver src/data/lenguajes.ts)
 await click('#btn-exportar');

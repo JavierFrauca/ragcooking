@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { ESTACIONES, FASES, PIEZAS, GRUPOS, colorDeGrupo } from '../data/catalogo';
-import { LENGUAJES_ACTIVOS } from '../data/lenguajes';
+import { LENGUAJES_ACTIVOS, GRUPOS_OCULTOS } from '../data/lenguajes';
 const LANG_MINI: Record<string, string> = { py: 'PY', dotnet: '.NET' };
+const VISIBLES = GRUPOS.filter((g) => !GRUPOS_OCULTOS.includes(g.id));
 const B = import.meta.env.BASE_URL;
 ---
 
@@ -13,7 +14,7 @@ const B = import.meta.env.BASE_URL;
     >
     <h1 style="margin:8px 0 6px">Cada fase, una página. Cada pieza, una ficha.</h1>
     <p style="max-width:720px">
-      El pipeline completo del RAG en {FASES.length} fases, {PIEZAS.length} piezas y {GRUPOS.length}
+      El pipeline completo del RAG en {FASES.length} fases, {PIEZAS.length} piezas y {VISIBLES.length}
       conjuntos (frameworks). Navega por estación, entra en cada fase y compara antes de llevarlo al lienzo.
     </p>
 
@@ -21,11 +22,11 @@ const B = import.meta.env.BASE_URL;
       <i data-lucide="bot" />
       <span class="nombre">Conjuntos (frameworks)</span>
       <span class="sub">· el instrumento que orquesta fases</span>
-      <span class="num">{GRUPOS.length} conjuntos</span>
+      <span class="num">{VISIBLES.length} conjuntos</span>
     </div>
     <div class="cartones">
       {
-        GRUPOS.map((g) => {
+        VISIBLES.map((g) => {
           const fasesCubiertas = [...new Set(g.variantes.flatMap((v) => v.atomos.map((a) => a.fase)))];
           return (
             <a class="carton" href={`/biblioteca/conjunto/${g.id}/`}>
