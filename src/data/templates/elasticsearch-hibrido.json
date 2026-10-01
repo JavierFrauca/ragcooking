@@ -1,0 +1,12 @@
+{
+  "id": "elasticsearch-hibrido",
+  "nombre": "Elasticsearch: BM25 + vectores en el mismo índice",
+  "desc": "El veterano del texto sirve ahora también el canal denso: dense_vector indexado junto al BM25 de serie, sobre un corpus de PDFs. Para quien ya vive en ELK.",
+  "fasesActivas": ["corpus", "ingesta", "chunking", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "corpus.carpeta-pdf" },
+    { "pieza": "ingesta.lectores-pdf" },
+    { "grupo": "grupo.elasticsearch" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}

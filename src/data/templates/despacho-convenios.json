@@ -1,0 +1,20 @@
+{
+  "id": "despacho-convenios",
+  "nombre": "Despacho laboral: convenios, sentencias y vigencia",
+  "desc": "El caso de la serie: PDFs jurídicos a Markdown, píldoras por frontera, dominios y vigencia como payload, BGE-M3 local y Qdrant. Respuesta con citas y dataset áureo que firma la vara.",
+  "fasesActivas": ["corpus", "ingesta", "formato", "limpieza", "chunking", "metaetiquetado", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "corpus.carpeta-pdf" },
+    { "pieza": "ingesta.lectores-pdf" },
+    { "pieza": "formato.a-markdown" },
+    { "pieza": "limpieza.normalizacion" },
+    { "pieza": "chunking.fijo" },
+    { "pieza": "metaetiquetado.dominio-tags" },
+    { "pieza": "metaetiquetado.vigencia" },
+    { "pieza": "embedding.bge-m3" },
+    { "pieza": "almacenamiento.qdrant" },
+    { "pieza": "recuperacion.densa" },
+    { "pieza": "generacion.plantilla-citas" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}

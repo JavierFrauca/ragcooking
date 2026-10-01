@@ -1,0 +1,11 @@
+{
+  "id": "llamaindex-rapido",
+  "nombre": "LlamaIndex en rápido (el conjunto entero)",
+  "desc": "Una receta de dos piezas: tus documentos y LlamaIndex decidiendo el resto. Ideal para probar valor antes de afinar; el dataset áureo viene de serie.",
+  "fasesActivas": ["corpus", "ingesta", "chunking", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "corpus.carpeta-pdf" },
+    { "grupo": "grupo.llamaindex" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}

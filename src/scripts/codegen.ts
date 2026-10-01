@@ -17,9 +17,10 @@ import { LENGUAJES_ACTIVOS } from '../data/lenguajes';
 interface FichaPy { deps: string[]; env: string[]; body: string; }
 
 const _ficherosPy = import.meta.glob('./py/*.py', { eager: true, query: '?raw', import: 'default' }) as Record<string, string>;
-const FICHAS_PY: Record<string, FichaPy> = {};
-for (const [ruta, raw] of Object.entries(_ficherosPy)) {
-  const id = ruta.split('/').pop()!.replace(/\.py$/, '');
+
+interface FichaPy { deps: string[]; env: string[]; body: string; }
+
+function _fichaDe(raw: string): FichaPy {
   const deps: string[] = []; const env: string[] = [];
   const lineas = raw.split('\n');
   let i = 0;
@@ -29,7 +30,18 @@ for (const [ruta, raw] of Object.entries(_ficherosPy)) {
     else if (l.startsWith('# env:')) l.replace('# env:', '').trim().split(/\s+/).filter(Boolean).forEach((e) => env.push(e));
     else break;
   }
-  FICHAS_PY[id] = { deps, env, body: lineas.slice(i).join('\n').trim() };
+  return { deps, env, body: lineas.slice(i).join('\n').trim() };
+}
+
+const FICHAS_PY: Record<string, FichaPy> = {};
+for (const [ruta, raw] of Object.entries(_ficherosPy)) FICHAS_PY[ruta.split('/').pop()!.replace(/\.py$/, '')] = _fichaDe(raw);
+
+/* Fichas de conjuntos: grupo.<framework>.py → ejemplo de integración real,
+   no un TODO. Las usa generarPython cuando la receta lleva un bloque de conjunto. */
+const _ficherosGrupo = import.meta.glob('./py/grupo.*.py', { eager: true, query: '?raw', import: 'default' }) as Record<string, string>;
+const FICHAS_GRUPO: Record<string, FichaPy> = {};
+for (const [ruta, raw] of Object.entries(_ficherosGrupo)) {
+  FICHAS_GRUPO['grupo.' + ruta.split('/').pop()!.replace(/^grupo\./, '').replace(/\.py$/, '')] = _fichaDe(raw);
 }
 
 /* ---------- starter .NET: ragkit (API real del repo) ---------- */
@@ -129,6 +141,162 @@ export function lenguajesDisponibles(receta: Receta): LenguajeDisponible[] {
   });
 }
 
+/* ---------- andamiaje demo: datos de ejemplo, demo sin claves, puerta y CI ---------- */
+const DEMO_CORPUS: { name: string; content: string }[] = [
+  { name: 'datos/corpus/01-convenio.md', content: `# Convenio colectivo (extracto de ejemplo)
+
+## Jornada y descansos
+
+La jornada anual de trabajo es de 1.760 horas de effective prestación, distribuidas de lunes a viernes. El descanso entre jornada y jornada será de doce horas como mínimo.
+
+## Vacaciones
+
+El personal disfrutará de 30 días naturales de vacaciones al año. El calendario de vacaciones se fijará de común acuerdo con la representación de las personas trabajadoras, y podrá fraccionarse en dos periodos como máximo.
+
+## Salario base
+
+El salario base por grupo profesional se recoge en la tabla salarial anexa, y se abonará en catorce pagas.
+` },
+  { name: 'datos/corpus/02-factura.md', content: `# Facturación y garantías (documento de ejemplo)
+
+## Plazo de reclamación
+
+Toda factura podrá reclamarse dentro del plazo de 30 días naturales desde su recepción. Pasado ese plazo de reclamación, la deuda se entenderá conformada y no admitirá impugnación.
+
+## Garantía
+
+Los bienes entregados cuentan con una garantía de tres años desde la entrega, sin perjuicio de la garantía comercial adicional que pudiera ofrecerse.
+` },
+  { name: 'datos/corpus/03-politica.md', content: `# Política de protección de datos (documento de ejemplo)
+
+## Conservación de los datos
+
+Los datos personales se conservarán durante el tiempo necesario para atender la finalidad que los justificó. La conservación de datos se revisará anualmente, y se procederá a su supresión cuando dejen de ser necesarios.
+
+## Derechos de las personas interesadas
+
+Se atenderán los derechos de acceso, rectificación y supresión en el plazo legal, mediante solicitud dirigida al responsable.
+` },
+];
+
+const DEMO_DATASET = JSON.stringify({
+  nota: 'Consultas firmadas de la DEMO — sustitúyelas por las tuyas cuando lleves tu corpus.',
+  consultas: [
+    { consulta: 'plazo de reclamación de la factura', debe_citar: '02-factura' },
+    { consulta: 'vacaciones del convenio', debe_citar: '01-convenio' },
+    { consulta: 'conservación de datos personales', debe_citar: '03-politica' },
+  ],
+}, null, 2) + '\n';
+
+const DEMO_PY = `"""Demo punta a punta, sin claves: la película del método sobre datos/ de ejemplo.
+
+El embedding de demostración es un hash determinista de las palabras (stdlib,
+cero dependencias): no es un modelo real — sirve para ver el pipeline vivo
+antes de cablear las piezas de verdad (pipeline.py).
+"""
+import hashlib
+import json
+import math
+import re
+from pathlib import Path
+
+DIM = 256
+DATOS = Path(__file__).resolve().parent / "datos"
+
+
+def vector_de(texto: str) -> list[float]:
+    """Hash de palabras a un vector normalizado: el embedding de juguete."""
+    v = [0.0] * DIM
+    for palabra in re.findall(r"[a-záéíóúüñ0-9]+", texto.lower()):
+        h = int(hashlib.md5(palabra.encode("utf-8")).hexdigest(), 16)
+        v[h % DIM] += 1.0 + (h % 7) / 7.0
+    norma = math.sqrt(sum(x * x for x in v)) or 1.0
+    return [round(x / norma, 6) for x in v]
+
+
+def pildoras_de(texto: str, maximo: int = 700) -> list[str]:
+    """Troceo por párrafos hasta ~maximo caracteres: el chunking de juguete."""
+    pildoras, actual = [], []
+    for parrafo in re.split(r"\\n\\s*\\n", texto):
+        if not parrafo.strip():
+            continue
+        actual.append(parrafo.strip())
+        if sum(len(p) for p in actual) >= maximo:
+            pildoras.append("\\n\\n".join(actual))
+            actual = []
+    if actual:
+        pildoras.append("\\n\\n".join(actual))
+    return pildoras
+
+
+def main() -> float:
+    """Ingesta → píldoras → embedding → búsqueda → recall. Devuelve el recall@3."""
+    print("Demo ragcooking — datos y embedding de demostración, sin claves")
+    documentos = sorted((DATOS / "corpus").glob("*.md"))
+    corpus = {}
+    for ruta in documentos:
+        for i, pildora in enumerate(pildoras_de(ruta.read_text(encoding="utf-8"))):
+            corpus[f"{ruta.stem}-{i}"] = (ruta.stem, pildora)
+    print(f"corpus: {len(documentos)} documentos → {len(corpus)} píldoras")
+    vectores = {pid: vector_de(texto) for pid, (_, texto) in corpus.items()}
+    print("embedding: 100% (hash de demostración)")
+
+    dataset = json.loads((DATOS / "dataset.json").read_text(encoding="utf-8"))
+    k, aciertos = 3, 0
+    for caso in dataset["consultas"]:
+        qv = vector_de(caso["consulta"])
+        ranking = sorted(corpus, key=lambda pid: -sum(a * b for a, b in zip(qv, vectores[pid])))[:k]
+        cita = any(corpus[pid][0] == caso["debe_citar"] for pid in ranking)
+        aciertos += cita
+        print(f"\\n«{caso['consulta']}»")
+        for pid in ranking:
+            fuente, texto = corpus[pid]
+            print(f"  [{fuente}] {texto[:76].replace(chr(10), ' ')}…")
+        print(f"  {'✓ cita' if cita else '✗ NO cita'} a {caso['debe_citar']}")
+    recall = aciertos / len(dataset["consultas"])
+    print(f"\\nrecall@{k} = {recall:.2f} sobre {len(dataset['consultas'])} consultas firmadas")
+    print("Números de demostración: el corpus de verdad es el tuyo.")
+    return recall
+
+
+if __name__ == "__main__":
+    main()
+`;
+
+const TEST_DEMO = `"""Puerta de salida del andamiaje: la demo corre y cita lo que debe."""
+import io
+from contextlib import redirect_stdout
+
+import demo
+
+
+def test_la_demo_corre_y_recuerda():
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        recall = demo.main()
+    assert recall >= 2 / 3, "la demo debe citar al menos 2 de las 3 consultas firmadas"
+    assert "recall@" in buffer.getvalue()
+`;
+
+const CI_YML = `# La puerta del andamiaje: la demo corre en cada cambio, sin claves
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      - run: pytest -q
+`;
+
 /* ---------- generador python ---------- */
 function generarPython(receta: Receta): { name: string; content: string }[] {
   const deps = new Set<string>(); const envs = new Set<string>();
@@ -151,6 +319,12 @@ function generarPython(receta: Receta): { name: string; content: string }[] {
         f.env.forEach((e) => envs.add(e));
         secciones.push(`\n# [${nombre}]${b.comment ? `  # 📝 ${b.comment}` : ''}`);
         secciones.push(f.body.replace(/__PILDORA__/g, String(b.config?.pildora || 512)));
+      } else if (b.grupoId && FICHAS_GRUPO[b.grupoId]) {
+        const f = FICHAS_GRUPO[b.grupoId];
+        f.deps.forEach((d) => deps.add(d));
+        f.env.forEach((e) => envs.add(e));
+        secciones.push(`\n# [${nombre}]${b.comment ? `  # 📝 ${b.comment}` : ''}`);
+        secciones.push(f.body);
       } else if (b.grupoId) {
         const g = grupoById(b.grupoId);
         secciones.push(`\n# [${nombre}] — conjunto «${g?.nombre}»: en Python se integra vía su librería (ver su documentación).`);
@@ -183,12 +357,25 @@ function generarPython(receta: Receta): { name: string; content: string }[] {
   const files: { name: string; content: string }[] = [];
   files.push({ name: 'README.md', content: `# ${receta.name}
 
-Esqueleto generado por **ragcooking.info** el ${new Date().toISOString().slice(0, 10)} — lenguaje: Python.
+Ejemplo generado por **ragcooking.info** el ${new Date().toISOString().slice(0, 10)} — lenguaje: Python.
 
 ## La receta
 ${pasos}
 
-## Puesta en marcha
+## Modo demo — sin claves, en un minuto
+
+\`\`\`bash
+python demo.py     # la receta, sobre datos/ de ejemplo, sin API ni dependencias
+pytest -q          # la puerta de salida: la demo corre y cita lo que debe
+\`\`\`
+
+Los datos y las métricas del demo son **de demostración**: existen para ver el
+pipeline vivo de punta a punta. El corpus de verdad es el tuyo — sustituye
+datos/corpus/ y firma tu propio datos/dataset.json; entonces los números son
+los de tu sistema.
+
+## Tu sistema de verdad
+
 \`\`\`bash
 python -m venv .venv && . .venv/bin/activate  # (Windows: .venv\\Scripts\\activate)
 pip install -r requirements.txt
@@ -198,8 +385,22 @@ python pipeline.py
 
 > Esqueleto para empezar: las secciones TODO marcan donde falta tu criterio.
 ` });
-  files.push({ name: 'requirements.txt', content: [...deps].sort().map((d) => `${d}>=1` ).join('\n') + '\n' });
+  const MINIMOS: Record<string, string> = {
+    'pypdf': '4.2', 'markdown': '3.5', 'beautifulsoup4': '4.12', 'requests': '2.31',
+    'pytesseract': '0.3', 'pillow': '10.3', 'chromadb': '0.5', 'pgvector': '0.3',
+    'qdrant-client': '1.11', 'sentence-transformers': '3.0', 'openai': '1.35',
+    'llama-index': '0.11', 'langchain': '0.2', 'langchain-community': '0.2',
+    'langchain-openai': '0.1', 'langchain-text-splitters': '0.2', 'haystack-ai': '2.3',
+    'azure-search-documents': '11.5', 'azure-identity': '1.16', 'elasticsearch': '8.14',
+  };
+  files.push({ name: 'requirements.txt', content: [...deps].sort().map((d) => `${d}>=${MINIMOS[d] || '1'}`).join('\n') + '\n' });
+  files.push({ name: 'requirements-dev.txt', content: 'pytest>=8\n' });
   files.push({ name: '.env.example', content: [...envs].sort().join('\n') + '\n' });
+  files.push({ name: 'demo.py', content: DEMO_PY });
+  files.push({ name: 'datos/dataset.json', content: DEMO_DATASET });
+  for (const doc of DEMO_CORPUS) files.push(doc);
+  files.push({ name: 'tests/test_demo.py', content: TEST_DEMO });
+  files.push({ name: '.github/workflows/ci.yml', content: CI_YML });
   files.push({
     name: 'pipeline.py',
     content: `"""${receta.name} — esqueleto generado por ragcooking.info (Python).
@@ -246,8 +447,7 @@ export function generarCodigo(receta: Receta, lang: string): { name: string; con
   return lang === 'dotnet' ? generarDotnet(receta) : generarPython(receta);
 }
 
-/* ---------- mini-zip (STORE, sin dependencias) ---------- */
-const CRC_TABLA = (() => {
+/* ---------- mini-zip (STORE, sin dependencias) ---------- */const CRC_TABLA = (() => {
   const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
@@ -262,7 +462,7 @@ const crc32 = (buf: Uint8Array) => {
   return (c ^ 0xffffffff) >>> 0;
 };
 const enc = new TextEncoder();
-export function crearZip(files: { name: string; content: string }[]): Blob {
+export function crearZipBytes(files: { name: string; content: string }[]): Uint8Array {
   const datos = files.map((f) => ({ name: enc.encode(f.name), body: enc.encode(f.content) }));
   let total = 0; for (const d of datos) total += 30 + d.name.length + d.body.length + 46 + d.name.length;
   const out = new Uint8Array(total + 22);
@@ -291,7 +491,11 @@ export function crearZip(files: { name: string; content: string }[]): Blob {
   dv.setUint32(off, 0x06054b50, true);
   dv.setUint16(off + 8, centrales.length, true); dv.setUint16(off + 10, centrales.length, true);
   dv.setUint32(off + 12, off - inicioCentral, true); dv.setUint32(off + 16, inicioCentral, true);
-  return new Blob([out], { type: 'application/zip' });
+  return out;
+}
+
+export function crearZip(files: { name: string; content: string }[]): Blob {
+  return new Blob([crearZipBytes(files)], { type: 'application/zip' });
 }
 
 export const nombreZip = (receta: Receta, lang: string) => `${slug(receta.name)}-${lang}.zip`;

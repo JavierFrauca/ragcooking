@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { TEMPLATES } from '../data/templates';
+const B = import.meta.env.BASE_URL;
+---
+
+<BaseLayout titulo="Ejemplos completos · ragcooking.info">
+  <main class="pagina">
+    <span
+      class="kicker"
+      style="font:600 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--pimenton)"
+      >los ejemplos</span
+    >
+    <h1 style="margin:8px 0 6px">Descarga un ejemplo completo. Pruébalo en un minuto.</h1>
+    <p style="max-width:720px">
+      Cada receta baja como proyecto Python completo: el <b>pipeline con sus piezas</b>, datos de
+      ejemplo con <b>modo demo sin claves</b> (<code>python demo.py</code>), la puerta de salida
+      (<code>pytest -q</code>) y su CI. Ábrela después en la cocina para ajustarla a tu caso.
+    </p>
+
+    <div class="cartones">
+      {
+        TEMPLATES.map((t) => (
+          <div class="carton">
+            <h3>{t.nombre}</h3>
+            <p>{t.desc}</p>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">
+              <span class="chip mega">{t.fasesActivas.length} fases · {t.bloques.length} piezas</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+              <a class="btn primario" href={`${B}ejemplos/${t.id}.zip`}>Descargar ejemplo (.zip)</a>
+              <a class="btn" href={`${B}constructor?template=${t.id}`}>Abrir en la cocina</a>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <p style="max-width:720px;margin-top:26px;font-size:13.5px">
+      Los datos y las métricas del demo son <b>de demostración</b>: sirven para ver el pipeline
+      vivo de punta a punta. El corpus de verdad es el tuyo — sustituye <code>datos/</code> y firma
+      tu propio <code>dataset.json</code>.
+    </p>
+  </main>
+</BaseLayout>

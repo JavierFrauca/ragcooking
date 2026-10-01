@@ -1,0 +1,18 @@
+{
+  "id": "todo-local",
+  "nombre": "Todo local: cero claves, cero facturas",
+  "desc": "El corpus nunca sale de la máquina: PDFs a Markdown, BGE-M3 en el portátil, Chroma en un fichero y plantilla de citas. La única factura es tu electricidad.",
+  "fasesActivas": ["corpus", "ingesta", "formato", "chunking", "metaetiquetado", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "corpus.carpeta-pdf" },
+    { "pieza": "ingesta.lectores-pdf" },
+    { "pieza": "formato.a-markdown" },
+    { "pieza": "chunking.fijo" },
+    { "pieza": "metaetiquetado.por-frontmatter" },
+    { "pieza": "embedding.bge-m3" },
+    { "pieza": "almacenamiento.chroma" },
+    { "pieza": "recuperacion.densa" },
+    { "pieza": "generacion.plantilla-citas" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}

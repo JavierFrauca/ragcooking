@@ -1,0 +1,12 @@
+{
+  "id": "langchain-rag-clasico",
+  "nombre": "LangChain: el RAG clásico",
+  "desc": "El pipeline canónico de LangChain con fuentes declaradas y Chroma persistente: scrapes de páginas web, troceo recursivo, OpenAI y la cadena de recuperación con citas.",
+  "fasesActivas": ["corpus", "ingesta", "chunking", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "corpus.paginas-web" },
+    { "pieza": "ingesta.scraper" },
+    { "grupo": "grupo.langchain" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}

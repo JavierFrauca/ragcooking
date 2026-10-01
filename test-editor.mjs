@@ -126,7 +126,7 @@ check((porId['#modal-fondo'] || {}).innerHTML.includes('ragkit'), 'doble clic en
 // recetas base
 await click('#btn-templates');
 check((porId['#modal-fondo'] || {}).innerHTML.includes('LangGraph'), 'el recetario incluye la receta agéntica con LangGraph');
-check(((porId['#modal-fondo'] || {}).innerHTML.match(/data-template=/g) || []).length === 5, 'cinco recetas base registradas');
+check(((porId['#modal-fondo'] || {}).innerHTML.match(/data-template=/g) || []).length === 12, 'doce recetas base registradas');
 
 // bloque de framework
 check(($('#marcas-rail') || { innerHTML: '' }).innerHTML.includes('marca-grupo') || true, 'bloque de framework presente');

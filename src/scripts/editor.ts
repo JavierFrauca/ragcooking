@@ -809,7 +809,10 @@ function abrirTemplates() {
             ${t.bloques.map((b) => `<span class="chip">${esc(piezaById(b.pieza || '')?.nombre || grupoById(b.grupo || '')?.nombre || '?')}</span>`).join('')}
           </div>
         </div>
-        <button class="btn primario" data-template="${t.id}">Usar</button>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
+          <button class="btn primario" data-template="${t.id}">Usar</button>
+          <a class="btn mini" href="/ejemplos/${t.id}.zip">ejemplo .zip</a>
+        </div>
       </div>`).join('')}`);
 }
 

@@ -1,0 +1,17 @@
+{
+  "id": "soporte-tecnico",
+  "nombre": "Soporte técnico: la web como corpus",
+  "desc": "Scraping de documentación online, troceo semántico, prefiltro por metadata antes de fusionar y generación con LLM: el RAG de un equipo de soporte que responde con la doc fresca.",
+  "fasesActivas": ["corpus", "ingesta", "limpieza", "chunking", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "corpus.paginas-web" },
+    { "pieza": "ingesta.scraper" },
+    { "pieza": "limpieza.deduplicacion" },
+    { "pieza": "chunking.semantico" },
+    { "pieza": "embedding.openai-3-small" },
+    { "pieza": "almacenamiento.chroma" },
+    { "pieza": "recuperacion.prefiltro-metadata" },
+    { "pieza": "generacion.llm-generador" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}

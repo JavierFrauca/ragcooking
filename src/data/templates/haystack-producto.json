@@ -1,0 +1,12 @@
+{
+  "id": "haystack-producto",
+  "nombre": "Haystack: pipelines explícitos",
+  "desc": "El estilo Haystack 2.x: dos grafos declarados componente a componente (indexación y respuesta), sobre PDFs con OCR. Para quien quiere cada flecha a la vista.",
+  "fasesActivas": ["corpus", "ingesta", "chunking", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "corpus.carpeta-pdf" },
+    { "pieza": "ingesta.ocr" },
+    { "grupo": "grupo.haystack" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}

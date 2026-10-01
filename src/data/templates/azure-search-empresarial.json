@@ -1,0 +1,13 @@
+{
+  "id": "azure-search-empresarial",
+  "nombre": "Azure AI Search: el producto gestionado",
+  "desc": "Índice gestionado con vectores (HNSW), dominios y permisos RBAC/ABAC antes de fusionar: la vía cloud cerrada para organizaciones en Microsoft.",
+  "fasesActivas": ["modelo", "chunking", "embedding", "almacenamiento", "recuperacion", "generacion", "evaluacion"],
+  "bloques": [
+    { "pieza": "modelo.dominios" },
+    { "grupo": "grupo.azure-ai-search" },
+    { "pieza": "metaetiquetado.seguridad" },
+    { "pieza": "recuperacion.rbac-abac" },
+    { "pieza": "evaluacion.dataset-aureo" }
+  ]
+}
