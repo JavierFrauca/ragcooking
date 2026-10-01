@@ -3,6 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { GRUPOS, FASES, PIEZAS, colorDeGrupo } from '../../../data/catalogo';
 import type { Grupo } from '../../../data/catalogo';
 import { TEMPLATES } from '../../../data/templates';
+import { LENGUAJES_ACTIVOS } from '../../../data/lenguajes';
 
 export function getStaticPaths() {
   return GRUPOS.map((g) => ({ params: { id: g.id } }));
@@ -31,7 +32,7 @@ const B = import.meta.env.BASE_URL;
           {g.origin === 'comercial' && <span class="chip">comercial{g.proveedor ? ' · ' + g.proveedor : ''}</span>}
           {g.origin === 'propio' && <span class="chip propio">★ propio · github.com/JavierFrauca</span>}
           {g.origin === 'comunidad' && <span class="chip">open source</span>}
-          {(g.langs || []).map((l) => <span class="chip">🗣 {LANG_LABEL[l]} nativo</span>)}
+          {(g.langs || []).filter((l) => LENGUAJES_ACTIVOS.includes(l)).map((l) => <span class="chip">🗣 {LANG_LABEL[l]} nativo</span>)}
           {g.embeddingExterno && <span class="chip">requiere embedding externo</span>}
           {conflictos.map((r) => <span class="chip" style="border-color:var(--err);color:var(--err)">🚫 incompatible con {r!.nombre} (objetivos distintos)</span>)}
         </div>

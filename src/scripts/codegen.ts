@@ -2,12 +2,14 @@
    ragcooking — generador de código (el coder)
    Convierte una receta en un esqueleto de proyecto descargable:
    - Python para el camino libre y frameworks py
-   - C#/.NET vía ragkit (API real de github.com/JavierFrauca/Ragkit)
+   - C#/.NET vía ragkit (API real de github.com/JavierFrauca/Ragkit) —
+     desactivado de momento (ver src/data/lenguajes.ts)
    Las piezas sin ficha generan secciones TODO honestas.
    Todo es dato: las fichas viven en FICHAS_PY / STARTER_RAGKIT.
    ============================================================ */
 import type { Receta } from './tipos';
 import { piezaById, grupoById, faseById } from '../data/catalogo';
+import { LENGUAJES_ACTIVOS } from '../data/lenguajes';
 
 /* ---------- fichas de código python: un fichero .py por pieza en src/scripts/py ----------
    Convención de cabecera: líneas '# deps:' y '# env:' opcionales; el resto es Python puro.
@@ -104,8 +106,11 @@ function lenguajesRecetaCode(receta: Receta): string[] {
   const conGrupos = receta.bloques.some((b) => b.grupoId);
   const sueltas = receta.bloques.some((b) => !b.grupoId);
   const deGrupos = [...new Set(receta.bloques.filter((b) => b.grupoId).map((b) => grupoById(b.grupoId!)).filter((g): g is NonNullable<typeof g> => !!g).flatMap((g) => g.langs || []))];
-  if (!conGrupos) return receta.bloques.length ? ['py'] : [];
-  return [...new Set([...deGrupos, ...(sueltas ? ['py'] : [])])];
+  const todos = !conGrupos ? (receta.bloques.length ? ['py'] : [])
+    : [...new Set([...deGrupos, ...(sueltas ? ['py'] : [])])];
+  const activos = todos.filter((l) => LENGUAJES_ACTIVOS.includes(l));
+  if (!activos.length && receta.bloques.length) return ['py'];
+  return activos;
 }
 
 export interface LenguajeDisponible { lang: string; label: string; icono: string; pct: number; nota?: string; }

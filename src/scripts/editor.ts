@@ -19,15 +19,18 @@ import type { Pieza, Grupo, Fase, Bloque, Receta } from './tipos';
 const icono = (n: string) => `<i data-lucide="${n}"></i>`;
 
 /* lenguajes nativos: los conjuntos declaran; el camino libre (piezas sueltas) es Python */
+import { LENGUAJES_ACTIVOS } from '../data/lenguajes';
 const LANG_LABEL: Record<string, string> = { py: 'Python', dotnet: 'C# · .NET' };
 const langBadge = (l: string) => l === 'py' ? '🐍 PY' : l === 'dotnet' ? '⚙️ .NET' : l;
-const langsDeGrupo = (g: Grupo | undefined) => (g?.langs || []).map((l) => langBadge(l));
+const langsDeGrupo = (g: Grupo | undefined) => (g?.langs || []).filter((l) => LENGUAJES_ACTIVOS.includes(l)).map((l) => langBadge(l));
 function lenguajesReceta(): string[] {
   const conGrupos = receta.bloques.some((b) => b.grupoId);
   const sueltas = receta.bloques.some((b) => !b.grupoId);
   const deGrupos = [...new Set(receta.bloques.filter((b) => b.grupoId).map((b) => grupoById(b.grupoId!)).filter((g): g is Grupo => !!g).flatMap((g) => g.langs || []))];
-  if (!conGrupos) return receta.bloques.length ? ['py'] : [];
-  return [...new Set([...deGrupos, ...(sueltas ? ['py'] : [])])].map((l) => langBadge(l));
+  const todos = !conGrupos ? (receta.bloques.length ? ['py'] : [])
+    : [...new Set([...deGrupos, ...(sueltas ? ['py'] : [])])];
+  const activos = todos.filter((l) => LENGUAJES_ACTIVOS.includes(l));
+  return (activos.length || !receta.bloques.length ? activos : ['py']).map((l) => langBadge(l));
 }
 function initIconos() { (window as any).lucide?.createIcons(); }
 let toastTimer: any;
@@ -836,7 +839,7 @@ function abrirExport() {
       <button class="btn" id="btn-descargar-json">${icono('download')} Descargar .json</button>
     </div>
     <h3 style="margin-top:18px">Código (esqueleto del proyecto)</h3>
-    <p class="tagline">Tu receta convertida en proyecto inicial. Python para el camino libre; C# · .NET vía ragkit. Las piezas sin ficha generan secciones TODO honestas.</p>
+    <p class="tagline">Tu receta convertida en proyecto inicial. El camino libre es Python. Las piezas sin ficha generan secciones TODO honestas.</p>
     <div class="fila-botones">
       ${lenguajesDisponibles(receta).map((l) => `<button class="btn" data-code-lang="${l.lang}" title="${l.nota}">${l.icono} ${l.label} · ${l.pct}% cubierto</button>`).join('') || '<span class="tagline">Añade piezas a la receta para generar código.</span>'}
     </div>

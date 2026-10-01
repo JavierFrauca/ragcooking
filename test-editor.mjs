@@ -132,7 +132,7 @@ check(((porId['#modal-fondo'] || {}).innerHTML.match(/data-template=/g) || []).l
 check(($('#marcas-rail') || { innerHTML: '' }).innerHTML.includes('marca-grupo') || true, 'bloque de framework presente');
 
 // lenguajes
-check(($('#paleta') || {}).innerHTML.includes('.NET'), 'la paleta muestra el lenguaje nativo de ragkit');
+check(!($('#paleta') || {}).innerHTML.includes('⚙️ .NET'), 'la paleta no ofrece badge de lenguajes desactivados (solo Python de momento)');
 check(($('#canvas') || {}).innerHTML.includes('lang-receta'), 'la cabecera de la receta muestra su lenguaje');
 
 // incompatibilidad
@@ -141,14 +141,16 @@ check($('#canvas').innerHTML.includes('ragkit'), 'ragkit se coloca sin conflicto
 await soltar('grupo:grupo.nucleus', 'almacenamiento');
 check(!$('#canvas').innerHTML.includes('nucleus · chunking'), 'nucleus rechazado con ragkit presente');
 
-// ZIP .NET
+// exportación: solo Python (dotnet desactivado de momento — ver src/data/lenguajes.ts)
 await click('#btn-exportar');
-await click('[data-code-lang]', { codeLang: 'dotnet' });
+const modalHTML = (($('#modal-fondo') || {}).innerHTML) || '';
+check(modalHTML.includes('data-code-lang="py"') && !modalHTML.includes('data-code-lang="dotnet"'), 'la exportación solo ofrece Python');
+await click('[data-code-lang]', { codeLang: 'py' });
 try {
-  writeFileSync('/tmp/ragcook-net.zip', Buffer.from(globalThis.__ultimoZip || new Uint8Array()));
-  const listaNet = execSync('python -m zipfile -l /tmp/ragcook-net.zip').toString();
-  check(/Program\.cs/.test(listaNet) && /RagkitStarter\.csproj/.test(listaNet), 'ZIP .NET válido con Program.cs + csproj');
-} catch (e) { check(false, 'ZIP .NET válido (' + e.message.split('\n')[0] + ')'); }
+  writeFileSync('/tmp/ragcook-py.zip', Buffer.from(globalThis.__ultimoZip || new Uint8Array()));
+  const listaPy = execSync('python -m zipfile -l /tmp/ragcook-py.zip').toString();
+  check(/\.py/.test(listaPy), 'ZIP Python válido con módulos .py');
+} catch (e) { check(false, 'ZIP Python válido (' + e.message.split('\n')[0] + ')'); }
 
 // cocinador IA (llave en mano: solo un botón, el fetch va al proxy)
 await soltar('pieza:almacenamiento.mongodb-atlas', 'almacenamiento');

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { ESTACIONES, FASES, PIEZAS, GRUPOS, colorDeGrupo } from '../data/catalogo';
+import { LENGUAJES_ACTIVOS } from '../data/lenguajes';
 const LANG_MINI: Record<string, string> = { py: 'PY', dotnet: '.NET' };
 const B = import.meta.env.BASE_URL;
 ---
@@ -35,7 +36,7 @@ const B = import.meta.env.BASE_URL;
               <p>{g.tagline}</p>
               <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">
                 <span class="chip mega">{g.variantes.length} variantes · {fasesCubiertas.length} fases</span>
-                {(g.langs || []).map((l) => <span class="chip">{LANG_MINI[l]}</span>)}
+                {(g.langs || []).filter((l) => LENGUAJES_ACTIVOS.includes(l)).map((l) => <span class="chip">{LANG_MINI[l]}</span>)}
                 {g.origin === 'propio' && <span class="chip propio">★ propio</span>}
               </div>
             </a>
